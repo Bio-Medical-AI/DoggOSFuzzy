@@ -1,0 +1,2 @@
+class Fuzzifier:
+    pass

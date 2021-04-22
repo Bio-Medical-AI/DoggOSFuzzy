@@ -1,0 +1,1 @@
+from doggos.induction.information_system import InformationSystem
