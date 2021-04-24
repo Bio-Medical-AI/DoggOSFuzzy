@@ -6,8 +6,8 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 class T2FuzzySet(FuzzySet):
 
-    __umf: Callable
-    __lmf: Callable
+    __umf: Callable[[float], float]
+    __lmf: Callable[[float], float]
     __proba_distribution: Callable
 
     def __call__(self, x: float) -> Tuple[float, float, float]:
