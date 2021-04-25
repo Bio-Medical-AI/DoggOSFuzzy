@@ -25,8 +25,11 @@ def gaussian(mean, sigma, max_value=1):
       >>> gaussian_set = gaussian(0.4, 0.15, 1)
       >>> membership_value = gaussian_set(0.5)
     """
-    mf = lambda value: max_value * np.exp(-(((mean - value) ** 2) / (2 * sigma ** 2)))
-    return mf
+
+    def output_mf(value):
+        return max_value * np.exp(-(((mean - value) ** 2) / (2 * sigma ** 2)))
+
+    return output_mf
 
 
 def sigmoid(offset, magnitude):
@@ -53,8 +56,11 @@ def sigmoid(offset, magnitude):
       >>> sigmoid_set = sigmoid(0.5, -15)
       >>> membership_value = sigmoid_set(0.2)
     """
-    mf = lambda value: 1. / (1. + np.exp(- magnitude * (value - offset)))
-    return mf
+
+    def output_mf(value):
+        return 1. / (1. + np.exp(- magnitude * (value - offset)))
+
+    return output_mf
 
 
 def triangular(l_end, center, r_end, max_value=1):
@@ -83,11 +89,14 @@ def triangular(l_end, center, r_end, max_value=1):
       >>> triangle_set = triangular(0.2, 0.3, 0.7)
       >>> membership_value - triangle_set(0.6)
     """
-    mf = lambda value: np.minimum(1,
-                                  np.maximum(0, ((max_value * (value - l_end) / (center - l_end)) * (value <= center) +
-                                                 ((max_value * ((r_end - value) / (r_end - center))) * (
-                                                             value > center)))))
-    return mf
+
+    def output_mf(value):
+        return np.minimum(1,
+                          np.maximum(0, ((max_value * (value - l_end) / (center - l_end)) * (value <= center) +
+                                         ((max_value * ((r_end - value) / (r_end - center))) * (
+                                                 value > center)))))
+
+    return output_mf
 
 
 def trapezoidal(l_end, l_center, r_center, r_end, max_value=1):
@@ -118,11 +127,14 @@ def trapezoidal(l_end, l_center, r_center, r_end, max_value=1):
       >>> trapezoid_set = trapezoidal(0.2, 0.3, 0.6, 0.7)
       >>> membership_value = trapezoid_set(0.4)
     """
-    mf = lambda value: np.minimum(1, np.maximum(0, (
+
+    def output_mf(value):
+        return np.minimum(1, np.maximum(0, (
                 (((max_value * ((value - l_end) / (l_center - l_end))) * (value <= l_center)) +
                  ((max_value * ((r_end - value) / (r_end - r_center))) * (value >= r_center))) +
                 (max_value * ((value > l_center) * (value < r_center))))))
-    return mf
+
+    return output_mf
 
 
 def linear(a, b, max_value=1):
@@ -149,5 +161,8 @@ def linear(a, b, max_value=1):
       >>> linear_set = linear(4, -1)
       >>> membership_value - linear_set(0.6)
     """
-    mf = lambda value: float(np.minimum((value * a) + b, max_value) if ((value * a) + b) > 0 else 0)
-    return mf
+
+    def output_mf(value):
+        return float(np.minimum((value * a) + b, max_value) if ((value * a) + b) > 0 else 0)
+
+    return output_mf
