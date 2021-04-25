@@ -1,7 +1,8 @@
 import numpy as np
+from typing import Callable
 
 
-def gaussian(mean, sigma, max_value=1):
+def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float], float]:
     """Gaussian membership function
 
     Defines membership function of gaussian distribution shape
@@ -22,17 +23,17 @@ def gaussian(mean, sigma, max_value=1):
 
 
     Example usage:
-      >>> gaussian_set = gaussian(0.4, 0.15, 1)
-      >>> membership_value = gaussian_set(0.5)
+      >>> gaussian_mf = gaussian(0.4, 0.15, 1)
+      >>> membership_value = gaussian_mf(0.5)
     """
 
-    def output_mf(value):
+    def output_mf(value: float) -> float:
         return max_value * np.exp(-(((mean - value) ** 2) / (2 * sigma ** 2)))
 
     return output_mf
 
 
-def sigmoid(offset, magnitude):
+def sigmoid(offset: float, magnitude: float) -> Callable[[float], float]:
     """Sigmoid membership function
 
     Defines membership function of sigmoid shape
@@ -53,17 +54,17 @@ def sigmoid(offset, magnitude):
 
 
     Example usage:
-      >>> sigmoid_set = sigmoid(0.5, -15)
-      >>> membership_value = sigmoid_set(0.2)
+      >>> sigmoid_mf = sigmoid(0.5, -15)
+      >>> membership_value = sigmoid_mf(0.2)
     """
 
-    def output_mf(value):
+    def output_mf(value: float) -> float:
         return 1. / (1. + np.exp(- magnitude * (value - offset)))
 
     return output_mf
 
 
-def triangular(l_end, center, r_end, max_value=1):
+def triangular(l_end: float, center: float, r_end: float, max_value: float = 1) -> Callable[[float], float]:
     """Triangular membership function
 
     Defines membership function of triangular shape
@@ -86,11 +87,11 @@ def triangular(l_end, center, r_end, max_value=1):
 
 
     Example usage:
-      >>> triangle_set = triangular(0.2, 0.3, 0.7)
-      >>> membership_value - triangle_set(0.6)
+      >>> triangle_mf = triangular(0.2, 0.3, 0.7)
+      >>> membership_value - triangle_mf(0.6)
     """
 
-    def output_mf(value):
+    def output_mf(value: float) -> float:
         return np.minimum(1,
                           np.maximum(0, ((max_value * (value - l_end) / (center - l_end)) * (value <= center) +
                                          ((max_value * ((r_end - value) / (r_end - center))) * (
@@ -99,7 +100,8 @@ def triangular(l_end, center, r_end, max_value=1):
     return output_mf
 
 
-def trapezoidal(l_end, l_center, r_center, r_end, max_value=1):
+def trapezoidal(l_end: float, l_center: float, r_center: float, r_end: float, max_value: float = 1) -> Callable[[float],
+                                                                                                                float]:
     """Triangular membership function
 
     Defines membership function of trapezoidal shape
@@ -124,11 +126,11 @@ def trapezoidal(l_end, l_center, r_center, r_end, max_value=1):
 
 
     Example usage:
-      >>> trapezoid_set = trapezoidal(0.2, 0.3, 0.6, 0.7)
-      >>> membership_value = trapezoid_set(0.4)
+      >>> trapezoid_mf = trapezoidal(0.2, 0.3, 0.6, 0.7)
+      >>> membership_value = trapezoid_mf(0.4)
     """
 
-    def output_mf(value):
+    def output_mf(value: float) -> float:
         return np.minimum(1, np.maximum(0, (
                 (((max_value * ((value - l_end) / (l_center - l_end))) * (value <= l_center)) +
                  ((max_value * ((r_end - value) / (r_end - r_center))) * (value >= r_center))) +
@@ -137,7 +139,7 @@ def trapezoidal(l_end, l_center, r_center, r_end, max_value=1):
     return output_mf
 
 
-def linear(a, b, max_value=1):
+def linear(a: float, b: float, max_value: float = 1) -> Callable[[float], float]:
     """Linear membership function
 
     Defines linear membership function.
@@ -158,11 +160,11 @@ def linear(a, b, max_value=1):
 
 
     Example usage:
-      >>> linear_set = linear(4, -1)
-      >>> membership_value - linear_set(0.6)
+      >>> linear_mf = linear(4, -1)
+      >>> membership_value - linear_mf(0.6)
     """
 
-    def output_mf(value):
+    def output_mf(value: float) -> float:
         return float(np.minimum((value * a) + b, max_value) if ((value * a) + b) > 0 else 0)
 
     return output_mf
