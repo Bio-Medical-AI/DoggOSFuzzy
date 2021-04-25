@@ -2,8 +2,9 @@ from typing import Sequence, Tuple
 
 
 class Domain:
-    def __init__(self, domain: Sequence[Tuple[float, ...] or float], precision: float):
-        self.__domain = domain
+    def __init__(self, min_value: float, max_value: float, precision: float):
+        self.__min_value = min_value
+        self.__max_value = max_value
         self.__precision = precision
 
     @property
@@ -11,12 +12,18 @@ class Domain:
         pass
 
     @property
-    def domain(self):
+    def domain(self) -> Sequence[float]:
+        """
+        Creates sequence matching given range and precision
+        :return:
+        """
         pass
 
+    @property
     def min(self):
         pass
 
+    @property
     def max(self):
         pass
 
