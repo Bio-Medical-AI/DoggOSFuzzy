@@ -4,7 +4,7 @@ from typing import Callable, Tuple, NoReturn
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 
-class T2FuzzySet(FuzzySet):
+class Type2FuzzySet(FuzzySet):
 
     __umf: Callable[[float], float]
     __lmf: Callable[[float], float]

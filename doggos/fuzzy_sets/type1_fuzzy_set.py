@@ -5,14 +5,14 @@ from typing import Callable, NoReturn
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 
-class T1FuzzySet(FuzzySet):
+class Type1FuzzySet(FuzzySet):
     """
     Class used to represent a fuzzy set type I:
     https://en.wikipedia.org/wiki/Fuzzy_set
 
     Attributes
     --------------------------------------------
-    __mf : Callable[[float], float]
+    __membership_function : Callable[[float], float]
         membership function, determines the degree of belonging to a fuzzy set
 
     Methods
@@ -23,7 +23,7 @@ class T1FuzzySet(FuzzySet):
     Examples:
     --------------------------------------------
     Creating simple fuzzy set type I and calculate degree of belonging
-    >>> fuzzy_set = T1FuzzySet(lambda x: 0 if x < 0 else 1)
+    >>> fuzzy_set = Type1FuzzySet(lambda x: 0 if x < 0 else 1)
     >>> fuzzy_set(2)
     1
 
@@ -32,22 +32,22 @@ class T1FuzzySet(FuzzySet):
     >>> def sigmoid(x):
     ...    return 1 / (1 + np.exp(-x))
     ...
-    >>> fuzzy_set = T1FuzzySet(sigmoid)
+    >>> fuzzy_set = Type1FuzzySet(sigmoid)
     >>> fuzzy_set(2.5)
     0.9241
     """
 
-    __mf: Callable[[float], float]
+    __membership_function: Callable[[float], float]
 
-    def __init__(self, mf: Callable[[float], float]):
+    def __init__(self, membership_function: Callable[[float], float]):
         """
         Create fuzzy set with given membership function.
         Membership function should return values from range [0, 1], but it is not required in our library.
-        :param mf: membership function of a set
+        :param membership_function: membership function of a set
         """
-        if not callable(mf):
+        if not callable(membership_function):
             raise ValueError('Membership function must be callable')
-        self.__mf = mf
+        self.__membership_function = membership_function
 
     def __call__(self, x: float) -> float:
         """
@@ -55,23 +55,23 @@ class T1FuzzySet(FuzzySet):
         :param x: element of domain
         :return: degree of belonging of an element
         """
-        return self.__mf(x)
+        return self.__membership_function(x)
 
     @property
-    def mf(self) -> Callable[[float], float]:
+    def membership_function(self) -> Callable[[float], float]:
         """
         Getter of the membership function
         :return: membership function
         """
-        return self.__mf
+        return self.__membership_function
 
-    @mf.setter
-    def mf(self, mf: Callable[[float], float]) -> NoReturn:
+    @membership_function.setter
+    def membership_function(self, new_membership_function: Callable[[float], float]) -> NoReturn:
         """
         Sets new membership function
-        :param mf: new membership function
+        :param new_membership_function: new membership function
         :return: NoReturn
         """
-        if not callable(mf):
+        if not callable(new_membership_function):
             raise ValueError('Membership function must be callable')
-        self.__mf = mf
+        self.__membership_function = new_membership_function
