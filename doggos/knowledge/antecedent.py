@@ -31,7 +31,7 @@ class Antecedent:
 
     def calculate_firing_interval(self, features: Dict[str, float]) -> Tuple[float, ...] or float:
         """
-        Method provides firing interval calculation.
+        Method provides firing calculation.
 
         :param features: 
         :return: firing interval

@@ -1,5 +1,5 @@
 from typing import Tuple, NoReturn
-
+import numpy as np
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
@@ -54,13 +54,22 @@ class Clause:
         self.__lingustic_variable = linguistic_variable
         self.__gradiation_adjective = gradiation_adjective
         self.__fuzzy_set = fuzzy_set
+        self.__values = self._calculate_values()
 
     def get_value(self, x: float) -> Tuple[float, ...] or float:
         """
-        Returns 
+        TODO
         :param x:
         """
-        pass
+        return self._find_index(x)
+    
+    def _calculate_values(self):
+        return np.array(self.fuzzy_set(self.linguistic_variable.domain()))
+    
+    def _find_index(self, x):
+        if x > self.linguistic_variable.domain.max or x < self.linguistic_variable.domain.min:
+            raise ValueError('There is no such value in the domain')
+        return np.round((self.linguistic_variable.domain.max - self.linguistic_variable.domain.min)/self.linguistic_variable.precision)
     
     @property
     def linguistic_variable(self) -> LinguisticVariable:

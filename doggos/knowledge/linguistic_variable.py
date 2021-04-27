@@ -42,13 +42,12 @@ class Domain:
         """
         return self.__precision
 
-    @property
-    def domain(self) -> Sequence[float]:
+    def __call__(self) -> Sequence[float]:
         """
         Creates sequence matching given range and precision.
         :return: domain as sequence of floats
         """
-        return np.arange(self.min, self.max, self.precision)
+        return np.linspace(self.min, self.max, self.precision)
 
     @property
     def min(self) -> float:
@@ -93,12 +92,11 @@ class LinguisticVariable:
         self.__name = name
         self.__domain = domain
 
-    def __call__(self, x: float) -> Tuple[float, ...] or float:
-        """
-        ???
+    @property
+    def domain(self) -> Domain:
+        """[summary]
 
-        :param x: value in domain
-        :return: corresponding value for given x
+        :return: [description]
+        :rtype: Domain
         """
-        pass
-
+        return self.__domain
