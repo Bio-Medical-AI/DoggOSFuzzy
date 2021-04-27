@@ -15,7 +15,7 @@ class IntervalType2FuzzySet(FuzzySet):
     __upper_membership_function: Callable[[float], float]
         upper membership function, determines the upper membership degree to a fuzzy set
     __lower_membership_function: Callable[[float], float]
-        calculate degree of membership of element to an interval type II fuzzy set
+        lower membership function, determines the lower membership degree to a fuzzy set
 
     Methods
     --------------------------------------------
