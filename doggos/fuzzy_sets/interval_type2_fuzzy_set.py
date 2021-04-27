@@ -70,7 +70,7 @@ class IntervalType2FuzzySet(FuzzySet):
         """
         a, b = self.__lower_membership_function(x), self.__upper_membership_function(x)
         if a > b:
-            raise ValueError('Lower membership function returned higher value than upper membership function')
+            raise AttributeError('Lower membership function returned higher value than upper membership function')
         return a, b
 
     @property
