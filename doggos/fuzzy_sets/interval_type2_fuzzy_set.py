@@ -5,7 +5,7 @@ from typing import Callable, Tuple, NoReturn
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 
-class InternalType2FuzzySet(FuzzySet):
+class IntervalType2FuzzySet(FuzzySet):
     """
     Class used to represent a fuzzy set type II :
     https://en.wikipedia.org/wiki/Fuzzy_set
@@ -25,7 +25,7 @@ class InternalType2FuzzySet(FuzzySet):
     Examples:
     --------------------------------------------
     Creating simple fuzzy set type II and calculate degree of belonging
-    >>> fuzzy_set = InternalType2FuzzySet(lambda x: 0 if x < 0 else 0.2, lambda x: 0 if x < 0 else 1)
+    >>> fuzzy_set = IntervalType2FuzzySet(lambda x: 0 if x < 0 else 0.2, lambda x: 0 if x < 0 else 1)
     >>> fuzzy_set(2)
     (0.2, 1)
 
@@ -37,7 +37,7 @@ class InternalType2FuzzySet(FuzzySet):
     >>>def f2(x):
     ...    return 1
     ...
-    >>> fuzzy_set = InternalType2FuzzySet(f1, f2)
+    >>> fuzzy_set = IntervalType2FuzzySet(f1, f2)
     >>> fuzzy_set(2.5)
     (0.9241, 1)
     """
@@ -66,11 +66,11 @@ class InternalType2FuzzySet(FuzzySet):
         """
         Calculate the degree of belonging (a, b), raises an exception if a > b
         :param x: element of domain
-        :return: degree of belonging of an element as tuple (new_lower_membership_function(x), umf(x))
+        :return: degree of belonging of an element as tuple (lmf(x), umf(x))
         """
         a, b = self.__lower_membership_function(x), self.__upper_membership_function(x)
         if a > b:
-            raise ValueError('Lower membership function return higher value than upper membership function.')
+            raise ValueError('Lower membership function return higher value than upper membership function')
         return a, b
 
     @property
