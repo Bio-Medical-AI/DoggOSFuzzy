@@ -34,7 +34,7 @@ class TestIntervalType2FuzzySet:
         fuzzy_set = IntervalType2FuzzySet(lmf, umf)
         with pytest.raises(ValueError) as e:
             _ = fuzzy_set(x)
-            assert 'Lower membership function return higher value than upper membership function' in str(e.value)
+            assert 'Lower membership function returned higher value than upper membership function' in str(e.value)
 
     @pytest.mark.parametrize('x', _random_sample(-10, 10, 5))
     def test_upper_mf_equal_to_lower_mf_true(self, x):
