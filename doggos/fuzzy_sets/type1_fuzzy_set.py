@@ -3,6 +3,7 @@ from typing import Callable, NoReturn
 
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
+from doggos.fuzzy_sets.membership import MembershipDegreeT1
 
 
 class Type1FuzzySet(FuzzySet):
@@ -13,7 +14,7 @@ class Type1FuzzySet(FuzzySet):
     Attributes
     --------------------------------------------
     __membership_function : Callable[[float], float]
-        membership function, determines the degree of belonging to a fuzzy set
+        membership function, determines degree of membership to a fuzzy set
 
     Methods
     --------------------------------------------
@@ -22,12 +23,12 @@ class Type1FuzzySet(FuzzySet):
 
     Examples:
     --------------------------------------------
-    Creating simple fuzzy set type I and calculate degree of belonging
+    Creating simple type I fuzzy setand calculate degree of belonging
     >>> fuzzy_set = Type1FuzzySet(lambda x: 0 if x < 0 else 1)
     >>> fuzzy_set(2)
     1
 
-    Creating fuzzy set type I using numpy functions
+    Creating type I fuzzy set using numpy functions
     >>> import numpy as np
     >>> def sigmoid(x):
     ...    return 1 / (1 + np.exp(-x))
@@ -41,21 +42,21 @@ class Type1FuzzySet(FuzzySet):
 
     def __init__(self, membership_function: Callable[[float], float]):
         """
-        Create fuzzy set with given membership function.
-        Membership function should return values from range [0, 1], but it is not required in our library.
+        Create type I fuzzy set with given membership function.
+        Membership function should return values from range [0, 1], but it is not required in library.
         :param membership_function: membership function of a set
         """
         if not callable(membership_function):
             raise ValueError('Membership function must be callable')
         self.__membership_function = membership_function
 
-    def __call__(self, x: float) -> float:
+    def __call__(self, x: float) -> MembershipDegreeT1:
         """
-        Calculate the degree of belonging to a fuzzy set for of an element
+        Calculate the degree of membership to a type I fuzzy set for of an element
         :param x: element of domain
         :return: degree of belonging of an element
         """
-        return self.__membership_function(x)
+        return MembershipDegreeT1(self.__membership_function(x))
 
     @property
     def membership_function(self) -> Callable[[float], float]:

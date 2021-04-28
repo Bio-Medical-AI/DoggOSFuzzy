@@ -1,6 +1,7 @@
-from typing import Callable, Tuple, NoReturn
+from typing import Callable, NoReturn
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
+from doggos.fuzzy_sets.membership import MembershipDegreeT2
 
 
 class Type2FuzzySet(FuzzySet):
@@ -9,9 +10,9 @@ class Type2FuzzySet(FuzzySet):
     __proba_distribution: Callable
 
     def __init__(self):
-        raise NotImplementedError
+        raise NotImplementedError()
 
-    def __call__(self, x: float) -> Tuple[float, float, float]:
+    def __call__(self, x: float) -> MembershipDegreeT2:
         pass
 
     @property

@@ -1,6 +1,4 @@
-from typing import Tuple
-
-
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
@@ -11,5 +9,5 @@ class Clause:
     __gradiation_adjectice: str
     __fuzzy_set: FuzzySet
 
-    def get_value(self, x: float) -> Tuple[float, ...] or float:
+    def get_value(self, x: float) -> MembershipDegree:
         pass
