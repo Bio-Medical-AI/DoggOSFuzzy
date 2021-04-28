@@ -7,7 +7,7 @@ from doggos.knowledge.consequents.consequent import Consequent
 
 class Rule:
     def __init__(self, antecedent: Antecedent, consequent: Consequent):
-        self.__firing_value: MembershipDegree or None = None
+        self.__firing_value: MembershipDegree = None
         self.__rule_output: List[MembershipDegree] or float = None
         self.__antecedent = antecedent
         self.__consequent = consequent
