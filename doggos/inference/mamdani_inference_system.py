@@ -11,9 +11,9 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def calculate_output(self, features: Dict[str, float], method: str) -> float:
         rule_outputs = [rule.calculate_rule(features) for rule in self.__rule_base]
-        universe = self.__rule_base[0].domain()
 
         if method == "karnik_mendel":
+            universe = self.__rule_base[0].consequent.clause.linguistic_variable.domain()
             lmfs = [output[0] for output in rule_outputs]
             umfs = [output[1] for output in rule_outputs]
             lower_cut = self.__membership_func_union(lmfs)
@@ -31,7 +31,7 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __karnik_mendel(self, lmf: np.ndarray, umf: np.ndarray, universe: Sequence[float]):
         def find_k(c: float):
-            return np.where(universe_arr >= c)[0] - 1
+            return np.where(universe_arr <= c)[0][-1]
 
         def find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray):
             k = find_k(c)
