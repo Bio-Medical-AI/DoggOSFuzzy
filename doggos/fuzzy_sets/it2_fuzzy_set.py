@@ -1,14 +1,15 @@
-from typing import Callable, Tuple, NoReturn
+from typing import Callable, NoReturn
 
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
+from doggos.fuzzy_sets.MembershipDegree.membership_degree_it2 import MembershipDegreeIT2
 
 
 class IT2FuzzySet(FuzzySet):
     __umf: Callable
     __lmf: Callable
 
-    def __call__(self, x: float) -> Tuple[float, float]:
+    def __call__(self, x: float) -> MembershipDegreeIT2:
         pass
 
     @property

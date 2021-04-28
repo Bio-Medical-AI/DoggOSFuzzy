@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Tuple
+
+from doggos.fuzzy_sets.MembershipDegree.membership_degree import MembershipDegree
 
 
 class FuzzySet(ABC):
 
     @abstractmethod
-    def __call__(self, x: float) -> Tuple[float, ...] or float:
+    def __call__(self, x: float) -> MembershipDegree:
         pass
 

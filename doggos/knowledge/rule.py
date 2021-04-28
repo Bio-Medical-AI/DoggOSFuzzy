@@ -1,12 +1,14 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
+
+from doggos.fuzzy_sets.MembershipDegree.membership_degree import MembershipDegree
 from doggos.knowledge import Antecedent
 from doggos.knowledge.consequents.consequent import Consequent
 
 
 class Rule:
     def __init__(self, antecedent: Antecedent, consequent: Consequent):
-        self.__firing_value: Tuple[float, ...] = None
-        self.__rule_output: float = None
+        self.__firing_value: MembershipDegree or None = None
+        self.__rule_output: Tuple[List[float]] or List[float] = None
         self.__antecedent = antecedent
         self.__consequent = consequent
 
@@ -18,5 +20,5 @@ class Rule:
     def consequent(self) -> Consequent:
         pass
 
-    def calculate_rule(self, features: Dict[str, float]) -> Tuple[float, ...] or float:
+    def output(self, features: Dict[str, float]) -> Tuple[List[float]] or List[float]:
         pass
