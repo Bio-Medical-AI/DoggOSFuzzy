@@ -1,9 +1,8 @@
-from typing import Tuple, NoReturn
-import numpy as np
-
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
+import numpy as np
 
 class Clause:
     """
@@ -31,6 +30,7 @@ class Clause:
     >>> ling_var = LinguisticVariable('Temperature', domain)
     >>> f_set = T1FuzzySet(lambda x: 0 if x < 0 else 1)
     >>> clause = Clause(ling_var, 'Medium', f_set)
+    >>> clause.get_value(1.2)
     
     """
 
@@ -56,10 +56,10 @@ class Clause:
         self.__fuzzy_set = fuzzy_set
         self.__values = self._calculate_values()
 
-    def get_value(self, x: float) -> Tuple[float, ...] or float:
+    def get_value(self, x: float) -> MembershipDegree:
         """
-        TODO
-        :param x:
+        returns a value representing degree of belonging to a fuzzy set
+        :param x: degree of belonging
         """
         return self._find_index(x)
     

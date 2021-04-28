@@ -1,5 +1,6 @@
-from typing import Dict, Tuple, Sequence
+from typing import Dict, Sequence
 from doggos.algebras.algebra import Algebra
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 from doggos.knowledge import Clause
 
 
@@ -29,11 +30,5 @@ class Antecedent:
         self.__clauses = clauses
         self.__algebra = algebra
 
-    def calculate_firing_interval(self, features: Dict[str, float]) -> Tuple[float, ...] or float:
-        """
-        Method provides firing calculation.
-
-        :param features:
-        :return: firing interval
-        """
+    def firing(self, features: Dict[str, float]) -> MembershipDegree:
         pass

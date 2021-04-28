@@ -1,8 +1,7 @@
-from typing import Tuple
-
 from doggos.knowledge.consequents.consequent import Consequent
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 
 
 class TakagiSugenoConsequent(Consequent):
-    def calculate_cut(self) -> Tuple[float, ...] or float:
+    def output(self, rule_firing: MembershipDegree) -> float:
         pass
