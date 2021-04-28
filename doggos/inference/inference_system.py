@@ -10,5 +10,5 @@ class InferenceSystem(ABC):
     __rule_base: List[Rule]
 
     @abstractmethod
-    def calculate_output(self) -> float:
+    def output(self) -> float:
         pass

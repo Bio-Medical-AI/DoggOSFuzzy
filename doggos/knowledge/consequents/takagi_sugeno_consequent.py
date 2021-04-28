@@ -1,7 +1,7 @@
-from typing import Tuple, List
-import numpy as np
+from typing import List, Tuple
 
 from doggos.knowledge.consequents.consequent import Consequent
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 
 
 class TakagiSugenoConsequent(Consequent):
@@ -27,7 +27,8 @@ class TakagiSugenoConsequent(Consequent):
 
         """
 
-    def calculate_cut(self, rule_firing: Tuple[float, ...] or float) -> Tuple[List[float]] or List[float]:
+
+    def output(self, rule_firing: MembershipDegree) -> float:
         pass
 
     def __init__(self, function_parameters: List[float]):
