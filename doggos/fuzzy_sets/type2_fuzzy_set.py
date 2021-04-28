@@ -1,14 +1,12 @@
 from typing import Callable, NoReturn
 
-
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.fuzzy_sets.membership import MembershipDegreeT2
 
 
 class Type2FuzzySet(FuzzySet):
-
-    __umf: Callable
-    __lmf: Callable
+    __umf: Callable[[float], float]
+    __lmf: Callable[[float], float]
     __proba_distribution: Callable
 
     def __init__(self):

@@ -8,7 +8,8 @@ from doggos.fuzzy_sets.membership import MembershipDegreeIT2
 
 class IntervalType2FuzzySet(FuzzySet):
     """
-    Class used to represent a fuzzy set type II:
+    Class used to represent a interval type II fuzzy set :
+
     https://en.wikipedia.org/wiki/Fuzzy_set
 
     Attributes
@@ -65,14 +66,16 @@ class IntervalType2FuzzySet(FuzzySet):
 
     def __call__(self, x: float) -> MembershipDegreeIT2:
         """
-        Calculate membership degree (a, b), raises an exception if a > b
+        Calculate the degree of belonging (lower_membership, upper_membership),
+        raises an exception if lower_membership > upper_membership
+
         :param x: element of domain
         :return: membership degree of an element as tuple (lmf(x), umf(x))
         """
-        a, b = self.__lower_membership_function(x), self.__upper_membership_function(x)
-        if a > b:
-            raise AttributeError('Lower membership function returned higher value than upper membership function')
-        return MembershipDegreeIT2((a, b))
+        lower_membership, upper_membership = self.__lower_membership_function(x), self.__upper_membership_function(x)
+        if lower_membership > upper_membership:
+            raise ValueError('Lower membership function returned higher value than upper membership function')
+        return MembershipDegreeIT2((lower_membership, upper_membership))
 
     @property
     def upper_membership_function(self) -> Callable[[float], float]:

@@ -8,7 +8,7 @@ from doggos.fuzzy_sets.membership import MembershipDegreeT1
 
 class Type1FuzzySet(FuzzySet):
     """
-    Class used to represent a fuzzy set type I:
+    Class used to represent a type I fuzzy set:
     https://en.wikipedia.org/wiki/Fuzzy_set
 
     Attributes
@@ -19,7 +19,7 @@ class Type1FuzzySet(FuzzySet):
     Methods
     --------------------------------------------
     __call__(x: float) -> float
-        calculate the degree of belonging to a fuzzy set of an element
+        calculate degree of membership of element to a fuzzy set
 
     Examples:
     --------------------------------------------
@@ -54,7 +54,7 @@ class Type1FuzzySet(FuzzySet):
         """
         Calculate the degree of membership to a type I fuzzy set for of an element
         :param x: element of domain
-        :return: degree of belonging of an element
+        :return: degree of membership of an element
         """
         return MembershipDegreeT1(self.__membership_function(x))
 
