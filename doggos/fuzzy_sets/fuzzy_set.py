@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from doggos.fuzzy_sets.degree.membership_degree import MembershipDegree
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 
 
 class FuzzySet(ABC):
