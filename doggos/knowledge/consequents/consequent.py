@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Tuple, List
 
-from doggos.fuzzy_sets.MembershipDegree.membership_degree import MembershipDegree
+from doggos.fuzzy_sets.degree.membership_degree import MembershipDegree
 
 
 class Consequent(ABC):

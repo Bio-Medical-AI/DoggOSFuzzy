@@ -2,7 +2,7 @@ from typing import Callable, NoReturn
 
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
-from doggos.fuzzy_sets.MembershipDegree.membership_degree_t1 import MembershipDegreeT1
+from doggos.fuzzy_sets.degree.membership_degree_t1 import MembershipDegreeT1
 
 
 class T1FuzzySet(FuzzySet):

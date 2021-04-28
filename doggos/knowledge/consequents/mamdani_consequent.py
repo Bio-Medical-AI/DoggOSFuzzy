@@ -1,7 +1,7 @@
 from typing import Tuple, List
 
 from doggos.knowledge.consequents.consequent import Consequent
-from doggos.fuzzy_sets.MembershipDegree.membership_degree import MembershipDegree
+from doggos.fuzzy_sets.degree.membership_degree import MembershipDegree
 
 
 class MamdaniConsequent(Consequent):

@@ -1,6 +1,6 @@
 from typing import Dict, Tuple, List
 
-from doggos.fuzzy_sets.MembershipDegree.membership_degree import MembershipDegree
+from doggos.fuzzy_sets.degree.membership_degree import MembershipDegree
 from doggos.knowledge import Antecedent
 from doggos.knowledge.consequents.consequent import Consequent
 
