@@ -11,11 +11,11 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def calculate_output(self, features: Dict[str, float], method: str) -> float:
         rule_outputs = [rule.calculate_rule(features) for rule in self.__rule_base]
-        universe = self.__rule_base[0].domain.domain
+        universe = self.__rule_base[0].domain()
 
         if method == "karnik_mendel":
             lmfs = [output[0] for output in rule_outputs]
-            umfs = [output[0] for output in rule_outputs]
+            umfs = [output[1] for output in rule_outputs]
             lower_cut = self.__membership_func_union(lmfs)
             upper_cut = self.__membership_func_union(umfs)
             return self.__karnik_mendel(lower_cut, upper_cut, universe)
@@ -31,7 +31,7 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __karnik_mendel(self, lmf: np.ndarray, umf: np.ndarray, universe: Sequence[float]):
         def find_k(c: float):
-            return np.where(universe_arr <= c <= universe_arr)
+            return np.where(universe_arr >= c)[0] - 1
 
         def find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray):
             k = find_k(c)
@@ -48,13 +48,8 @@ class MamdaniInferenceSystem(InferenceSystem):
                 c_minute, k = partial_find_c_minute(c_prim)
             return c_minute
 
-        n_functions = 2
-        universe_size = lmf.size
         universe_arr = np.array(universe, dtype=float)
-        footprint = np.zeros(shape=(n_functions, universe_size))
-        footprint[0] = lmf
-        footprint[1] = umf
-        thetas = np.sum(footprint, axis=0) / 2
+        thetas = (lmf + umf) / 2
         y_l = find_y(partial(find_c_minute, under_k_mf=umf, over_k_mf=lmf))
         y_r = find_y(partial(find_c_minute, under_k_mf=lmf, over_k_mf=umf))
         return (y_l + y_r) / 2
