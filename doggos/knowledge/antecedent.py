@@ -10,7 +10,7 @@ class Antecedent:
      ``
      Attributes
     --------------------------------------------
-    __clause : Clause
+    __clauses : Clause
         clause, linguistic variable with corresponding fuzzy set
     __algebta : Algebra
         algebra provides t-norm and s-norm
@@ -33,7 +33,7 @@ class Antecedent:
         """
         Method provides firing calculation.
 
-        :param features: 
+        :param features:
         :return: firing interval
         """
         pass
