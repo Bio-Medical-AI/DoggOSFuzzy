@@ -3,6 +3,7 @@ from typing import Callable, Tuple, NoReturn
 
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
+from doggos.fuzzy_sets.membership import MembershipDegreeIT2
 
 
 class IntervalType2FuzzySet(FuzzySet):
@@ -62,7 +63,7 @@ class IntervalType2FuzzySet(FuzzySet):
         self.__upper_membership_function = upper_membership_function
         self.__lower_membership_function = lower_membership_function
 
-    def __call__(self, x: float) -> Tuple[float, float]:
+    def __call__(self, x: float) -> MembershipDegreeIT2:
         """
         Calculate membership degree (a, b), raises an exception if a > b
         :param x: element of domain
@@ -71,7 +72,7 @@ class IntervalType2FuzzySet(FuzzySet):
         a, b = self.__lower_membership_function(x), self.__upper_membership_function(x)
         if a > b:
             raise AttributeError('Lower membership function returned higher value than upper membership function')
-        return a, b
+        return MembershipDegreeIT2((a, b))
 
     @property
     def upper_membership_function(self) -> Callable[[float], float]:

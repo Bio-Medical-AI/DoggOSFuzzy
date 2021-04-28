@@ -1,0 +1,3 @@
+from doggos.fuzzy_sets.membership.membership_degree_t1 import MembershipDegreeT1
+from doggos.fuzzy_sets.membership.membership_degree_t2 import MembershipDegreeT2
+from doggos.fuzzy_sets.membership.membership_degree_it2 import MembershipDegreeIT2

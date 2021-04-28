@@ -5,11 +5,14 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.fuzzy_sets.membership.membership_degree_t2 import MembershipDegreeT2
 
 
-class T2FuzzySet(FuzzySet):
+class Type2FuzzySet(FuzzySet):
 
     __umf: Callable
     __lmf: Callable
     __proba_distribution: Callable
+
+    def __init__(self):
+        raise NotImplementedError()
 
     def __call__(self, x: float) -> MembershipDegreeT2:
         pass
