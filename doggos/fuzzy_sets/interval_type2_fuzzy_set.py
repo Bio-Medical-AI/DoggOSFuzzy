@@ -7,7 +7,7 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 class IntervalType2FuzzySet(FuzzySet):
     """
-    Class used to represent a fuzzy set type II :
+    Class used to represent a interval type II fuzzy set :
     https://en.wikipedia.org/wiki/Fuzzy_set
 
     Attributes
@@ -64,14 +64,15 @@ class IntervalType2FuzzySet(FuzzySet):
 
     def __call__(self, x: float) -> Tuple[float, float]:
         """
-        Calculate the degree of belonging (a, b), raises an exception if a > b
+        Calculate the degree of belonging (lower_membership, upper_membership),
+        raises an exception if lower_membership > upper_membership
         :param x: element of domain
         :return: degree of belonging of an element as tuple (lmf(x), umf(x))
         """
-        a, b = self.__lower_membership_function(x), self.__upper_membership_function(x)
-        if a > b:
+        lower_membership, upper_membership = self.__lower_membership_function(x), self.__upper_membership_function(x)
+        if lower_membership > upper_membership:
             raise ValueError('Lower membership function return higher value than upper membership function')
-        return a, b
+        return lower_membership, upper_membership
 
     @property
     def upper_membership_function(self) -> Callable[[float], float]:
