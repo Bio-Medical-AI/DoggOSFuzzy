@@ -9,7 +9,7 @@ class MamdaniInferenceSystem(InferenceSystem):
     def __init__(self, rules: List[Rule]):
         self.__rule_base = rules
 
-    def calculate_output(self, features: Dict[str, float], method: str) -> float:
+    def output(self, features: Dict[str, float], method: str) -> float:
         rule_outputs = [rule.calculate_rule(features) for rule in self.__rule_base]
 
         if method == "karnik_mendel":
@@ -53,5 +53,3 @@ class MamdaniInferenceSystem(InferenceSystem):
         y_l = find_y(partial(find_c_minute, under_k_mf=umf, over_k_mf=lmf))
         y_r = find_y(partial(find_c_minute, under_k_mf=lmf, over_k_mf=umf))
         return (y_l + y_r) / 2
-
-
