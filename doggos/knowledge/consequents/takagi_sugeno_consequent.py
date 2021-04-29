@@ -1,7 +1,6 @@
-from typing import List, Tuple
+from typing import List, Callable
 
 from doggos.knowledge.consequents.consequent import Consequent
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 
 
 class TakagiSugenoConsequent(Consequent):
@@ -13,57 +12,42 @@ class TakagiSugenoConsequent(Consequent):
         --------------------------------------------
         __function_parameters : List[float]
             supplies parameters to consequent output function, which takes form y = ax1 + bx2 + ... + c
-
-        __rule_output: float
-            value representing output from consequent function
+        __consequent_output : float
+            represents output of consequent function
 
         Methods
         --------------------------------------------
-        calculate_cut(rule_firing: Tuple[float, ...] or float) -> Tuple[List[float]] or List[float]
-            process rule output with firing strength
+
+        output: float
+            value representing output from calculating consequent function with provided input parameters
 
         Examples:
         --------------------------------------------
-
+        ts = TakagiSugenoConsequent([2, 10, 1])
+        out = ts.output([0, 0])
         """
-
-
-    def output(self, rule_firing: MembershipDegree) -> float:
-        pass
 
     def __init__(self, function_parameters: List[float]):
         """
-        Create Rules Consequent used in Takagi-Sugeno Inference System. Provided Clause holds fuzzy set describing Consequent
-        and Linguistic Variable which value user wants to compute.
-        :param clause: Clause holding fuzzy set and linguistic variable
+        Create Rules Consequent used in Takagi-Sugeno Inference System.
+        :param function_parameters: List[float] of parameters used for calculating output of consequent function
         """
         self.__function_parameters = function_parameters
-        self.__rule_output = None
+        self.__consequent_output = 0
 
-    def calculate_rule_output(self, inputs: List[float]) -> float:
+    def output(self, consequent_input: List[float]) -> float:
         """
         Return rule output level by calculating consequent function with inputs as variables.
-        :param inputs: list of inputs for which rule is triggered.
+        :param consequent_input: inputs of the inference system
         :return: crisp rule output value that needs to be used in aggregation process
         """
-        if len(inputs) == len(self.__function_parameters):
-            for idx, inp in enumerate(inputs):
-                self.__rule_output += self.__function_parameters[idx] * inputs[idx]
-            self.__rule_output += self.__function_parameters[-1]
-            return self.__rule_output
-        else:
-            raise Exception
 
-    def return_rule_result(self, rule_firing: float or Tuple[float, float]) -> Tuple[float, float] or Tuple[float, Tuple[float, float]]:
-        """
-        Return rule output level along with corresponding firing strength
-        :param rule_firing: crisp value or interval, calculated firing strength of the rule
-        :return: crisp rule output and firing strength that needs to be used in aggregation process
-        """
-        if isinstance(rule_firing, float):
-            return self.__rule_output, rule_firing
-        elif isinstance(rule_firing, tuple):
-            if len(rule_firing) == 2:
-                return self.__rule_output, rule_firing
+        if len(consequent_input) == len(self.__function_parameters) - 1:
+            for idx, inp in enumerate(consequent_input):
+                self.__consequent_output += self.__function_parameters[idx] * consequent_input[idx]
+            self.__consequent_output += self.__function_parameters[-1]
+            return self.__consequent_output
         else:
-            raise Exception
+            raise Exception("Number of inputs must be equal to number of parameters minus one!")
+
+
