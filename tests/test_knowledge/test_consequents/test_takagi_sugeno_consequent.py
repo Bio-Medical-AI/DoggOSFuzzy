@@ -21,8 +21,10 @@ class TestTakagiSugenoConsequent:
 
     def test_wrong_inputs(self):
         ts = TakagiSugenoConsequent([1, 2, 3, 4])
-        with pytest.raises(Exception):
+        with pytest.raises(Exception) as e:
             ts.output([1, 2])
+            assert "Number of inputs must be one less than number of consequent parameters!" in str(e.value)
 
-        with pytest.raises(Exception):
+        with pytest.raises(Exception) as e:
             ts.output([1, 2, 3, 4])
+            assert "Number of inputs must be one less than number of consequent parameters!" in str(e.value)
