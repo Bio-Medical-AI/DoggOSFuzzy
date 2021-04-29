@@ -12,7 +12,7 @@ class TestDomain:
     def test_domain_values(self, min_, max_, precision):
         intervals = np.arange(min_, max_, precision)
         domain = Domain(min_, max_, precision)
-        assert domain() == intervals
+        assert np.array_equal(domain(),intervals)
         assert domain.min == min_
         assert domain.max == max_
 
