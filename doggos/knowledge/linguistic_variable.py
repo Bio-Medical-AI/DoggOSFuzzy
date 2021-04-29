@@ -20,7 +20,7 @@ class Domain:
     Methods
     --------------------------------------------
     domain -> Sequence[float]
-        Returns sequence domain's range and precision
+        Returns sequence from assigned intervals and precison
     """
     def __init__(self, min_value: float, max_value: float, precision: float):
         """
@@ -45,7 +45,7 @@ class Domain:
 
     def __call__(self) -> Sequence[float]:
         """
-        Creates sequence matching given range and precision.
+        Creates sequence matching given range and precision
         :return: domain as sequence of floats
         """
         return np.arange(self.min, self.max, self.precision)
@@ -85,7 +85,7 @@ class LinguisticVariable:
     """
     def __init__(self, name: str, domain: Domain):
         """
-        Creates linguistic variable with given name and domain.
+        Creates linguistic variable with given name and domain
 
         :param name: name of linguistic variable
         :param domain: domain 

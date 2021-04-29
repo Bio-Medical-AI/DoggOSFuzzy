@@ -9,7 +9,7 @@ from typing import NoReturn, Sequence
 class Clause:
     """
     Class representing a clause.
-    Clause is a pair of linguistic variable and fuzzy set.
+    Clause is a pair of linguistic variable and fuzzy set:
     https://en.wikipedia.org/wiki/Fuzzy_set
     
     Attributes
@@ -19,7 +19,7 @@ class Clause:
     __gradiation_adjective : str
         gradiation adjective, string representation of belonging level
     __fuzzy_set : FuzzySet
-        fuzzy set 
+        fuzzy set provides its memebership function
         
     Methods
     --------------------------------------------
@@ -45,9 +45,9 @@ class Clause:
         """
         Creates clause with given linguistic variable, gradiation adjective and fuzzy set.
 
-        :param linguistic_variable:
-        :param gradiation_adjective:
-        :param fuzzy_set:
+        :param linguistic_variable: linguistic variable, provides name and determines the domain of a fuzzy set
+        :param gradiation_adjective: gradiation adjective, string representation of belonging level
+        :param fuzzy_set: fuzzy set provides its memebership function
         """
         if not isinstance(linguistic_variable, LinguisticVariable):
             raise TypeError("Linguistic variable must be LinguisticVariable type")
@@ -75,7 +75,7 @@ class Clause:
     
     def _find_index(self, x) -> int:
         """
-        Returns the index in values table of given x
+        Returns the index of given x in values table 
 
         :param x: value in domain
         :return: index
