@@ -3,7 +3,7 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
 import numpy as np
-from typing import NoReturn
+from typing import NoReturn, Sequence
 
 
 class Clause:
@@ -66,10 +66,20 @@ class Clause:
         """
         return self.__values[self._find_index(x)]
     
-    def _calculate_values(self):
+    def _calculate_values(self) -> Sequence[MembershipDegree]:
+        """
+        Calculates values for every element in domain
+        :return: arrau of membership degrees
+        """
         return self.fuzzy_set(self.linguistic_variable.domain())
     
-    def _find_index(self, x):
+    def _find_index(self, x) -> int:
+        """
+        Returns the index in values table of given x
+
+        :param x: value in domain
+        :return: index
+        """
         if x > self.linguistic_variable.domain.max or x < self.linguistic_variable.domain.min:
             raise ValueError('There is no such value in the domain')
         return np.round((x - self.linguistic_variable.domain.min)/self.linguistic_variable.domain.precision).astype(int)
