@@ -3,6 +3,8 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
 import numpy as np
+from typing import NoReturn
+
 
 class Clause:
     """
@@ -31,6 +33,7 @@ class Clause:
     >>> f_set = T1FuzzySet(lambda x: 0 if x < 0 else 1)
     >>> clause = Clause(ling_var, 'Medium', f_set)
     >>> clause.get_value(1.2)
+    1.0
     
     """
 

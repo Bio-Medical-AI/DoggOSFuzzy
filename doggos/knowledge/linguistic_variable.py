@@ -2,6 +2,7 @@ from typing import Sequence, Tuple, NoReturn
 
 import numpy as np
 
+
 class Domain:
     """
     Class representing a domain:
@@ -47,7 +48,7 @@ class Domain:
         Creates sequence matching given range and precision.
         :return: domain as sequence of floats
         """
-        return np.linspace(self.min, self.max, self.precision)
+        return np.arange(self.min, self.max, self.precision)
 
     @property
     def min(self) -> float:
@@ -89,14 +90,16 @@ class LinguisticVariable:
         :param name: name of linguistic variable
         :param domain: domain 
         """
+        if not isinstance(domain) is Domain:
+            raise TypeError('Linguistic variable requires domain to be Domain type')
         self.__name = name
         self.__domain = domain
 
     @property
     def domain(self) -> Domain:
-        """[summary]
+        """
+        Returns the Domain object representing domain in linguistic variable
 
-        :return: [description]
-        :rtype: Domain
+        :return: domain of linguistic variable
         """
         return self.__domain
