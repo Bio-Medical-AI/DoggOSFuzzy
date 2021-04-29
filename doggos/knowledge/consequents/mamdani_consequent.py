@@ -3,6 +3,7 @@ import numpy as np
 
 from doggos.knowledge.consequents.consequent import Consequent
 from doggos.knowledge.clause import Clause
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 
 
 class MamdaniConsequent(Consequent):
@@ -38,7 +39,7 @@ class MamdaniConsequent(Consequent):
         self.__clause = clause
         self.__cut_mf = None
 
-    def calculate_cut(self, rule_firing: Tuple[float, ...] or float) -> Tuple[List[float]] or List[float]:
+    def output(self, rule_firing: MembershipDegree) -> List[MembershipDegree]:
         """
         Cuts membership function to the level of rule firing. It is a minimum of membership function values
         and respecting rule firing. Rule firing should hold values from range [0, 1].
