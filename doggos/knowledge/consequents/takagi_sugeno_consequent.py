@@ -41,13 +41,11 @@ class TakagiSugenoConsequent(Consequent):
         :param consequent_input: inputs of the inference system
         :return: crisp rule output value that needs to be used in aggregation process
         """
-
+        self.__consequent_output = 0
         if len(consequent_input) == len(self.__function_parameters) - 1:
             for idx, inp in enumerate(consequent_input):
                 self.__consequent_output += self.__function_parameters[idx] * consequent_input[idx]
             self.__consequent_output += self.__function_parameters[-1]
             return self.__consequent_output
         else:
-            raise Exception("Number of inputs must be equal to number of parameters minus one!")
-
-
+            raise Exception("Number of inputs must be one less than number of consequent parameters!")
