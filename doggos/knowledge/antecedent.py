@@ -5,6 +5,11 @@ from doggos.knowledge import Clause
 
 
 class Antecedent:
+    """
+    Class representing antecedent:
+    https://en.wikipedia.org/wiki/Fuzzy_set
+    
+    """
     def __init__(self, clauses: Sequence[Clause], algebra: Algebra):
         self.__clauses = clauses
         self.__algebra = algebra
