@@ -14,7 +14,7 @@ class Clause:
     
     Attributes
     --------------------------------------------
-    __lingustic_variable : LinguisticVariable
+    __linguistic_variable : LinguisticVariable
         linguistic variable, provides name and determines the domain of a fuzzy set
     __gradiation_adjective : str
         gradiation adjective, string representation of belonging level
@@ -37,7 +37,7 @@ class Clause:
     
     """
 
-    __lingustic_variable: LinguisticVariable
+    __linguistic_variable: LinguisticVariable
     __gradiation_adjective: str
     __fuzzy_set: FuzzySet
     
@@ -49,12 +49,12 @@ class Clause:
         :param gradiation_adjective:
         :param fuzzy_set:
         """
-        if not isinstance(linguistic_variable) is LinguisticVariable:
-            raise TypeError("Linguistic variable must be LingusticVariable type")
-        if not isinstance(fuzzy_set) is FuzzySet:
+        if not isinstance(linguistic_variable, LinguisticVariable):
+            raise TypeError("Linguistic variable must be LinguisticVariable type")
+        if not isinstance(fuzzy_set, FuzzySet):
             raise TypeError("Fuzzy set must be FuzzySet type")
         
-        self.__lingustic_variable = linguistic_variable
+        self.__linguistic_variable = linguistic_variable
         self.__gradiation_adjective = gradiation_adjective
         self.__fuzzy_set = fuzzy_set
         self.__values = self._calculate_values()
@@ -64,15 +64,15 @@ class Clause:
         returns a value representing degree of belonging to a fuzzy set
         :param x: degree of belonging
         """
-        return self._find_index(x)
+        return self.__values[self._find_index(x)]
     
     def _calculate_values(self):
-        return np.array(self.fuzzy_set(self.linguistic_variable.domain()))
+        return self.fuzzy_set(self.linguistic_variable.domain())
     
     def _find_index(self, x):
         if x > self.linguistic_variable.domain.max or x < self.linguistic_variable.domain.min:
             raise ValueError('There is no such value in the domain')
-        return np.round((self.linguistic_variable.domain.max - self.linguistic_variable.domain.min)/self.linguistic_variable.precision)
+        return np.round((x - self.linguistic_variable.domain.min)/self.linguistic_variable.domain.precision).astype(int)
     
     @property
     def linguistic_variable(self) -> LinguisticVariable:
@@ -81,7 +81,7 @@ class Clause:
 
         :return: linguistic variable
         """
-        return self.__lingustic_variable
+        return self.__linguistic_variable
     
     @linguistic_variable.setter
     def linguistic_variable(self, linguistic_variable: LinguisticVariable) -> NoReturn:
@@ -91,10 +91,10 @@ class Clause:
         :param linguistic_variable: linguistic variable
         :return: NoReturn
         """
-        if not isinstance(linguistic_variable) is LinguisticVariable:
+        if not isinstance(linguistic_variable, LinguisticVariable):
             raise TypeError('Linguistic variable must be LinguisticVariable type')
         
-        self.__lingustic_variable = linguistic_variable
+        self.__linguistic_variable = linguistic_variable
 
     @property
     def fuzzy_set(self) -> FuzzySet:
@@ -113,7 +113,7 @@ class Clause:
         :param fuzzy_set: fuzzy set
         :return: NoReturn
         """
-        if not isinstance(fuzzy_set) is FuzzySet:
+        if not isinstance(fuzzy_set, FuzzySet):
             raise TypeError("Fuzzy set must be FuzzySet type")
         self.__fuzzy_set = fuzzy_set
     

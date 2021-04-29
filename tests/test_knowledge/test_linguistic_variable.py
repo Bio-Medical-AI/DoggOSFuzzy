@@ -22,7 +22,7 @@ class TestLinguisticVariable:
     def test_exception_typeerror_init(self):
         domain = Domain(0, 10, 0.01)
         with pytest.raises(TypeError) as e:
-            ling_var = LinguisticVariable('Temperature', (0, 10, 0.01))
+            ling_var = LinguisticVariable('Temperature', [])
             assert 'Linguistic variable requires domain to be Domain type' in str(e.value)
 
     @pytest.mark.parametrize('min_, max_, precision', zip(np.arange(0, 10, 1),
