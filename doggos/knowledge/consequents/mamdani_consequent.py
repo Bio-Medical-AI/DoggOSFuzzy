@@ -13,7 +13,8 @@ class MamdaniConsequent(Consequent):
     Attributes
     --------------------------------------------
     __clause : Clause
-        supplies Consequent with universe and a fuzzy set
+        supplies Consequent with universe and a fuzzy set. Provided fuzzy set type must match fuzzy sets used in Fuzzy
+        Rule Antecedent, otherwise an exception will be raised during computations.
 
     __cut_mf : Tuple[List[float], ...] or List[float]
         fuzzy set provided by clause cut to the rule firing level
