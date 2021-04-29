@@ -23,7 +23,7 @@ class TestClause:
             clause = Clause(ling_var, 'High', [])
             assert 'Fuzzy set must be FuzzySet type' in str(e.value)
 
-    @pytest.mark.parametrize('x', np.arange(0, 10, 0.005))
+    @pytest.mark.parametrize('x', np.arange(0, 10, 0.5))
     def test_get_value(self, x):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
