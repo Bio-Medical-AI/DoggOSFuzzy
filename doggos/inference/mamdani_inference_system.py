@@ -1,6 +1,6 @@
 from doggos.inference.inference_system import InferenceSystem
 from typing import List, Dict, Sequence
-from doggos.knowledge import Rule
+from doggos.knowledge.rule import Rule
 from functools import partial
 import numpy as np
 
@@ -10,7 +10,7 @@ class MamdaniInferenceSystem(InferenceSystem):
         self.__rule_base = rules
 
     def output(self, features: Dict[str, float], method: str) -> float:
-        rule_outputs = [rule.calculate_rule(features) for rule in self.__rule_base]
+        rule_outputs = [rule.output(features) for rule in self.__rule_base]
 
         if method == "karnik_mendel":
             universe = self.__rule_base[0].consequent.clause.linguistic_variable.domain()
@@ -29,7 +29,7 @@ class MamdaniInferenceSystem(InferenceSystem):
         union = np.max(reshaped_mfs, axis=0)
         return union
 
-    def __karnik_mendel(self, lmf: np.ndarray, umf: np.ndarray, universe: Sequence[float]):
+    def __karnik_mendel(self, lmf: np.ndarray, umf: np.ndarray, universe: Sequence[float]) -> float:
         def find_k(c: float):
             return np.where(universe_arr <= c)[0][-1]
 
@@ -45,7 +45,7 @@ class MamdaniInferenceSystem(InferenceSystem):
             c_minute = partial_find_c_minute(c_prim)
             while abs(c_minute - c_prim) > np.finfo(float).eps:
                 c_prim = c_minute
-                c_minute, k = partial_find_c_minute(c_prim)
+                c_minute = partial_find_c_minute(c_prim)
             return c_minute
 
         universe_arr = np.array(universe, dtype=float)

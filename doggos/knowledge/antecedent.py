@@ -1,7 +1,7 @@
 from typing import Dict, Sequence
 from doggos.algebras.algebra import Algebra
 from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
-from doggos.knowledge import Clause
+from doggos.knowledge.clause import Clause
 
 
 class Antecedent:
