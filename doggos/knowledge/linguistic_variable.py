@@ -91,7 +91,7 @@ class LinguisticVariable:
         :param domain: domain 
         """
         if not isinstance(domain, Domain):
-            raise TypeError('Linguistic variable requires domain to be a Domain type')
+            raise TypeError('Linguistic variable requires the domain to be a Domain type')
         self.__name = name
         self.__domain = domain
 
