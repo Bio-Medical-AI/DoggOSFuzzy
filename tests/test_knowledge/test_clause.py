@@ -33,15 +33,16 @@ class TestClause:
         index = np.round((x - domain.min)/domain.precision)
         assert values[index] == clause.get_value(x)
         
-    @pytest.mark.parametrize('x', zip(np.arange(0, 10, 1),np.arange(2, 12, 1),np.arange(3, 13, 1)))
+    @pytest.mark.parametrize('x, y, z', zip(np.arange(0, 10, 1),np.arange(2, 12, 1),np.arange(3, 13, 1)))
     def test_get_value_collection(self, x):
+        collection = np.array([x,y,z])
         domain = Domain(0, 15, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
         fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         values = fuzzy_set(domain())
-        index = np.round((x - domain.min)/domain.precision)
-        assert values[index] == clause.get_value(x)
+        index = np.round((collection - domain.min)/domain.precision).astype(int)
+        assert values[index] == clause.get_value(collection)
 
     @pytest.mark.parametrize('x', np.arange(-5, -1, 1))
     def test_exception_valueerror_get_value(self, x):

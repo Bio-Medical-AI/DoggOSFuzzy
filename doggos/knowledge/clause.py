@@ -61,7 +61,7 @@ class Clause:
         self.__fuzzy_set = fuzzy_set
         self.__values = self._calculate_values()
 
-    def get_value(self, x: Sequence[float] or float) -> MembershipDegree:
+    def get_value(self, x: Sequence[float] or float) -> MembershipDegree or Sequence[MembershipDegree]:
         """
         returns a value representing membership degree
         :param x: degree of belonging

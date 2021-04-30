@@ -26,9 +26,9 @@ class Domain:
         """
         Creates a domain.
 
-        :param min_value: minimum value in domain
-        :param max_value: maximum value in domain
-        :param precision: step
+        :param min_value: minimum value in the domain
+        :param max_value: maximum value in the domain
+        :param precision: a step
         """
         self.__min_value = min_value
         self.__max_value = max_value
