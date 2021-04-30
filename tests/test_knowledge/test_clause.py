@@ -30,7 +30,7 @@ class TestClause:
         fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         values = fuzzy_set(domain())
-        index = (x - domain.min)/domain.precision
+        index = np.round((x - domain.min)/domain.precision)
         assert values[index] == clause.get_value(x)
 
     @pytest.mark.parametrize('x', np.arange(-5, -1))
