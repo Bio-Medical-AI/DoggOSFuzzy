@@ -98,8 +98,8 @@ class LinguisticVariable:
     @property
     def domain(self) -> Domain:
         """
-        Returns the Domain object representing domain in linguistic variable
+        Returns the domain
 
-        :return: domain of linguistic variable
+        :return: domain of the linguistic variable
         """
         return self.__domain
