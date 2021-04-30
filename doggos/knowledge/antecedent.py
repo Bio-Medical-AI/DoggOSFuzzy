@@ -1,7 +1,7 @@
 from typing import Dict, Sequence, Callable, NoReturn
 from doggos.algebras.algebra import Algebra
 from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
-from doggos.knowledge import Clause
+from doggos.knowledge.clause import Clause
 from abc import ABC
 
 
@@ -18,6 +18,11 @@ class Antecedent(ABC):
 class TermAntecedent(Antecedent):
     
     def __init__(self, algebra: Algebra, clause: Clause = None):
+        """
+        Creates TermAntecedent object with given algebra and clause.
+        :param algebra: algebra provides t-norm and s-norm
+        :param clause: provides linguistic variable with corresponding fuzzy set
+        """
         self.__clause = clause
         self.__algebra = algebra
         self.__fire = lambda dict_: dict_[clause]
@@ -83,3 +88,5 @@ class TermAntecedent(Antecedent):
         """
         self.__algebra = algebra
 
+if __name__ == "__main__":
+    pass
