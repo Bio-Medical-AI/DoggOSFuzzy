@@ -28,3 +28,22 @@ class TestTakagiSugenoConsequent:
         with pytest.raises(Exception) as e:
             ts.output([1, 2, 3, 4])
             assert "Number of inputs must be one less than number of consequent parameters!" in str(e.value)
+
+    def test_setter(self):
+        tss = TakagiSugenoConsequent([1, 2, 3])
+        assert (tss.output([0.5, 0.2]) == 3.9)
+        tss.function_parameters = [0.1, 0.1, 1]
+        assert (tss.output([0.99, 0.88]) == 1.187)
+
+    def test_setter_error(self):
+        tse = TakagiSugenoConsequent([0.2, -1, 0.5])
+        assert (tse.output([0.5, 0.2]) == 0.4)
+        with pytest.raises(ValueError) as e:
+            tse.function_parameters = [1.0, -5, 'a']
+            assert "Takagi-Sugeno consequent parameters must be list of floats!" in str(e.value)
+
+    def test_getter(self):
+        tsg = TakagiSugenoConsequent([1, 2, 3])
+        assert (tsg.function_parameters == [1, 2, 3])
+        tsg.function_parameters = [0.1, 0.1, 1]
+        assert (tsg.function_parameters == [0.1, 0.1, 1])
