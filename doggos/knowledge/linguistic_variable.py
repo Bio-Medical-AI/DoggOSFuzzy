@@ -20,7 +20,7 @@ class Domain:
     Methods
     --------------------------------------------
     domain -> Sequence[float]
-        Returns sequence from assigned intervals and precison
+        Returns sequence from assigned intervals and precision
     """
     def __init__(self, min_value: float, max_value: float, precision: float):
         """
