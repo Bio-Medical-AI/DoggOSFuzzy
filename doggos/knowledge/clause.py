@@ -75,7 +75,7 @@ class Clause:
         """
         return self.__fuzzy_set(self.linguistic_variable.domain())
     
-    def _find_index(self, x: Sequence[float] or float) -> int:
+    def _find_index(self, x: Sequence[float] or float) -> int or Sequence[int]:
         """
         Returns the index of given x in the values table 
         
