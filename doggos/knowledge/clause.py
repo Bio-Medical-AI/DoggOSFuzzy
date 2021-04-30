@@ -24,7 +24,7 @@ class Clause:
         
     Methods
     --------------------------------------------
-    get_value(self, x: float) -> Tuple[float, ...] or float
+    get_value(self, x: float) -> MembershipDegree
         returns a value representing membership degree
         
     Examples
