@@ -70,9 +70,3 @@ class TakagiSugenoConsequent(Consequent):
             return self.__consequent_output
         else:
             raise Exception("Number of inputs must be one less than number of consequent parameters!")
-
-
-tss = TakagiSugenoConsequent([1, 2, 3])
-tss.output([0.5, 0.2]) == 3.9
-tss.function_parameters = [0.1, 0.1, 1.]
-tss.output([0.99, 0.88]) == 1
