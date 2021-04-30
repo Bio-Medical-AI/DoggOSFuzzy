@@ -73,7 +73,7 @@ class Clause:
         Calculates values for every element in domain
         :return: array of membership degrees
         """
-        return self.fuzzy_set(self.linguistic_variable.domain())
+        return self.__fuzzy_set(self.linguistic_variable.domain())
     
     def _find_index(self, x) -> int:
         """
