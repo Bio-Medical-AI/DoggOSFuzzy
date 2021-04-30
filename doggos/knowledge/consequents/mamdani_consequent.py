@@ -1,4 +1,3 @@
-
 from typing import List
 
 from doggos.knowledge.consequents.consequent import Consequent

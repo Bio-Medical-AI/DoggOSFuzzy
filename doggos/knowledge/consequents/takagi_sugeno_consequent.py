@@ -10,7 +10,7 @@ class TakagiSugenoConsequent(Consequent):
 
         Attributes
         --------------------------------------------
-        __function_parameters : List[float]
+        __function_parameters : Dict[str, float]
             supplies parameters to consequent output function, which takes form y = ax1 + bx2 + ... + c
         __consequent_output : float
             represents output of consequent function
