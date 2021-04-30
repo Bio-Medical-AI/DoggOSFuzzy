@@ -34,25 +34,52 @@ class TermAntecedent(Antecedent):
 
     @property
     def clause(self) -> Clause:
+        """
+        Getter of clause
+        :return: clause
+        """
         return self.__clause
 
     @clause.setter
     def clause(self, clause: Clause) -> NoReturn:
+        """
+        Sets new clause to antecedent
+        :param clause: new clause
+        :return: NoReturn
+        """
         self.__clause = clause
 
     @property
     def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
+        """
+        Getter of fire function
+        :return: fire
+        """
         return self.__fire
 
     @fire.setter
     def fire(self, fire: Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]) -> NoReturn:
+        """
+        Sets new fire function to antecedent
+        :param fire: new fire function
+        :return: NoReturn
+        """
         self.__fire = fire
 
     @property
     def algebra(self) -> Algebra:
+        """
+        Getter of algebra
+        :return: algebra
+        """
         return self.__algebra
 
     @algebra.setter
     def algebra(self, algebra: Algebra):
+        """
+        Sets new algebra to antecedent
+        :param algebra: new algebra
+        :return: NoReturn
+        """
         self.__algebra = algebra
 
