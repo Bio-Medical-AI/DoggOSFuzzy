@@ -9,7 +9,7 @@ from typing import NoReturn, Sequence
 class Clause:
     """
     Class representing a clause.
-    Clause is a pair of linguistic variable and fuzzy set:
+    Clause is a pair of a linguistic variable and a fuzzy set:
     https://en.wikipedia.org/wiki/Fuzzy_set
     
     Attributes
@@ -20,7 +20,7 @@ class Clause:
     __gradation_adjective : str
         gradation adjective, string representation of belonging level
     __fuzzy_set : FuzzySet
-        fuzzy set provides its memebership function
+        fuzzy set provides its membership function
         
     Methods
     --------------------------------------------
@@ -61,7 +61,7 @@ class Clause:
         self.__fuzzy_set = fuzzy_set
         self.__values = self._calculate_values()
 
-    def get_value(self, x: float) -> MembershipDegree:
+    def get_value(self, x: Sequence[float] or float) -> MembershipDegree:
         """
         returns a value representing membership degree
         :param x: degree of belonging
@@ -70,19 +70,19 @@ class Clause:
     
     def _calculate_values(self) -> Sequence[MembershipDegree]:
         """
-        Calculates values for every element in domain
+        Calculates values for every element in the domain
         :return: array of membership degrees
         """
         return self.__fuzzy_set(self.linguistic_variable.domain())
     
-    def _find_index(self, x) -> int:
+    def _find_index(self, x: Sequence[float] or float) -> int:
         """
-        Returns the index of given x in values table 
-
-        :param x: value in domain
+        Returns the index of given x in the values table 
+        
+        :param x: value in the domain
         :return: index
         """
-        if x > self.linguistic_variable.domain.max or x < self.linguistic_variable.domain.min:
+        if np.any(x > self.linguistic_variable.domain.max) or np.any(x < self.linguistic_variable.domain.min):
             raise ValueError('There is no such value in the domain')
         return np.round((x - self.linguistic_variable.domain.min)/self.linguistic_variable.domain.precision).astype(int)
     

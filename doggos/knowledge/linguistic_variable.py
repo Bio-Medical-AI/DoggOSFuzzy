@@ -11,11 +11,11 @@ class Domain:
     Attributes
     --------------------------------------------
     __min_value : float
-        minimum value in domain
+        a minimum value in the domain
     __max_value : float
-        maximum value in domain
+        a maximum value in the domain
     __precision : float
-        precision of the domain
+        a precision of the domain
             
     Methods
     --------------------------------------------
@@ -45,15 +45,15 @@ class Domain:
 
     def __call__(self) -> Sequence[float]:
         """
-        Creates sequence matching given range and precision
-        :return: domain as sequence of floats
+        Creates a sequence matching given range and precision
+        :return: the domain as sequence of floats
         """
         return np.arange(self.min, self.max, self.precision)
 
     @property
     def min(self) -> float:
         """
-        Return minimum value in domain.
+        Return a minimum value in the domain.
 
         :return: minimum
         """
@@ -62,7 +62,7 @@ class Domain:
     @property
     def max(self) -> float:
         """
-        Returns maximum value in domain.
+        Returns a maximum value in the domain.
 
         :return: maximum
         """
@@ -78,16 +78,16 @@ class LinguisticVariable:
     Attributes
     --------------------------------------------
     __name : str
-        The name of reality fragment
+        a name of reality fragment
     __domain : Domain
-        The domain     
+        a domain     
     
     """
     def __init__(self, name: str, domain: Domain):
         """
         Creates linguistic variable with given name and domain
 
-        :param name: name of linguistic variable
+        :param name: name of the linguistic variable
         :param domain: domain 
         """
         if not isinstance(domain, Domain):
@@ -100,6 +100,6 @@ class LinguisticVariable:
         """
         Returns the domain
 
-        :return: domain of the linguistic variable
+        :return: the domain of the linguistic variable
         """
         return self.__domain
