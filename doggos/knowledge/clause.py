@@ -15,53 +15,55 @@ class Clause:
     Attributes
     --------------------------------------------
     __linguistic_variable : LinguisticVariable
-        linguistic variable, provides name and determines the domain of a fuzzy set
-    __gradiation_adjective : str
-        gradiation adjective, string representation of belonging level
+        linguistic variable, provides a name for a feature
+        and determines the domain of a fuzzy set
+    __gradation_adjective : str
+        gradation adjective, string representation of belonging level
     __fuzzy_set : FuzzySet
         fuzzy set provides its memebership function
         
     Methods
     --------------------------------------------
     get_value(self, x: float) -> Tuple[float, ...] or float
-        returns a value representing degree of belonging to a fuzzy set
+        returns a value representing membership degree
         
     Examples
     --------------------------------------------
     >>> domain = Domain(0,10,0.01)
     >>> ling_var = LinguisticVariable('Temperature', domain)
-    >>> f_set = T1FuzzySet(lambda x: 0 if x < 0 else 1)
+    >>> f_set = T1FuzzySet(lambda x: 0.05*x)
     >>> clause = Clause(ling_var, 'Medium', f_set)
-    >>> clause.get_value(1.2)
-    1.0
+    >>> clause.get_value(2)
+    0.1
     
     """
 
     __linguistic_variable: LinguisticVariable
-    __gradiation_adjective: str
+    __gradation_adjective: str
     __fuzzy_set: FuzzySet
     
-    def __init__(self, linguistic_variable: LinguisticVariable, gradiation_adjective: str, fuzzy_set: FuzzySet):
+    def __init__(self, linguistic_variable: LinguisticVariable, gradation_adjective: str, fuzzy_set: FuzzySet):
         """
-        Creates clause with given linguistic variable, gradiation adjective and fuzzy set.
+        Creates clause with given linguistic variable, gradation adjective and fuzzy set.
 
-        :param linguistic_variable: linguistic variable, provides name and determines the domain of a fuzzy set
-        :param gradiation_adjective: gradiation adjective, string representation of belonging level
+        :param linguistic_variable: linguistic variable, provides a name for a feature
+                                    and determines the domain of a fuzzy set
+        :param gradation_adjective: gradation adjective, string representation of belonging level
         :param fuzzy_set: fuzzy set provides its memebership function
         """
         if not isinstance(linguistic_variable, LinguisticVariable):
-            raise TypeError("Linguistic variable must be LinguisticVariable type")
+            raise TypeError("Linguistic variable must be a LinguisticVariable type")
         if not isinstance(fuzzy_set, FuzzySet):
-            raise TypeError("Fuzzy set must be FuzzySet type")
+            raise TypeError("Fuzzy set must be a FuzzySet type")
         
         self.__linguistic_variable = linguistic_variable
-        self.__gradiation_adjective = gradiation_adjective
+        self.__gradation_adjective = gradation_adjective
         self.__fuzzy_set = fuzzy_set
         self.__values = self._calculate_values()
 
     def get_value(self, x: float) -> MembershipDegree:
         """
-        returns a value representing degree of belonging to a fuzzy set
+        returns a value representing membership degree
         :param x: degree of belonging
         """
         return self.__values[self._find_index(x)]
@@ -69,7 +71,7 @@ class Clause:
     def _calculate_values(self) -> Sequence[MembershipDegree]:
         """
         Calculates values for every element in domain
-        :return: arrau of membership degrees
+        :return: array of membership degrees
         """
         return self.fuzzy_set(self.linguistic_variable.domain())
     
@@ -87,7 +89,7 @@ class Clause:
     @property
     def linguistic_variable(self) -> LinguisticVariable:
         """
-        Returns linguistic variable.
+        Returns the linguistic variable.
 
         :return: linguistic variable
         """
@@ -102,7 +104,7 @@ class Clause:
         :return: NoReturn
         """
         if not isinstance(linguistic_variable, LinguisticVariable):
-            raise TypeError('Linguistic variable must be LinguisticVariable type')
+            raise TypeError('Linguistic variable must be a LinguisticVariable type')
         
         self.__linguistic_variable = linguistic_variable
 
@@ -124,24 +126,24 @@ class Clause:
         :return: NoReturn
         """
         if not isinstance(fuzzy_set, FuzzySet):
-            raise TypeError("Fuzzy set must be FuzzySet type")
+            raise TypeError("Fuzzy set must be a FuzzySet type")
         self.__fuzzy_set = fuzzy_set
     
     @property
-    def gradiation_adjective(self) -> str:
+    def gradation_adjective(self) -> str:
         """
-        Return the gradiation adjective.
+        Return the gradation adjective.
 
-        :return: gradiation adjective
+        :return: gradation adjective
         """
-        return self.__gradiation_adjective
+        return self.__gradation_adjective
     
-    @gradiation_adjective.setter
-    def gradiation_adjective(self, gradiation_adjective: str) -> NoReturn:
+    @gradation_adjective.setter
+    def gradation_adjective(self, gradation_adjective: str) -> NoReturn:
         """
-        Sets new gradiation adjective.
+        Sets new gradation adjective.
 
-        :param gradiation_adjective: gradiation adjective
+        :param gradation_adjective: gradation adjective
         :return: NoReturn
         """
-        self.__gradiation_adjective = gradiation_adjective
+        self.__gradation_adjective = gradation_adjective
