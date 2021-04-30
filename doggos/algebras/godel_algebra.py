@@ -2,7 +2,9 @@ from doggos.algebras.algebra import Algebra
 
 
 class GodelAlgebra(Algebra):
-    def implication(self, a: float, b: float) -> float:
+
+    @staticmethod
+    def implication(a: float, b: float) -> float:
         """
         Calculate the Gödel implication
         :param a: first value
@@ -11,7 +13,8 @@ class GodelAlgebra(Algebra):
         """
         return max(1 - a, b)
 
-    def negation(self, a: float) -> float:
+    @staticmethod
+    def negation(a: float) -> float:
         """
         Calculate the Gödel negation
         :param a: value
@@ -19,7 +22,8 @@ class GodelAlgebra(Algebra):
         """
         return 1 - a
 
-    def s_norm(self, a: float, b: float) -> float:
+    @staticmethod
+    def s_norm(a: float, b: float) -> float:
         """
         Calculate the Gödel T-norm
         :param a: first value
@@ -28,7 +32,8 @@ class GodelAlgebra(Algebra):
         """
         return max(a, b)
 
-    def t_norm(self, a: float, b: float) -> float:
+    @staticmethod
+    def t_norm(a: float, b: float) -> float:
         """
         Calculate the Gödel T-norm
         :param a: first value
