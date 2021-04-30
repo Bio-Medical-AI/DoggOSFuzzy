@@ -33,7 +33,7 @@ class TestClause:
         index = np.round((x - domain.min)/domain.precision)
         assert values[index] == clause.get_value(x)
 
-    @pytest.mark.parametrize('x', np.arange(-5, -1))
+    @pytest.mark.parametrize('x', np.arange(-5, -1, 1))
     def test_exception_valueerror_get_value(self, x):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
