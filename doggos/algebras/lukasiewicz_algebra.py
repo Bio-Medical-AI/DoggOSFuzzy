@@ -46,8 +46,9 @@ class LukasiewiczAlgebra(Algebra):
         :return: max(.0, a + b - 1)
         """
         if isinstance(a, Iterable):
-            pass
+            a = np.array(a)
         if isinstance(b, Iterable):
-            pass
-
-        return max(.0, a + b - 1.0)
+            b = np.array(b)
+        if isinstance(a, np.ndarray) and isinstance(b, np.ndarray) and a.shape[0] != b.shape[0]:
+            raise ValueError(f'Dimensions {a.shape[0]} and {b.shape[0]} are not compatible')
+        return np.maximum(.0, a + b - 1.0)
