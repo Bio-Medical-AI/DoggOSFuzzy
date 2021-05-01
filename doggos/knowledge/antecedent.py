@@ -18,12 +18,10 @@ class Antecedent(ABC):
             raise TypeError('algebra must be an Algebra type')
         self.__algebra = algebra
 
-
     @property
     @abstractmethod
     def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
         pass
-
 
     @property
     def algebra(self) -> Algebra:
