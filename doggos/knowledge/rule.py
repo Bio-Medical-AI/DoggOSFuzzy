@@ -1,6 +1,6 @@
 from typing import Dict, NoReturn, List, NewType
 
-from doggos.fuzzy_sets.membership import MembershipDegree
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 from doggos.knowledge import Antecedent, Clause
 from doggos.knowledge.consequents.consequent import Consequent
 from doggos.knowledge.consequents.takagi_sugeno_consequent import TakagiSugenoConsequent
