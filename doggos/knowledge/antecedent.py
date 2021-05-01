@@ -14,6 +14,8 @@ class Antecedent(ABC):
     """
 
     def __init__(self, algebra: Algebra):
+        if not isinstance(algebra, Algebra):
+            raise TypeError('algebra must be a Algebra type')
         self.__algebra = algebra
 
 
