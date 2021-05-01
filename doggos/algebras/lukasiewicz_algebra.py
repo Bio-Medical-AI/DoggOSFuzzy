@@ -9,7 +9,7 @@ class LukasiewiczAlgebra(Algebra):
         Calculate the Lukasiewicz implication
         :param a: first value
         :param b: second value
-        :return:
+        :return: min(1., 1 - a + b)
         """
         return min(1., 1 - a + b)
 

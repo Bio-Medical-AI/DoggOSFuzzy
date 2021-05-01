@@ -22,10 +22,10 @@ class TestLukasiewiczAlgebra:
     def test_negation(self):
         assert LukasiewiczAlgebra.negation(1.0) == pytest.approx(0.0, TestConfig.FLOAT_COMPARISON_PRECISION)
         assert LukasiewiczAlgebra.negation(0.0) == pytest.approx(1.0, TestConfig.FLOAT_COMPARISON_PRECISION)
-        assert LukasiewiczAlgebra.negation(0.2) == pytest.approx(1.0, TestConfig.FLOAT_COMPARISON_PRECISION)
+        assert LukasiewiczAlgebra.negation(0.2) == pytest.approx(0.8, TestConfig.FLOAT_COMPARISON_PRECISION)
 
     def test_implication(self):
         assert LukasiewiczAlgebra.implication(1.0, 0.0) == pytest.approx(0.0, TestConfig.FLOAT_COMPARISON_PRECISION)
         assert LukasiewiczAlgebra.implication(0.0, 1.0) == pytest.approx(1.0, TestConfig.FLOAT_COMPARISON_PRECISION)
-        assert LukasiewiczAlgebra.implication(0.2, 0.35) == pytest.approx(0.55, TestConfig.FLOAT_COMPARISON_PRECISION)
-        assert LukasiewiczAlgebra.implication(0.95, 0.2) == pytest.approx(1.0, TestConfig.FLOAT_COMPARISON_PRECISION)
+        assert LukasiewiczAlgebra.implication(0.2, 0.35) == pytest.approx(1.0, TestConfig.FLOAT_COMPARISON_PRECISION)
+        assert LukasiewiczAlgebra.implication(0.95, 0.2) == pytest.approx(0.25, TestConfig.FLOAT_COMPARISON_PRECISION)

@@ -25,10 +25,10 @@ class GodelAlgebra(Algebra):
     @staticmethod
     def s_norm(a: float, b: float) -> float:
         """
-        Calculate the Gödel T-norm
+        Calculate the Gödel S-norm
         :param a: first value
         :param b: second value
-        :return:
+        :return: max(a, b)
         """
         return max(a, b)
 
