@@ -12,7 +12,7 @@ class TestDomain:
     def test_domain_values(self, min_, max_, precision):
         intervals = np.arange(min_, max_, precision)
         domain = Domain(min_, max_, precision)
-        assert np.array_equal(domain(),intervals)
+        assert np.array_equal(domain(), intervals)
         assert domain.min == min_
         assert domain.max == max_
 
@@ -20,9 +20,8 @@ class TestDomain:
 class TestLinguisticVariable:
 
     def test_exception_typeerror_init(self):
-        domain = Domain(0, 10, 0.01)
         with pytest.raises(TypeError) as e:
-            ling_var = LinguisticVariable('Temperature', [])
+            _ = LinguisticVariable('Temperature', [])
             assert 'Linguistic variable requires the domain to be a Domain type' in str(e.value)
 
     @pytest.mark.parametrize('min_, max_, precision', zip(np.arange(0, 10, 1),
