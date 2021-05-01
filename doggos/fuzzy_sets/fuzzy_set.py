@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import NewType
 
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+
+MembershipDegree = NewType('MembershipDegree', None)
 
 
 class FuzzySet(ABC):
