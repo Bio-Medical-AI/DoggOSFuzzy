@@ -9,7 +9,7 @@ from doggos.knowledge.antecedent import Antecedent
 
 class Term(Antecedent):
     """
-    Class representing an anteceden with recursive firing value computation:
+    Class representing an antecedent with recursive firing value computation:
     https://en.wikipedia.org/wiki/Fuzzy_set
     Attributes
     --------------------------------------------
@@ -19,7 +19,7 @@ class Term(Antecedent):
         algebra provides t-norm and s-norm
     Methods
     --------------------------------------------
-    def fire(self, clause_dict: Dict[Clause, MembershipDegree]) -> MembershipDegree
+    def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]
         returns a firing value of the antecedent
     Examples
     --------------------------------------------

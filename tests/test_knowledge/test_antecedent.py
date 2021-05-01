@@ -19,7 +19,7 @@ class TestTermAntecedent:
         clause = Clause(ling_var, 'Low', fuzzy_set)
         with pytest.raises(TypeError) as e:
             clause = Term([], clause)
-            assert 'algebra must be a Algebra type' in str(e.value)
+            assert 'algebra must be an Algebra type' in str(e.value)
 
     def test_and(self):
         algebra = GodelAlgebra()
