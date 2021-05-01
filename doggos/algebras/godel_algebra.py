@@ -1,10 +1,11 @@
 from doggos.algebras.algebra import Algebra
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
 
 class GodelAlgebra(Algebra):
 
     @staticmethod
-    def implication(a: float, b: float) -> float:
+    def implication(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Gödel implication
         :param a: first value
@@ -14,7 +15,7 @@ class GodelAlgebra(Algebra):
         return max(1 - a, b)
 
     @staticmethod
-    def negation(a: float) -> float:
+    def negation(a: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Gödel negation
         :param a: value
@@ -23,7 +24,7 @@ class GodelAlgebra(Algebra):
         return 1 - a
 
     @staticmethod
-    def s_norm(a: float, b: float) -> float:
+    def s_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Gödel S-norm
         :param a: first value
@@ -33,7 +34,7 @@ class GodelAlgebra(Algebra):
         return max(a, b)
 
     @staticmethod
-    def t_norm(a: float, b: float) -> float:
+    def t_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Gödel T-norm
         :param a: first value
