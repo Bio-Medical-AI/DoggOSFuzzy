@@ -12,8 +12,23 @@ class Antecedent(ABC):
     https://en.wikipedia.org/wiki/Fuzzy_set
     
     """
+
+    def __init__(self, algebra: Algebra):
+        self.__algebra = algebra
+
+
+    @property
     @abstractmethod
-    def fire(self, clause_dict: Dict[Clause, MembershipDegree]) -> MembershipDegree:
+    def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
         pass
+
+
+    @property
+    def algebra(self) -> Algebra:
+        """
+        Getter of the algebra
+        :return: algebra
+        """
+        return self.__algebra
 
 
