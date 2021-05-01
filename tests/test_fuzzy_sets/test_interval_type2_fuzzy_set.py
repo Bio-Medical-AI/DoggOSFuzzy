@@ -7,6 +7,7 @@ from tests.test_fuzzy_sets import _random_sample
 from doggos.fuzzy_sets import IntervalType2FuzzySet
 from doggos.fuzzy_sets.membership import MembershipDegreeIT2
 from doggos.utils.membership_functions import linear, sigmoid
+from doggos.fuzzy_sets.membership import MembershipDegreeIT2
 
 
 class TestIntervalType2FuzzySet:
