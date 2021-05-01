@@ -1,5 +1,4 @@
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
-from doggos.fuzzy_sets.fuzzy_set import FuzzySet
+from doggos.fuzzy_sets.fuzzy_set import FuzzySet, MembershipDegree
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
 import numpy as np
