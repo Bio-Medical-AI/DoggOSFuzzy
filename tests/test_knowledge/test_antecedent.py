@@ -21,11 +21,6 @@ class TestTermAntecedent:
             clause = Term([], clause)
             assert 'algebra must be a Algebra type' in str(e.value)
 
-    def test_exception_typerror_clause_init(self):
-        with pytest.raises(TypeError) as e:
-            clause = Term(GodelAlgebra(), [])
-            assert 'clause must be a Clause type' in str(e.value)
-
     def test_and(self):
         domain = Domain(0, 10, 0.5)
         ling_var = LinguisticVariable('Temperature', domain)
