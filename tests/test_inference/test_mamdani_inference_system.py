@@ -72,10 +72,14 @@ class TestMamdaniInferenceSystem:
     #     skfuzzy = defuzz(universe, (lmf, umf))
     #     assert 0.5 == output
     @pytest.fixture
-    def patch_domain(self, mocker):
-        mocker.patch('mamdani_inference_system.MamdaniInferenceSystem'
-                     + '.__rule_base[0].consequent.clause'
-                     + '.linguistic_variable.domain').return_value = np.arange(0, 1, 0.01)
+    def patch_rule_output(self, mocker):
+        lower_func = triangular(0, 0.5, 1, 0.8)
+        upper_func = triangular(0, 0.5, 1)
+        universe = np.arange(0, 1, 0.01)
+        lmf = np.array([lower_func(x) for x in universe])
+        umf = np.array([upper_func(x) for x in universe])
+        rule_output = (lmf, umf)
+        mocker.patch('mamdani_inference_system.MamdaniInferenceSystem.__get_rule_outputs').return_value = rule_output
 
     @pytest.fixture
     def test_karnik_mendel_output(self, mocker):
