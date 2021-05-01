@@ -1,13 +1,32 @@
-from typing import Dict, Sequence
+from typing import Dict, Sequence, Callable, NoReturn
 from doggos.algebras.algebra import Algebra
 from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 from doggos.knowledge.clause import Clause
 
+from abc import ABC, abstractmethod
 
-class Antecedent:
-    def __init__(self, clauses: Sequence[Clause], algebra: Algebra):        
-        self.__clauses = clauses
+
+class Antecedent(ABC):
+    """
+    Base class for representing an antecedent:
+    https://en.wikipedia.org/wiki/Fuzzy_set
+    
+    """
+
+    def __init__(self, algebra: Algebra):
+        if not isinstance(algebra, Algebra):
+            raise TypeError('algebra must be an Algebra type')
         self.__algebra = algebra
 
-    def firing(self, features: Dict[str, float]) -> MembershipDegree:
+    @property
+    @abstractmethod
+    def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
         pass
+
+    @property
+    def algebra(self) -> Algebra:
+        """
+        Getter of the algebra
+        :return: algebra
+        """
+        return self.__algebra
