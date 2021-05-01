@@ -1,8 +1,8 @@
-from doggos.inference.inference_system import InferenceSystem
 from typing import List, Dict, Tuple
 from doggos.knowledge.rule import Rule
-from functools import partial
 import numpy as np
+
+from doggos.inference.inference_system import InferenceSystem
 
 
 class MamdaniInferenceSystem(InferenceSystem):
@@ -34,45 +34,31 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __init__(self, rules: List[Rule]):
         """
-        Create mamdani inference system with given knowledge base.
+        Create mamdani inference system with given knowledge base
         All rules should have the same consequent type and consequents should be defined on the same domain
         :param rules: fuzzy knowledge base used for inference
         """
         self.__rule_base = rules
 
     def output(self, features: Dict[str, float], method: str = 'karnik_mendel') -> float:
+        """
+        Inferences output based on features of given object using chosen method
+        :param features: dictionary of linguistic variables and their values
+        :param method: 'karnik_mendel' TODO: ...
+        :return: decision value
+        """
         if method == "karnik_mendel":
             domain, lmfs, umfs = self.__get_domain_and_memberships(features)
             lower_cut = self.__membership_func_union(lmfs)
             upper_cut = self.__membership_func_union(umfs)
-            return self.__karnik_mendel(lower_cut, upper_cut, domain)
+            return self._karnik_mendel(lower_cut, upper_cut, domain)
 
-    def __karnik_mendel(self, lmf: np.ndarray[float], umf: np.ndarray[float], domain: np.ndarray[float]) -> float:
-        thetas = (lmf + umf) / 2
-        y_l = self.__find_y(partial(self.__find_c_minute, under_k_mf=umf, over_k_mf=lmf), domain, thetas)
-        y_r = self.__find_y(partial(self.__find_c_minute, under_k_mf=lmf, over_k_mf=umf), domain, thetas)
-        return (y_l + y_r) / 2
-
-    def __find_y(self, partial_find_c_minute: partial, domain: np.ndarray[float], thetas: np.ndarray[float]) -> float:
-        c_prim = np.average(domain, weights=thetas)
-        c_minute = partial_find_c_minute(c=c_prim, domain=domain)
-        while abs(c_minute - c_prim) > np.finfo(float).eps:
-            c_prim = c_minute
-            c_minute = partial_find_c_minute(c=c_prim, domain=domain)
-        return c_minute
-
-    def __find_c_minute(self, c: float, under_k_mf: np.ndarray[float], over_k_mf: np.ndarray[float],
-                        domain: np.ndarray[float]) -> float:
-        k = self.__find_k(c, domain)
-        lower_thetas = under_k_mf[:(k + 1)]
-        upper_thetas = over_k_mf[(k + 1):]
-        weights = np.append(lower_thetas, upper_thetas)
-        return np.average(domain, weights=weights)
-
-    def __find_k(self, c: float, domain: np.ndarray[float]) -> float:
-        return np.where(domain <= c)[0][-1]
-
-    def __membership_func_union(self, mfs: List[np.ndarray[float]]) -> np.ndarray[float]:
+    def __membership_func_union(self, mfs: List[np.ndarray]) -> np.ndarray:
+        """
+        Performs merge of given membership functions by choosing maximum of respective values
+        :param mfs: membership functions to unify
+        :return: unified membership functions
+        """
         n_functions = len(mfs)
         universe_size = len(mfs[0])
         reshaped_mfs = np.zeros(shape=(n_functions, universe_size))
@@ -82,12 +68,22 @@ class MamdaniInferenceSystem(InferenceSystem):
         return union
 
     def __get_domain_and_memberships(self, features: Dict[str, float]) \
-            -> Tuple[np.ndarray[float], List[np.ndarray[float]], List[np.ndarray[float]]]:
+            -> Tuple[np.ndarray[float], List[np.ndarray], List[np.ndarray]]:
+        """
+        Extracts domain and membership functions from rule base
+        :param features: dictionary of linguistic variables and their values
+        :return: domain, lower membership functions and upper membership functions extracted from rule base
+        """
         rule_outputs = self.__get_rule_outputs(features)
         domain = self.__rule_base[0].consequent.clause.linguistic_variable.domain()
         lmfs = [output[0] for output in rule_outputs]
         umfs = [output[1] for output in rule_outputs]
         return domain, lmfs, umfs
 
-    def __get_rule_outputs(self, features: Dict[str, float]) -> np.ndarray[Tuple[np.ndarray[float], np.ndarray[float]]]:
+    def __get_rule_outputs(self, features: Dict[str, float]) -> np.ndarray[Tuple[np.ndarray, np.ndarray]]:
+        """
+        Extracts rule outputs from rule base
+        :param features: dictionary of linguistic variables and their values
+        :return: cut membership functions from rule base
+        """
         return np.array([rule.output(features) for rule in self.__rule_base])
