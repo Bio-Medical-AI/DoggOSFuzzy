@@ -30,29 +30,54 @@ class Term(Antecedent):
 
     """
 
-    def __init__(self, clause: Clause, algebra: Algebra):
+    def __init__(self, algebra: Algebra, clause: Clause = None):
         """
         Creates Term object with given algebra and clause.
         :param algebra: algebra provides t-norm and s-norm
         :param clause: provides a linguistic variable with corresponding fuzzy set
         """
-        if not isinstance(clause, Clause):
-            raise TypeError('clause must be a Clause type')
-        if not isinstance(algebra, Algebra):
-            raise TypeError('algebra must be a Algebra type')
-        self.__clause = clause
-        self.__algebra = algebra
+        super().__init__(algebra)
+        if not clause:
+            self.__fire = lambda dict_: dict_[clause]
 
-    def fire(self, clause_dict: Dict[Clause, MembershipDegree]) -> MembershipDegree:
-        return clause_dict[self.clause]
+
+    @property
+    def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
+        """
+        Returns the firing function
+
+        :return: firing function
+        """
+        return self.__fire
+
+    @fire.setter
+    def fire(self, fire: Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]):
+        """
+        Sets new firing function to the antecedent
+
+        :param fire: firing function
+        """
+        self.__fire = fire
 
     def __and__(self, term: Term) -> Term:
-        new_term = self.__class__(None, self.algebra)
+        """
+        Creates new antecedent object and sets new firing function which uses t-norm.
+
+        :param term: other term
+        :return: term
+        """
+        new_term = self.__class__(self.algebra)
         new_term.fire = lambda dict_: self.algebra.t_norm(self.fire(dict_), term.fire(dict_))
         return new_term
 
     def __or__(self, term: Term) -> Term:
-        new_term = self.__class__(None, self.algebra)
+        """
+        Creates new antecedent object and sets new firing function which uses s-norm.
+
+        :param term: other term
+        :return: term
+        """
+        new_term = self.__class__(self.algebra)
         new_term.fire = lambda dict_: self.algebra.s_norm(self.fire(dict_), term.fire(dict_))
         return new_term
 

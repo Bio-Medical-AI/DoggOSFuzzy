@@ -12,6 +12,14 @@ class Antecedent(ABC):
     https://en.wikipedia.org/wiki/Fuzzy_set
     
     """
+
+    def __init__(self, algebra: Algebra):
+        if not isinstance(algebra, Algebra):
+            raise TypeError('algebra must be a Algebra type')
+        self.__algebra = algebra
+
+
+    @property
     @abstractmethod
     def fire(self, clause_dict: Dict[Clause, MembershipDegree]) -> MembershipDegree:
         pass
