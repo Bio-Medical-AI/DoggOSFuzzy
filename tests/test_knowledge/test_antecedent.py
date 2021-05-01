@@ -9,6 +9,7 @@ from doggos.knowledge.linguistic_variable import LinguisticVariable, Domain
 
 import numpy as np
 
+
 class TestTermAntecedent:
 
     def test_exception_typerror_algebra_init(self):
@@ -22,7 +23,7 @@ class TestTermAntecedent:
 
     def test_exception_typerror_clause_init(self):
         with pytest.raises(TypeError) as e:
-            clause = Term(GodelAlgebra(), [])
+            clause = Term([], GodelAlgebra())
             assert 'clause must be a Clause type' in str(e.value)
 
     def test_exception_typerror_clause_setter(self):
@@ -30,7 +31,7 @@ class TestTermAntecedent:
         ling_var = LinguisticVariable('Temperature', domain)
         fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'Low', fuzzy_set)
-        antecedent = Term(GodelAlgebra(), clause)
+        antecedent = Term(clause, GodelAlgebra() )
         with pytest.raises(TypeError) as e:
             antecedent.clause = []
             assert 'clause must be a Clause type' in str(e.value)
@@ -40,7 +41,7 @@ class TestTermAntecedent:
         ling_var = LinguisticVariable('Temperature', domain)
         fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'Low', fuzzy_set)
-        antecedent = Term(GodelAlgebra(), clause)
+        antecedent = Term( clause, GodelAlgebra())
         with pytest.raises(TypeError) as e:
             antecedent.algebra = []
             assert 'algebra must be a Algebra type' in str(e.value)
@@ -56,8 +57,8 @@ class TestTermAntecedent:
             clause1: clause1.get_value(2),
             clause2: clause2.get_value(2)
         }
-        antecedent1 = Term(GodelAlgebra(), clause1)
-        antecedent2 = Term(GodelAlgebra(), clause2)
+        antecedent1 = Term(clause1, GodelAlgebra())
+        antecedent2 = Term(clause2, GodelAlgebra())
         antecedent = antecedent1 & antecedent2
         assert antecedent.fire(clause_dict)
 
@@ -72,7 +73,7 @@ class TestTermAntecedent:
             clause1: clause1.get_value(2),
             clause2: clause2.get_value(2)
         }
-        antecedent1 = Term(GodelAlgebra(), clause1)
-        antecedent2 = Term(GodelAlgebra(), clause2)
+        antecedent1 = Term(clause1, GodelAlgebra())
+        antecedent2 = Term(clause2, GodelAlgebra())
         antecedent = antecedent1 | antecedent2
         assert antecedent.fire(clause_dict)

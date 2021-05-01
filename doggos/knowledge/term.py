@@ -8,6 +8,27 @@ from doggos.knowledge.antecedent import Antecedent
 
 
 class Term(Antecedent):
+    """
+    Class representing an anteceden with recursive firing value computation:
+    https://en.wikipedia.org/wiki/Fuzzy_set
+
+    Attributes
+    --------------------------------------------
+    __clause : Clause
+        clause which is stored in antecedent
+    __algebra : Algebra
+        algebra provides t-norm and s-norm
+
+    Methods
+    --------------------------------------------
+    def fire(self, clause_dict: Dict[Clause, MembershipDegree]) -> MembershipDegree
+        returns a firing value of the antecedent
+
+    Examples
+    --------------------------------------------
+    TODO
+
+    """
 
     def __init__(self, clause: Clause, algebra: Algebra):
         """
