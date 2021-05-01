@@ -14,8 +14,6 @@ class Antecedent(ABC):
     https://en.wikipedia.org/wiki/Fuzzy_set
     
     """
-    __algebra: Algebra
-    __fire: Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]
 
 
 class Term(Antecedent):
