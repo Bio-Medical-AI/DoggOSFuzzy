@@ -1,4 +1,4 @@
-from typing import Dict, NoReturn, List, Tuple
+from typing import Dict, NoReturn, List, NewType
 
 from doggos.fuzzy_sets.membership import MembershipDegree
 from doggos.knowledge import Antecedent, Clause
@@ -25,9 +25,8 @@ class Rule:
 
     Methods
     --------------------------------------------
-    output(self, features: Dict[str, float], get_firing: bool = False) -> List[MembershipDegree] or float \
-                                                    or Tuple[List[MembershipDegree] or float, MembershipDegree]:
-        Calculate firing value and output of rule, then return output and optionally firing.
+    output(self, features: Dict[str, float], measures: Dict[str, float] = None) -> OutputType:
+        Calculate firing value and output of rule, then return output of type that is depending on type of consequent.
 
     Examples:
     --------------------------------------------
@@ -72,11 +71,17 @@ class Rule:
         else:
             raise ValueError("consequent of rule must be set to instance of Consequent class")
 
-    def output(self, features: Dict[Clause, MembershipDegree]) -> List[MembershipDegree] or Tuple[float, MembershipDegree]:
+    """Types returned by Output"""
+    MamdaniOutputType = NewType('MamdaniOutputType', List[MembershipDegree])
+    TakagiSugenoOutputType = NewType('TakagiSugenoOutputType', float)
+    OutputType = NewType('OutputType', MamdaniOutputType or TakagiSugenoOutputType)
+
+    def output(self, features: Dict[Clause, MembershipDegree], measures: Dict[str, float] = None) -> OutputType:
         """
         Method that is calculating firing value and output of the rule.
 
-        :param features: a dictionary with names of Linguistic Variables and elements of their domains.
+        :param measures: a dictionary of names of linguistic variables, and crisp values of them
+        :param features: a dictionary of clauses Membership degree calculated for them
         :return: if get_firing is False - consequent output, that is tuple of list of membership degrees or one float,
         if get_firing is True - tuple of consequent output and membership degree.
         """
@@ -89,13 +94,12 @@ class Rule:
         if isinstance(self.__consequent, MamdaniConsequent):
             return self.__mamdani_output(firing)
         elif isinstance(self.__consequent, TakagiSugenoConsequent):
-            return self.__takagi_sugeno_output(features), firing
+            return self.__takagi_sugeno_output(measures), firing
         else:
             raise NotImplementedError("Behaviour for that type of consequent is not implemented.")
 
-    def __mamdani_output(self, firing: MembershipDegree) -> List[MembershipDegree]:
+    def __mamdani_output(self, firing: MembershipDegree) -> MamdaniOutputType:
         return self.__consequent.output(firing)
 
-    def __takagi_sugeno_output(self, features: Dict[str, float]) -> float:
-        # return self.__consequent.output()
-        pass
+    def __takagi_sugeno_output(self, measures: Dict[str, float]) -> TakagiSugenoOutputType:
+        return self.__consequent.output(measures)
