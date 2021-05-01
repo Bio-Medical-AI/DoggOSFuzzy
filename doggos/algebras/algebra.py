@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
+
 
 class Algebra(ABC):
     """
@@ -14,20 +16,20 @@ class Algebra(ABC):
 
     @staticmethod
     @abstractmethod
-    def t_norm(self, a: float, b: float) -> float:
+    def t_norm(self, a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         pass
 
     @staticmethod
     @abstractmethod
-    def s_norm(self, a: float, b: float) -> float:
+    def s_norm(self, a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         pass
 
     @staticmethod
     @abstractmethod
-    def negation(self, a) -> float:
+    def negation(self, a: MembershipDegree) -> MembershipDegree:
         pass
 
     @staticmethod
     @abstractmethod
-    def implication(self, a, b) -> float:
+    def implication(self, a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         pass
