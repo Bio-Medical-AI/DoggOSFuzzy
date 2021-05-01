@@ -1,3 +1,5 @@
+import numpy as np
+
 from doggos.algebras.algebra import Algebra
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
@@ -12,6 +14,14 @@ class GodelAlgebra(Algebra):
         :param b: second value
         :return: max(1 - a, b)
         """
+        if isinstance(a, tuple) or isinstance(a, list):
+            a = np.array(a)
+        if isinstance(b, tuple) or isinstance(b, list):
+            b = np.array(b)
+        
+        if isinstance(a, np.ndarray) and a.size != b.size:
+            raise ValueError(f'Size of a is different from size of b; a: {a.size} != b: {b.size}')
+
         return max(1 - a, b)
 
     @staticmethod

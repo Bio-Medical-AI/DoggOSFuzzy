@@ -16,20 +16,20 @@ class Algebra(ABC):
 
     @staticmethod
     @abstractmethod
-    def t_norm(self, a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
+    def t_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         pass
 
     @staticmethod
     @abstractmethod
-    def s_norm(self, a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
+    def s_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         pass
 
     @staticmethod
     @abstractmethod
-    def negation(self, a: MembershipDegree) -> MembershipDegree:
+    def negation(a: MembershipDegree) -> MembershipDegree:
         pass
 
     @staticmethod
     @abstractmethod
-    def implication(self, a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
+    def implication(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         pass
