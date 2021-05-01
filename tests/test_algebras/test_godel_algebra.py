@@ -1,7 +1,7 @@
 import pytest
 
 
-from tests.test_config import TestConfig
+from tests.test_tools import TestConfig
 from doggos.algebras import GodelAlgebra
 
 
