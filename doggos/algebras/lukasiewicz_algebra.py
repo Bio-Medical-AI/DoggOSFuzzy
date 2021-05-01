@@ -1,3 +1,7 @@
+import numpy as np
+from collections.abc import Iterable
+
+
 from doggos.algebras.algebra import Algebra
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
@@ -41,4 +45,9 @@ class LukasiewiczAlgebra(Algebra):
         :param b: second value
         :return: max(.0, a + b - 1)
         """
+        if isinstance(a, Iterable):
+            pass
+        if isinstance(b, Iterable):
+            pass
+
         return max(.0, a + b - 1.0)
