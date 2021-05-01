@@ -31,7 +31,7 @@ class TestTermAntecedent:
         ling_var = LinguisticVariable('Temperature', domain)
         fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'Low', fuzzy_set)
-        antecedent = Term(clause, GodelAlgebra() )
+        antecedent = Term(clause, GodelAlgebra())
         with pytest.raises(TypeError) as e:
             antecedent.clause = []
             assert 'clause must be a Clause type' in str(e.value)
