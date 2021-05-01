@@ -5,7 +5,7 @@ from doggos.knowledge.clause import Clause
 
 
 class Antecedent:
-    def __init__(self, clauses: Sequence[Clause], algebra: Algebra):
+    def __init__(self, clauses: Sequence[Clause], algebra: Algebra):        
         self.__clauses = clauses
         self.__algebra = algebra
 
