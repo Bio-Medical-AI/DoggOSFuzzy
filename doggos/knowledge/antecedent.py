@@ -21,8 +21,14 @@ class Antecedent(ABC):
 
     @property
     @abstractmethod
-    def fire(self, clause_dict: Dict[Clause, MembershipDegree]) -> MembershipDegree:
+    def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
         pass
 
-    
 
+    @property
+    def algebra(self) -> Algebra:
+        """
+        Getter of the algebra
+        :return: algebra
+        """
+        return self.__algebra
