@@ -36,7 +36,6 @@ class Term(Antecedent):
         if not clause:
             self.__fire = lambda dict_: dict_[clause]
 
-
     @property
     def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
         """
