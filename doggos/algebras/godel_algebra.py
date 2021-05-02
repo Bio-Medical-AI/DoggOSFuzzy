@@ -1,13 +1,13 @@
 import numpy as np
-from collections.abc import Iterable
 
-from doggos.algebras.algebra import Algebra
+from doggos.algebras.algebra import Algebra, validate_input
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
 
 class GodelAlgebra(Algebra):
 
     @staticmethod
+    @validate_input
     def implication(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Gödel implication
@@ -27,6 +27,7 @@ class GodelAlgebra(Algebra):
         return 1 - a
 
     @staticmethod
+    @validate_input
     def s_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Gödel S-norm
@@ -37,6 +38,7 @@ class GodelAlgebra(Algebra):
         return max(a, b)
 
     @staticmethod
+    @validate_input
     def t_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Gödel T-norm

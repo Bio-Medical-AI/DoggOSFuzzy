@@ -7,11 +7,13 @@ from doggos.algebras import LukasiewiczAlgebra
 
 class TestLukasiewiczAlgebra:
 
-    def test_t_norm(self):
-        assert LukasiewiczAlgebra.t_norm(0.9, 0.2) == approx(0.1)
-        assert LukasiewiczAlgebra.t_norm(1.0, 1.0) == approx(1.0)
-        assert LukasiewiczAlgebra.t_norm(1.0, 0.0) == approx(0.0)
-        assert LukasiewiczAlgebra.t_norm(0.2, 0.35) == approx(0.0)
+    @pytest.mark.parametrize('a, b, c', zip(
+        [0.9, 1.0, 1.0, 0.2],
+        [0.2, 1.0, 0.0, 0.35],
+        [0.1, 1.0, 0.0, 0.0]
+    ))
+    def test_t_norm(self, a, b, c):
+        assert LukasiewiczAlgebra.t_norm(a, b) == approx(c)
 
     def test_t_norm_array(self):
         assert all(res == approx(exp) for res, exp in zip(
@@ -21,52 +23,95 @@ class TestLukasiewiczAlgebra:
             [0.1, 1.0, 0.0, 0.0])
         )
 
-    # @pytest.mark(
-    #     'a, b',
-    #     ([(0.9, 1.0), [0.1, 1.0]], [(0.2, 1.0), [0.2, 1.0]])
-    # )
-    # def test_t_norm_iterable(self, a, b):
-    #     expected = [0.1, 1.0]
-    #     assert all(res == approx(exp) for res, exp in zip(LukasiewiczAlgebra.t_norm(a, b), expected))
+    def test_t_norm_iterable(self):
+        assert all(res == approx(exp) for res, exp in zip(
+            LukasiewiczAlgebra.t_norm((0.9, 1.0), [0.2, 1.0]),
+            [0.1, 1.0])
+        )
 
-    def test_t_norm_incompatible_dimensions(self):
+    @pytest.mark.parametrize('a, b', zip(
+            [np.random.randn(2),
+             np.random.randn(3),
+             np.random.randn(2, 3),
+             np.random.randn(5, 3),
+             ],
+            [np.random.randn(1),
+             3,
+             np.random.randn(3, 2),
+             np.random.randn(5, 2),
+             ],
+    ))
+    def test_t_norm_incompatible_dimensions(self, a, b):
         with pytest.raises(ValueError):
-            _ = LukasiewiczAlgebra.t_norm(np.array([0.2, 0.3]), 0)
+            _ = LukasiewiczAlgebra.t_norm(a, b)
 
-    def test_s_norm(self):
-        assert LukasiewiczAlgebra.s_norm(0.9, 0.2) == approx(1.0)
-        assert LukasiewiczAlgebra.s_norm(1.0, 1.0) == approx(1.0)
-        assert LukasiewiczAlgebra.s_norm(1.0, 0.0) == approx(1.0)
-        assert LukasiewiczAlgebra.s_norm(0.2, 0.35) == approx(0.55)
+    @pytest.mark.parametrize('a, b, c', zip(
+        [0.9, 1.0, 1.0, 0.2],
+        [0.2, 1.0, 0.0, 0.35],
+        [1.0, 1.0, 1.0, 0.55]
+    ))
+    def test_s_norm(self, a, b, c):
+        assert LukasiewiczAlgebra.s_norm(a, b) == approx(c)
 
     def test_s_norm_array(self):
-        pass
+        assert all(res == approx(exp) for res, exp in zip(
+            LukasiewiczAlgebra.s_norm(
+                np.array([0.9, 1.0, 1.0, 0.2]),
+                np.array([0.2, 1.0, 0.0, 0.35])),
+            [1.0, 1.0, 1.0, 0.55])
+        )
 
     def test_s_norm_iterable(self):
-        pass
+        assert all(res == approx(exp) for res, exp in zip(
+            LukasiewiczAlgebra.s_norm((0.9, 1.0), [0.2, 1.0]),
+            [1.0, 1.0])
+        )
 
-    def test_s_norm_incompatible_dimensions(self):
-        pass
+    @pytest.mark.parametrize('a, b', zip(
+            [np.random.randn(2),
+             np.random.randn(3),
+             np.random.randn(2, 3),
+             np.random.randn(5, 3),
+             ],
+            [np.random.randn(1),
+             3,
+             np.random.randn(3, 2),
+             np.random.randn(5, 2),
+             ],
+    ))
+    def test_s_norm_incompatible_dimensions(self, a, b):
+        with pytest.raises(ValueError):
+            _ = LukasiewiczAlgebra.s_norm(a, b)
 
-    def test_negation(self):
-        assert LukasiewiczAlgebra.negation(1.0) == approx(0.0)
-        assert LukasiewiczAlgebra.negation(0.0) == approx(1.0)
-        assert LukasiewiczAlgebra.negation(0.2) == approx(0.8)
+    @pytest.mark.parametrize('a, b', zip(
+        [1.0, 0.0, 0.2],
+        [0.0, 1.0, 0.8]
+    ))
+    def test_negation(self, a, b):
+        assert LukasiewiczAlgebra.negation(a) == approx(b)
 
     def test_negation_array(self):
-        pass
+        assert all(res == approx(exp) for res, exp in zip(
+            LukasiewiczAlgebra.negation(np.array([1.0, 0.0, 0.2])),
+            [0.0, 1.0, 0.8]
+        ))
 
-    def test_negation_iterable(self):
-        pass
+    @pytest.mark.parametrize('a, b', zip(
+        [[0.1, 0.2], (0.1, 0.9)],
+        [[0.9, 0.8], (0.9, 0.1)]
+    ))
+    def test_negation_iterable(self, a, b):
+        assert all(res == approx(exp) for res, exp in zip(
+            LukasiewiczAlgebra.negation(a), b
+        ))
 
-    def test_negation_incompatible_dimensions(self):
-        pass
-
-    def test_implication(self):
-        assert LukasiewiczAlgebra.implication(1.0, 0.0) == approx(0.0)
-        assert LukasiewiczAlgebra.implication(0.0, 1.0) == approx(1.0)
-        assert LukasiewiczAlgebra.implication(0.2, 0.35) == approx(1.0)
-        assert LukasiewiczAlgebra.implication(0.95, 0.2) == approx(0.25)
+    @pytest.mark.parametrize('a, b, c', zip(
+        [0.9, 1.0, 1.0, 0.2],
+        [0.2, 1.0, 0.0, 0.35],
+        [0.0, 1.0, 1.0, 0.25]
+    ))
+    def test_implication(self, a, b, c):
+        assert LukasiewiczAlgebra.implication(a, b) == approx(c)
 
     def test_implication_array(self):
         pass
