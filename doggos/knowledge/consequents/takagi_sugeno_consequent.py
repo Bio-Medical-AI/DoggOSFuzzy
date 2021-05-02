@@ -13,8 +13,8 @@ class TakagiSugenoConsequent(Consequent):
         --------------------------------------------
         __function_parameters : Dict[str, float]
             supplies parameters to consequent output function, which takes form y = ax1 + bx2 + ... + c
-        __consequent_output : Tuple[LinguisticVariable, float]
-            represents output of consequent function
+        __consequent_output : float
+            represents crisp output value of consequent function
         __linguistic_variable : represents attribute of output inference
 
         Methods
