@@ -16,7 +16,7 @@ class TestMamdaniInferenceSystem:
         umf = np.array([upper_func(x) for x in domain])
         domain_lmf_umf = (domain, [lmf], [umf])
         get_domain_and_memberships_path = 'doggos.inference.mamdani_inference_system.MamdaniInferenceSystem' \
-                                          '._MamdaniInferenceSystem__get_domain_and_memberships'
+                                          '._MamdaniInferenceSystem__get_domain_and_memberships_for_it2'
         mocker.patch(get_domain_and_memberships_path).return_value = domain_lmf_umf
 
     def test_karnik_mendel_output(self, patch_domain_and_memberships):

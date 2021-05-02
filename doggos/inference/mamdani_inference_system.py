@@ -3,6 +3,7 @@ from doggos.knowledge.rule import Rule
 import numpy as np
 
 from doggos.inference.inference_system import InferenceSystem
+from doggos.knowledge.linguistic_variable import LinguisticVariable
 
 
 class MamdaniInferenceSystem(InferenceSystem):
@@ -40,15 +41,40 @@ class MamdaniInferenceSystem(InferenceSystem):
         """
         self.__rule_base = rules
 
-    def output(self, features: Dict[str, float], method: str = 'karnik_mendel') -> float:
+    def output(self, features: Dict[LinguisticVariable, float], method: str = 'karnik_mendel') -> float:
         """
         Inferences output based on features of given object using chosen method
         :param features: dictionary of linguistic variables and their values
-        :param method: 'karnik_mendel' TODO: ...
+        :param method: 'karnik_mendel', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM'
         :return: decision value
         """
-        if method == "karnik_mendel":
-            domain, lmfs, umfs = self.__get_domain_and_memberships(features)
+        if method == 'COG':
+            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+            cut = self.__membership_func_union(membership_functions)
+            return self._center_of_gravity(domain, cut)
+
+        elif method == 'LOM':
+            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+            cut = self.__membership_func_union(membership_functions)
+            return self._largest_of_maximum(domain, cut)
+
+        elif method == 'MOM':
+            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+            cut = self.__membership_func_union(membership_functions)
+            return self._middle_of_maximum(domain, cut)
+
+        elif method == 'SOM':
+            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+            cut = self.__membership_func_union(membership_functions)
+            return self._smallest_of_maximum(domain, cut)
+
+        elif method == 'MeOM':
+            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+            cut = self.__membership_func_union(membership_functions)
+            return self._mean_of_maxima(domain, cut)
+
+        elif method == 'karnik_mendel':
+            domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(features)
             lower_cut = self.__membership_func_union(lmfs)
             upper_cut = self.__membership_func_union(umfs)
             return self._karnik_mendel(lower_cut, upper_cut, domain)
@@ -67,8 +93,15 @@ class MamdaniInferenceSystem(InferenceSystem):
         union = np.max(reshaped_mfs, axis=0)
         return union
 
-    def __get_domain_and_memberships(self, features: Dict[str, float]) \
-            -> Tuple[np.ndarray[float], List[np.ndarray], List[np.ndarray]]:
+    def __get_domain_and_memberships_for_type1(self, features: Dict[LinguisticVariable, float]) \
+            -> Tuple[np.ndarray, List[np.ndarray]]:
+        membership_functions = self.__get_rule_outputs(features)
+        domain = self.__rule_base[0].consequent.clause.linguistic_variable.domain()
+        return domain, membership_functions
+
+
+    def __get_domain_and_memberships_for_it2(self, features: Dict[LinguisticVariable, float]) \
+            -> Tuple[np.ndarray, List[np.ndarray], List[np.ndarray]]:
         """
         Extracts domain and membership functions from rule base
         :param features: dictionary of linguistic variables and their values
@@ -80,7 +113,7 @@ class MamdaniInferenceSystem(InferenceSystem):
         umfs = [output[1] for output in rule_outputs]
         return domain, lmfs, umfs
 
-    def __get_rule_outputs(self, features: Dict[str, float]) -> np.ndarray[Tuple[np.ndarray, np.ndarray]]:
+    def __get_rule_outputs(self, features: Dict[LinguisticVariable, float]) -> np.ndarray:
         """
         Extracts rule outputs from rule base
         :param features: dictionary of linguistic variables and their values

@@ -13,7 +13,38 @@ class InferenceSystem(ABC):
     def output(self, features: Dict[str, float], method: str) -> float:
         pass
 
-    def _karnik_mendel(self, lmf: np.ndarray[float], umf: np.ndarray[float], domain: np.ndarray[float]) -> float:
+    def _center_of_gravity(self, domain, weights):
+        return np.average(domain, weights=weights)
+
+    def _largest_of_maximum(self, domain, cut):
+        maximum = np.max(cut)
+        return domain[np.where(cut == maximum)[-1]]
+
+    def _smallest_of_maximum(self, domain, cut):
+        maximum = np.max(cut)
+        return domain[np.where(cut == maximum)[0]]
+
+    def _middle_of_maximum(self, domain, cut):
+        maximum = np.max(cut)
+        indices = np.where(cut == maximum)[0]
+        size = len(indices)
+        middle = int(size / 2)
+        return domain[[indices[middle]]]
+
+    def _mean_of_maxima(self, domain, cut):
+        maximum = np.max(cut)
+        indices = np.where(cut == maximum)[0]
+        size = len(indices)
+        total = np.sum([domain[index] for index in indices])
+        return total / size
+
+    def _center_of_sums(self, domain, membership_functions):
+        for x in domain:
+            for membership_function in membership_functions:
+
+
+
+    def _karnik_mendel(self, lmf: np.ndarray, umf: np.ndarray, domain: np.ndarray) -> float:
         """
         Karnik-Mendel algorithm for interval type II fuzzy sets
         :param lmf: lower membership function
@@ -26,7 +57,7 @@ class InferenceSystem(ABC):
         y_r = self._find_y(partial(self._find_c_minute, under_k_mf=lmf, over_k_mf=umf), domain, thetas)
         return (y_l + y_r) / 2
 
-    def _find_y(self, partial_find_c_minute: partial, domain: np.ndarray[float], thetas: np.ndarray[float]) -> float:
+    def _find_y(self, partial_find_c_minute: partial, domain: np.ndarray, thetas: np.ndarray) -> float:
         """
         Finds decision factor for specified part of algorithm
         :param partial_find_c_minute: _find_c_minute function with filled under_k_mf and over_k_mf arguments
@@ -41,8 +72,8 @@ class InferenceSystem(ABC):
             c_minute = partial_find_c_minute(c=c_prim, domain=domain)
         return c_minute
 
-    def _find_c_minute(self, c: float, under_k_mf: np.ndarray[float], over_k_mf: np.ndarray[float],
-                       domain: np.ndarray[float]) -> float:
+    def _find_c_minute(self, c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
+                       domain: np.ndarray) -> float:
         """
         Finds weights and average for combined membership functions
         :param c: weighted average of domain values with previously defined thetas as weights
@@ -57,7 +88,7 @@ class InferenceSystem(ABC):
         weights = np.append(lower_thetas, upper_thetas)
         return np.average(domain, weights=weights)
 
-    def _find_k(self, c: float, domain: np.ndarray[float]) -> float:
+    def _find_k(self, c: float, domain: np.ndarray) -> float:
         """
         Finds index for weighted average in given domain
         :param c: weighted average of combined membership functions
