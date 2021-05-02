@@ -1,6 +1,7 @@
 from typing import Dict, NoReturn, List, NewType
 
-from doggos.fuzzy_sets.membership import MembershipDegree
+
+from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
 from doggos.knowledge.antecedent import Antecedent
 from doggos.knowledge.clause import Clause
 from doggos.knowledge.linguistic_variable import LinguisticVariable
