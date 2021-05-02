@@ -34,6 +34,8 @@ class Type1FuzzySet(FuzzySet):
     >>> fuzzy_set = Type1FuzzySet(sigmoid)
     >>> fuzzy_set(2.5)
     0.9241
+    >>> fuzzy_set([0, 2.5])
+    array([0.5, 0.9241])
     """
 
     __membership_function: Callable[[float], float]
