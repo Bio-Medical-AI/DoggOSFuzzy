@@ -42,6 +42,8 @@ class TakagiSugenoConsequent(Consequent):
         Create Rules Consequent used in Takagi-Sugeno Inference System.
         :param function_parameters: Dict[LinguisticVariable, float] of input LinguisticVariable name and parameter used
          for calculating output of consequent function
+         bias: value representing constant in consequent function
+         linguistic_variable: represent attribute of output inference
         """
         self.__function_parameters = function_parameters
         self.__linguistic_variable = linguistic_variable
