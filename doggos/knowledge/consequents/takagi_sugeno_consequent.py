@@ -11,8 +11,9 @@ class TakagiSugenoConsequent(Consequent):
 
         Attributes
         --------------------------------------------
-        __function_parameters : Dict[str, float]
-            supplies parameters to consequent output function, which takes form y = ax1 + bx2 + ... + c
+        __function_parameters : Dict[LinguisticVariable, float]
+            supplies parameters to consequent output function, which takes form y = ax1 + bx2 + ...
+        __bias : float
         __consequent_output : float
             represents crisp output value of consequent function
         __linguistic_variable : represents attribute of output inference
@@ -20,8 +21,8 @@ class TakagiSugenoConsequent(Consequent):
         Methods
         --------------------------------------------
 
-        output: Tuple[LinguisticVariable, float]
-            pair representing linguistic variable and output from calculating consequent function with provided
+        output: float
+            value representing output from calculating consequent function with provided
              input parameters
 
         Examples:
@@ -35,18 +36,19 @@ class TakagiSugenoConsequent(Consequent):
         output = ts1.output({ling_var_f1: 1, ling_var_f2: 1})
         """
 
-    def __init__(self, function_parameters: Dict[str, float], linguistic_variable: LinguisticVariable):
+    def __init__(self, function_parameters: Dict[LinguisticVariable, float], bias: float, linguistic_variable: LinguisticVariable):
         """
         Create Rules Consequent used in Takagi-Sugeno Inference System.
-        :param function_parameters: Dict[str, float] of input LinguisticVariable name and parameter used for calculating
-         output of consequent function
+        :param function_parameters: Dict[LinguisticVariable, float] of input LinguisticVariable name and parameter used
+         for calculating output of consequent function
         """
         self.__function_parameters = function_parameters
         self.__linguistic_variable = linguistic_variable
         self.__consequent_output = 0
+        self.__bias = bias
 
     @property
-    def function_parameters(self) -> Dict[str, float]:
+    def function_parameters(self) -> Dict[LinguisticVariable, float]:
         """
         Getter of function parameters
         :return: function_parameters
@@ -54,7 +56,7 @@ class TakagiSugenoConsequent(Consequent):
         return self.__function_parameters
 
     @function_parameters.setter
-    def function_parameters(self, new_function_parameters: Dict[str, float]) -> NoReturn:
+    def function_parameters(self, new_function_parameters: Dict[LinguisticVariable, float]) -> NoReturn:
         """
         Sets new list of consequent's function parameters
         :param new_function_parameters: new dictionary of consequent's function parameters
@@ -62,11 +64,30 @@ class TakagiSugenoConsequent(Consequent):
         """
         if (not isinstance(new_function_parameters, dict) or
                 not all(isinstance(x, float) or isinstance(x, int) for x in new_function_parameters.values()) or
-                not all(isinstance(x, str) for x in new_function_parameters.keys())):
-            raise ValueError("Takagi-Sugeno consequent parameters must be Dict[str, float]!")
+                not all(isinstance(x, LinguisticVariable) for x in new_function_parameters.keys())):
+            raise ValueError("Takagi-Sugeno consequent parameters must be Dict[LinguisticVariable, float]!")
         self.__function_parameters = new_function_parameters
 
-    def output(self, consequent_input: Dict[LinguisticVariable, float]) -> Tuple[LinguisticVariable, float]:
+    @property
+    def bias(self) -> float:
+        """
+        Getter of bias parameter
+        :return: bias
+        """
+        return self.__bias
+
+    @bias.setter
+    def bias(self, new_bias:  float) -> NoReturn:
+        """
+        Sets new bias parameter
+        :param new_bias: new bias float value
+        :return: NoReturn
+        """
+        if not (isinstance(new_bias, float) or isinstance(new_bias, int)):
+            raise ValueError("Bias value needs to be float or int!")
+        self.__bias = new_bias
+
+    def output(self, consequent_input: Dict[LinguisticVariable, float]) -> float:
         """
         Return rule output level by calculating consequent function with inputs as variables.
         :param consequent_input: inputs of the inference system in Dict[LinguisticVariable, float], which reflects
@@ -75,13 +96,11 @@ class TakagiSugenoConsequent(Consequent):
                 corresponding function parameter provided.
         :return: name of feature and crisp rule output value that needs to be used in aggregation process
         """
-        self.__consequent_output = 0
-        if all(key in self.__function_parameters.keys() for key in [x.name for x in consequent_input.keys()] +
-                                                                   ['const']):
+        self.__consequent_output = self.bias
+        if all(key in self.__function_parameters.keys() for key in consequent_input.keys()):
             for key in consequent_input:
-                self.__consequent_output += consequent_input[key] * self.__function_parameters[key.name]
-            if 'const' in self.__function_parameters.keys():
-                self.__consequent_output += self.__function_parameters['const']
-            return self.__linguistic_variable, self.__consequent_output
+                self.__consequent_output += consequent_input[key] * self.__function_parameters[key]
+
+            return self.__consequent_output
         else:
-            raise Exception("Function parameters contain value for input which was not provided!")
+            raise ValueError("Function parameters contain value for input which was not provided!")
