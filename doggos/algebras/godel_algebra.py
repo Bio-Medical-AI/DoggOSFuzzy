@@ -48,7 +48,3 @@ class GodelAlgebra(Algebra):
         :return: min(a, b)
         """
         return np.minimum(a, b)
-
-
-if __name__ == '__main__':
-    z = GodelAlgebra.t_norm((0.9, 1.0), (0.1, 1.0))

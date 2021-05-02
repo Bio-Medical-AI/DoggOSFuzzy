@@ -126,16 +126,16 @@ class TestLukasiewiczAlgebra:
         ))
 
     @pytest.mark.parametrize('a, b, c', zip(
-        [0.9, 1.0, 1.0, 0.2],
-        [0.2, 1.0, 0.0, 0.35],
+        [1.0, 0.0, 0.2, 0.95],
+        [0.0, 1.0, 0.35, 0.2],
         [0.0, 1.0, 1.0, 0.25]
     ))
     def test_implication(self, a, b, c):
         assert LukasiewiczAlgebra.implication(a, b) == approx(c)
 
     @pytest.mark.parametrize('a, b, c', zip(
-        [np.array([0.9, 1.0, 1.0, 0.2])],
-        [np.array([0.2, 1.0, 0.0, 0.35])],
+        [np.array([1.0, 0.0, 0.2, 0.95])],
+        [np.array([0.0, 1.0, 0.35, 0.2])],
         [[0.0, 1.0, 1.0, 0.25]]
     ))
     def test_implication_array(self, a, b, c):
@@ -145,9 +145,9 @@ class TestLukasiewiczAlgebra:
         ))
 
     @pytest.mark.parametrize('a, b, c', zip(
-        [(0.9, 1.0), [0.2, 1.0]],
-        [(0.2, 1.0), np.array([0.35, 0.0])],
-        [(0.0, 1.0), (0.25, 1.0)]
+        [(1.0, 0.0), [0.2, 0.95]],
+        [(0.0, 1.0), np.array([0.35, 0.2])],
+        [(0.0, 1.0), (1.0, 0.25)]
     ))
     def test_implication_iterable(self, a, b, c):
         assert all(res == approx(exp) for res, exp in zip(

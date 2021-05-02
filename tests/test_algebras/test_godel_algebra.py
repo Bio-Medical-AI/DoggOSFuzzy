@@ -33,9 +33,6 @@ class TestGodelAlgebra:
         [[0.9, 1.0]]
     ))
     def test_t_norm_iterable(self, a, b, c):
-        print(a, b, c)
-        print(GodelAlgebra.t_norm(a, b))
-        print(pytest.approx(c, rel=1e-6))
         assert all(res == approx(exp) for res, exp in zip(
             GodelAlgebra.t_norm(a, b),
             c
