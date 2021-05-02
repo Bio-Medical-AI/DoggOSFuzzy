@@ -1,12 +1,22 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict
+from typing import NewType
 
-from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
-from doggos.knowledge import LinguisticVariable
+ConsequentOutput = NewType('ConsequentOutput', None)
+"""
+"""
 
 
 class Consequent(ABC):
+    """
+    Base class for Consequents of Fuzzy Rules.
+    https://en.wikipedia.org/wiki/Fuzzy_rule
+
+    Methods
+    --------------------------------------------
+    output(*args) -> ConsequentOutput
+        calculate output of Consequent
+    """
 
     @abstractmethod
-    def output(self, consequent_input: MembershipDegree or Dict[LinguisticVariable, float]) -> List[MembershipDegree] or float:
+    def output(self, *args) -> ConsequentOutput:
         pass

@@ -1,6 +1,6 @@
-from typing import NoReturn, Dict, Tuple
+from typing import NoReturn, Dict
 
-from doggos.knowledge import LinguisticVariable, Domain
+from doggos.knowledge import LinguisticVariable
 from doggos.knowledge.consequents.consequent import Consequent
 
 
@@ -36,7 +36,8 @@ class TakagiSugenoConsequent(Consequent):
         output = ts1.output({ling_var_f1: 1, ling_var_f2: 1})
         """
 
-    def __init__(self, function_parameters: Dict[LinguisticVariable, float], bias: float, linguistic_variable: LinguisticVariable):
+    def __init__(self, function_parameters: Dict[LinguisticVariable, float], bias: float,
+                 linguistic_variable: LinguisticVariable):
         """
         Create Rules Consequent used in Takagi-Sugeno Inference System.
         :param function_parameters: Dict[LinguisticVariable, float] of input LinguisticVariable name and parameter used
@@ -77,7 +78,7 @@ class TakagiSugenoConsequent(Consequent):
         return self.__bias
 
     @bias.setter
-    def bias(self, new_bias:  float) -> NoReturn:
+    def bias(self, new_bias: float) -> NoReturn:
         """
         Sets new bias parameter
         :param new_bias: new bias float value
