@@ -1,6 +1,6 @@
 from typing import Dict, Sequence, Callable, NoReturn
 from doggos.algebras.algebra import Algebra
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.knowledge.clause import Clause
 
 from abc import ABC, abstractmethod
