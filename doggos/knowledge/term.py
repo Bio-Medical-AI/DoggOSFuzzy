@@ -34,6 +34,8 @@ class Term(Antecedent):
         """
         super().__init__(algebra)
         if not clause:
+            self.__fire = None
+        else:
             self.__fire = lambda dict_: dict_[clause]
 
     @property
