@@ -26,10 +26,13 @@ class TakagiSugenoConsequent(Consequent):
 
         Examples:
         --------------------------------------------
-        ts = TakagiSugenoConsequent({'F1': 0.1, 'const': -2.5})
         domain = Domain(0, 10, 0.01)
-        ling_var = LinguisticVariable('F1', domain)
-        output = ts.output({ling_var: 1}) == -2.4)
+        ling_var_f1 = LinguisticVariable('F1', domain)
+        ling_var_f2 = LinguisticVariable('F2', domain)
+        output_ling_var = LinguisticVariable('output', domain)
+
+        ts1 = TakagiSugenoConsequent({'F1': 2, 'F2': 10, 'const': 1}, output_ling_var)
+        output = ts1.output({ling_var_f1: 1, ling_var_f2: 1})
         """
 
     def __init__(self, function_parameters: Dict[str, float], linguistic_variable: LinguisticVariable):
