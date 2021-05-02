@@ -62,7 +62,6 @@ class Algebra(ABC):
 
     @staticmethod
     @abstractmethod
-    @expand_negation_argument
     def negation(a: MembershipDegree) -> MembershipDegree:
         pass
 

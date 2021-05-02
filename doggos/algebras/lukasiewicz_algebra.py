@@ -1,6 +1,6 @@
 import numpy as np
 
-from doggos.algebras.algebra import Algebra, validate_input
+from doggos.algebras.algebra import Algebra, validate_input, expand_negation_argument
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
 
@@ -15,9 +15,10 @@ class LukasiewiczAlgebra(Algebra):
         :param b: second value
         :return: min(1., 1 - a + b)
         """
-        return min(1., 1 - a + b)
+        return np.minimum(1., 1 - a + b)
 
     @staticmethod
+    @expand_negation_argument
     def negation(a: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Lukasiewicz negation
