@@ -40,8 +40,17 @@ class TestType1FuzzySet:
         fuzzy_set.membership_function = mf2
         assert fuzzy_set(x) == mf2(x)
 
-    @pytest.mark.parametrize('x', np.random.randn(5, 7))
-    def test_vectorized_membership_function(self, x):
+    @pytest.mark.parametrize('x', np.random.randn(10, 15))
+    def test_vectorized_one_dimension_set_call(self, x):
+        mf1 = sigmoid(0, 1)
+        fuzzy_set = Type1FuzzySet(mf1)
+        assert all(res == approx(exp) for res, exp in zip(
+            fuzzy_set(x),
+            mf1(x)
+        ))
+
+    @pytest.mark.parametrize('x', np.random.randn(10, 15, 10))
+    def test_vectorized_multi_dimension_set_call(self, x):
         mf1 = sigmoid(0, 1)
         fuzzy_set = Type1FuzzySet(mf1)
         assert all(res == approx(exp) for res, exp in zip(
