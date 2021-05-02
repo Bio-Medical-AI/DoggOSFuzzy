@@ -30,7 +30,7 @@ class TestClause:
         fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         values = fuzzy_set(domain())
-        index = np.round((x - domain.min)/domain.precision)
+        index = np.round((x - domain.min)/domain.precision).astype(int)
         assert values[index] == clause.get_value(x)
         
     @pytest.mark.parametrize('x, y, z', zip(np.arange(0, 10, 1), np.arange(2, 12, 1), np.arange(3, 13, 1)))
@@ -42,7 +42,7 @@ class TestClause:
         clause = Clause(ling_var, 'High', fuzzy_set)
         values = fuzzy_set(domain())
         index = np.round((collection - domain.min)/domain.precision).astype(int)
-        assert values[index] == clause.get_value(collection)
+        assert np.array_equal(values[index], clause.get_value(collection))
 
     @pytest.mark.parametrize('x', np.arange(-5, -1, 1))
     def test_exception_value_error_get_value(self, x):
@@ -100,3 +100,4 @@ class TestClause:
         fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         assert clause.gradation_adjective == 'High'
+
