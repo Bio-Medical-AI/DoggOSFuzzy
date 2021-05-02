@@ -3,7 +3,6 @@ from typing import Callable, Tuple, NoReturn
 
 import numpy as np
 
-
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 

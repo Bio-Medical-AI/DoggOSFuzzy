@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 
-
 from tests.test_fuzzy_sets import _random_sample
 
 from tests.test_tools import approx
