@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, NewType
 
 from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+
+
+ConsequentOutput = NewType('ConsequentOutput')
 
 
 class Consequent(ABC):

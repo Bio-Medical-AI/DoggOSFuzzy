@@ -3,7 +3,8 @@ import numpy as np
 
 from doggos.knowledge.consequents.consequent import Consequent
 from doggos.knowledge.clause import Clause
-from doggos.fuzzy_sets import MembershipDegree
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
+from doggos.knowledge.consequents.consequent import ConsequentOutput
 
 
 class MamdaniConsequent(Consequent):
@@ -22,7 +23,7 @@ class MamdaniConsequent(Consequent):
 
     Methods
     --------------------------------------------
-    calculate_cut(rule_firing: Tuple[float, ...] or float) -> Tuple[List[float]] or List[float]
+    output(rule_firing: MembershipDegree) -> ConsequentOutput
         cut fuzzy set provided by Clause to rule firing level
 
     Examples:
@@ -34,12 +35,12 @@ class MamdaniConsequent(Consequent):
         """
         Create Rules Consequent used in Mamdani Inference System. Provided Clause holds fuzzy set describing Consequent
         and Linguistic Variable which value user wants to compute.
-        :param clause: Clause holding fuzzy set and linguistic variable
+        :param clause: Clause containing fuzzy set and linguistic variable
         """
         self.__clause = clause
         self.__cut_mf = None
 
-    def output(self, rule_firing: MembershipDegree) -> List[MembershipDegree]:
+    def output(self, rule_firing: MembershipDegree) -> ConsequentOutput:
         """
         Cuts membership function to the level of rule firing. It is a minimum of membership function values
         and respecting rule firing. Rule firing should hold values from range [0, 1].
@@ -49,24 +50,23 @@ class MamdaniConsequent(Consequent):
         :param rule_firing: firing value of a Rule in which Consequent is used
         :return: fuzzy set membership function or tuple of those, cut to the level of firing value
         """
-        if isinstance(rule_firing, MembershipDegreeT1):
+        if isinstance(rule_firing, float):
             return self.__t1_cut(rule_firing)
-        elif isinstance(rule_firing, MembershipDegreeIT2):
+        elif isinstance(rule_firing, tuple) and len(rule_firing) == 2:
             return self.__it2_cut(rule_firing)
         else:
             raise ValueError(f"Incorrect type of rule firing: {rule_firing}")
 
-    def __t1_cut(self, rule_firing: MembershipDegreeT1):
+    def __t1_cut(self, rule_firing: float) -> List[float]:
         """
         Makes a cut for type one fuzzy sets. If Clause fuzzy set type mismatches rule_firing type, exception is raised.
         :param rule_firing: crisp value of rule firing
         :return: fuzzy set membership function, cut to the level of firing value
         """
-        self.__cut_mf = [membership if membership.value <= rule_firing.value else clone(rule_firing)
-                         for membership in self.__clause.values]
+        self.__cut_mf = np.minimum(self.__clause.get_value(self.__clause.linguistic_variable.domain()), rule_firing)
         return self.__cut_mf
 
-    def __it2_cut(self, rule_firing: MembershipDegreeIT2):
+    def __it2_cut(self, rule_firing: Tuple[float, float]) -> Tuple[List[float], List[float]]:
         """
         Makes a cut for interval type two fuzzy sets. If Clause fuzzy set type mismatches rule_firing type, exception is
         raised. Lower membership function is cut to level of first element of tuple, upper membership function is cut to
@@ -74,6 +74,7 @@ class MamdaniConsequent(Consequent):
         :param rule_firing: tuple of crisp values of rule firing
         :return: tuple of fuzzy set membership functions, cut to the level of firing value
         """
-        self.__cut_mf = (np.minimum(self.__clause.values, rule_firing.value[0]),
-                         np.minimum(self.__clause.values, rule_firing.value[0]))
+        lmf, umf = self.__clause.get_value(self.__clause.linguistic_variable.domain())
+        self.__cut_mf = (np.minimum(lmf, rule_firing[0]),
+                         np.minimum(umf, rule_firing[0]))
         return self.__cut_mf
