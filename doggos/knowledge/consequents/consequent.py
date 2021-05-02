@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import List, NewType
-
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+from typing import NewType
 
 
-ConsequentOutput = NewType('ConsequentOutput')
+ConsequentOutput = NewType('ConsequentOutput', None)
+"""
+"""
 
 
 class Consequent(ABC):
@@ -14,9 +14,9 @@ class Consequent(ABC):
 
     Methods
     --------------------------------------------
-    calculate_cut(rule_firing: Tuple[float, ...] or float) -> Tuple[List[float]] or List[float]
+    output(*args) -> ConsequentOutput
         cut fuzzy set provided by Clause to rule firing level
     """
     @abstractmethod
-    def output(self, rule_firing: MembershipDegree) -> List[MembershipDegree] or float:
+    def output(self, *args) -> ConsequentOutput:
         pass
