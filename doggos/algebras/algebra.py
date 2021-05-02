@@ -8,20 +8,21 @@ from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
 def validate_input(function):
     """
-    Decorator for algebra functions, to validate shape of the input
-    :param function:
-    :return:
+    Decorator for functions in algebras that checks dimensions. If the input is iterable, it is converted to np.ndarray.
+    For the operation to make sense, the first dimension must match. If one input is a float and the other is an array,
+    for example, the operation continues if the dimensions match.
+
+    :param function: operation, that takes two arguments a and b, for example: implication, t_norm, s_norm
+    :return: decorated negation
     """
     def operation(a, b):
         if isinstance(a, Iterable):
-            if not isinstance(a, np.ndarray):
-                a = np.array(a)
+            a = np.array(a)
             size_a = a.shape[0]
         else:
             size_a = 1
         if isinstance(b, Iterable):
-            if not isinstance(b, np.ndarray):
-                b = np.array(b)
+            b = np.array(b)
             size_b = b.shape[0]
         else:
             size_b = 1
@@ -31,11 +32,17 @@ def validate_input(function):
     return operation
 
 
-def expand_negation_argument(function):
+def expand_negation_argument(negation):
+    """
+    Expand argument dimensions for negation.
+    For example passing: [0.1, 0.2] allows to calculate negation and returns an array of size 2.
+    :param negation: negation function, takes one argument
+    :return: decorated function
+    """
     def operation(a):
         if isinstance(a, Iterable):
             a = np.array(a)
-        return function(a)
+        return negation(a)
     return operation
 
 
