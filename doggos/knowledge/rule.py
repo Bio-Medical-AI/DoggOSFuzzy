@@ -1,6 +1,8 @@
 from typing import Dict, Tuple, List
 
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+import numpy as np
+
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.knowledge.antecedent import Antecedent
 from doggos.knowledge.consequents.consequent import Consequent
 
@@ -8,7 +10,7 @@ from doggos.knowledge.consequents.consequent import Consequent
 class Rule:
     def __init__(self, antecedent: Antecedent, consequent: Consequent):
         self.__firing_value: MembershipDegree = None
-        self.__rule_output: List[MembershipDegree] or float = None
+        self.__rule_output: np.ndarray or float = None
         self.__antecedent = antecedent
         self.__consequent = consequent
 

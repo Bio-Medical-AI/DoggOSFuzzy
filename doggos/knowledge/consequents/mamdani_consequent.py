@@ -1,9 +1,80 @@
-from typing import List
+from collections import Iterable
+import numpy as np
+from copy import deepcopy
 
 from doggos.knowledge.consequents.consequent import Consequent
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+from doggos.knowledge.clause import Clause
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
 
 class MamdaniConsequent(Consequent):
-    def output(self, rule_firing: MembershipDegree) -> List[MembershipDegree]:
-        pass
+    """
+    Class used to represent a fuzzy rule Mamdani consequent:
+    https://en.wikipedia.org/wiki/Fuzzy_rule
+
+    Attributes
+    --------------------------------------------
+    __clause : Clause
+        supplies Consequent with universe and a fuzzy set. Provided fuzzy set type must match fuzzy sets used in Fuzzy
+        Rule Antecedent, otherwise an exception will be raised during computations.
+
+    __cut_clause : Clause
+        fuzzy set provided by clause cut to the rule firing level
+
+    Methods
+    --------------------------------------------
+    output(rule_firing: MembershipDegree) -> Clause
+        cut fuzzy set provided by Clause to rule firing level
+
+    Examples:
+    --------------------------------------------
+
+    """
+
+    def __init__(self, clause: Clause):
+        """
+        Create Rules Consequent used in Mamdani Inference System. Provided Clause holds fuzzy set describing Consequent
+        and Linguistic Variable which value user wants to compute.
+        :param clause: Clause containing fuzzy set and linguistic variable
+        """
+        self.__clause = clause
+        self.__cut_clause = None
+
+    @property
+    def clause(self):
+        return self.__clause
+
+    @property
+    def cut_clause(self):
+        return self.__cut_clause
+
+    def output(self, rule_firing: MembershipDegree) -> Clause:
+        """
+        Cuts membership function to the level of rule firing. It is a minimum of membership function values
+        and respecting rule firing. Rule firing should hold values from range [0, 1].
+        IMPORTANT:
+        Make sure type of fuzzy set used in Clause matches type of fuzzy sets used in Antecedent of Rule and therefore
+        its firing type.
+        :param rule_firing: firing value of a Rule in which Consequent is used
+        :return: Clause with fuzzy set membership function, cut to the level of firing value
+        """
+        if isinstance(rule_firing, float):
+            return self.__cut(rule_firing)
+        elif isinstance(rule_firing, Iterable):
+            if not isinstance(rule_firing, np.ndarray):
+                rule_firing = np.array(rule_firing).reshape((len(rule_firing), 1))
+            if rule_firing.shape != (len(rule_firing), 1):
+                rule_firing.reshape(len(rule_firing), 1)
+            return self.__cut(rule_firing)
+        else:
+            raise ValueError(f"Incorrect type of rule firing: {rule_firing}")
+
+    def __cut(self, rule_firing: np.ndarray or float) -> Clause:
+        """
+        Makes a cut for type one fuzzy sets. If Clause fuzzy set type mismatches rule_firing type, exception is raised.
+        :param rule_firing: crisp value of rule firing
+        :return: Clause with fuzzy set membership function, cut to the level of firing value
+        """
+        self.__cut_clause = deepcopy(self.__clause)
+        self.__cut_clause.values = np.minimum(self.__cut_clause.values, rule_firing)
+        return self.__cut_clause

@@ -1,6 +1,6 @@
 from __future__ import annotations
-from typing import Callable, NoReturn
-
+from typing import Callable, Tuple, Sequence, NoReturn
+import numpy as np
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
@@ -25,12 +25,7 @@ class IntervalType2FuzzySet(FuzzySet):
 
     Examples:
     --------------------------------------------
-    Creating simple interval type II fuzzy set and calculate membership degree
-    >>> fuzzy_set = IntervalType2FuzzySet(lambda x: 0 if x < 0 else 0.2, lambda x: 0 if x < 0 else 1)
-    >>> fuzzy_set(2)
-    (0.2, 1)
-
-    Creating interval type II fuzzy set using numpy functions
+    Creating interval type II fuzzy set using numpy functions (suggested)
     >>> import numpy as np
     >>> def f1(x):
     ...    return 1 / (1 + np.exp(-x))
@@ -41,6 +36,8 @@ class IntervalType2FuzzySet(FuzzySet):
     >>> fuzzy_set = IntervalType2FuzzySet(f1, f2)
     >>> fuzzy_set(2.5)
     (0.9241, 1)
+    >>> fuzzy_set([0.0, 2.5])
+    (array([0.5, 1]), array([0.9241, 1]))
     """
     __upper_membership_function: Callable[[float], float]
     __lower_membership_function: Callable[[float], float]
@@ -60,10 +57,10 @@ class IntervalType2FuzzySet(FuzzySet):
         """
         if not callable(upper_membership_function) or not callable(lower_membership_function):
             raise ValueError('Membership functions should be callable')
-        self.__upper_membership_function = upper_membership_function
-        self.__lower_membership_function = lower_membership_function
+        self.__upper_membership_function = np.vectorize(upper_membership_function)
+        self.__lower_membership_function = np.vectorize(lower_membership_function)
 
-    def __call__(self, x: float) -> Tuple[float, float]:
+    def __call__(self, x: float or Sequence[float]) -> Tuple[float, float] or Tuple[np.ndarray, np.ndarray]:
         """
         Calculate the degree of belonging (lower_membership, upper_membership),
         raises an exception if lower_membership > upper_membership
@@ -72,7 +69,7 @@ class IntervalType2FuzzySet(FuzzySet):
         :return: membership degree of an element as tuple (lmf(x), umf(x))
         """
         lower_membership, upper_membership = self.__lower_membership_function(x), self.__upper_membership_function(x)
-        if lower_membership > upper_membership:
+        if np.any(lower_membership > upper_membership):
             raise ValueError('Lower membership function returned higher value than upper membership function')
         return lower_membership, upper_membership
 
