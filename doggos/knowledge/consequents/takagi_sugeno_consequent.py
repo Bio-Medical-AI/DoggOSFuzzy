@@ -1,5 +1,6 @@
-from typing import List, Callable, NoReturn, Dict
+from typing import NoReturn, Dict
 
+from doggos.knowledge import LinguisticVariable
 from doggos.knowledge.consequents.consequent import Consequent
 
 
@@ -23,8 +24,10 @@ class TakagiSugenoConsequent(Consequent):
 
         Examples:
         --------------------------------------------
-        ts = TakagiSugenoConsequent([2, 10, 1])
-        out = ts.output([0.5, 0.9])
+        ts = TakagiSugenoConsequent({'F1': 0.1, 'const': -2.5})
+        domain = Domain(0, 10, 0.01)
+        ling_var = LinguisticVariable('F1', domain)
+        output = ts.output({ling_var: 1}) == -2.4)
         """
 
     def __init__(self, function_parameters: Dict[str, float]):
@@ -48,7 +51,7 @@ class TakagiSugenoConsequent(Consequent):
     def function_parameters(self, new_function_parameters: Dict[str, float]) -> NoReturn:
         """
         Sets new list of consequent's function parameters
-        :param new_function_paramteres: new dictionary of consequent's function parameters
+        :param new_function_parameters: new dictionary of consequent's function parameters
         :return: NoReturn
         """
         if (not isinstance(new_function_parameters, dict) or
@@ -57,19 +60,20 @@ class TakagiSugenoConsequent(Consequent):
             raise ValueError("Takagi-Sugeno consequent parameters must be Dict[str, float]!")
         self.__function_parameters = new_function_parameters
 
-    def output(self, consequent_input: Dict[str, float]) -> float:
+    def output(self, consequent_input: Dict[LinguisticVariable, float]) -> float:
         """
         Return rule output level by calculating consequent function with inputs as variables.
-        :param consequent_input: inputs of the inference system in Dict[str, float], which reflects input linguistic
-                variable name and value
-                IMPORTANT: Number of inputs must be one less than number of function parameters!
-                           Last parameter should have key 'const' as it reflects form of output function.
+        :param consequent_input: inputs of the inference system in Dict[LinguisticVariable, float], which reflects
+         input feature name and value
+                IMPORTANT: Each of input variable which will be considered in inference process, needs to have
+                corresponding function parameter provided.
         :return: crisp rule output value that needs to be used in aggregation process
         """
         self.__consequent_output = 0
-        if all(key in self.__function_parameters.keys() for key in list(consequent_input.keys()) + ['const']):
+        if all(key in self.__function_parameters.keys() for key in [x.name for x in consequent_input.keys()] +
+                                                                   ['const']):
             for key in consequent_input:
-                self.__consequent_output += consequent_input[key] * self.__function_parameters[key]
+                self.__consequent_output += consequent_input[key] * self.__function_parameters[key.name]
             if 'const' in self.__function_parameters.keys():
                 self.__consequent_output += self.__function_parameters['const']
             return self.__consequent_output
