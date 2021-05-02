@@ -3,7 +3,6 @@ from typing import Callable, NoReturn
 
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
-from doggos.fuzzy_sets.membership import MembershipDegreeT1
 
 
 class Type1FuzzySet(FuzzySet):
@@ -50,13 +49,13 @@ class Type1FuzzySet(FuzzySet):
             raise ValueError('Membership function must be callable')
         self.__membership_function = membership_function
 
-    def __call__(self, x: float) -> MembershipDegreeT1:
+    def __call__(self, x: float) -> float:
         """
         Calculate the degree of membership to a type I fuzzy set for of an element
         :param x: element of domain
         :return: degree of membership of an element
         """
-        return MembershipDegreeT1(self.__membership_function(x))
+        return self.__membership_function(x)
 
     @property
     def membership_function(self) -> Callable[[float], float]:

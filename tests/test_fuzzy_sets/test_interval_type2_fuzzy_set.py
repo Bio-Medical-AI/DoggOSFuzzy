@@ -5,7 +5,6 @@ from tests.test_fuzzy_sets import _random_sample
 
 
 from doggos.fuzzy_sets import IntervalType2FuzzySet
-from doggos.fuzzy_sets.membership import MembershipDegreeIT2
 from doggos.utils.membership_functions import linear, sigmoid
 
 
@@ -16,7 +15,7 @@ class TestIntervalType2FuzzySet:
         lmf = linear(2, 3, 1)
         umf = linear(1, 3, 1)
         fuzzy_set = IntervalType2FuzzySet(lmf, umf)
-        assert fuzzy_set(x) == MembershipDegreeIT2((lmf(x), umf(x)))
+        assert fuzzy_set(x) == (lmf(x), umf(x))
 
     def test_uncallable_functions_fuzzy_set(self):
         lmf = linear(2, 3, 1)
@@ -42,7 +41,7 @@ class TestIntervalType2FuzzySet:
         lmf = sigmoid(1, 3)
         umf = sigmoid(1, 3)
         fuzzy_set = IntervalType2FuzzySet(lmf, umf)
-        assert fuzzy_set(x) == MembershipDegreeIT2((lmf(x), umf(x)))
+        assert fuzzy_set(x) == (lmf(x), umf(x))
 
     @pytest.mark.parametrize('x', _random_sample(-10, 10, 5))
     def test_upper_mf_setter_correct(self, x):
@@ -51,7 +50,7 @@ class TestIntervalType2FuzzySet:
         umf2 = sigmoid(0, 2)
         fuzzy_set = IntervalType2FuzzySet(lmf, umf1)
         fuzzy_set.upper_membership_function = umf2
-        assert fuzzy_set(2) == MembershipDegreeIT2((lmf(2), umf2(2)))
+        assert fuzzy_set(2) == (lmf(2), umf2(2))
 
     def test_upper_mf_setter_exception(self):
         lmf = sigmoid(2, 2)
@@ -74,7 +73,7 @@ class TestIntervalType2FuzzySet:
         umf = linear(1, 3, 1)
         fuzzy_set = IntervalType2FuzzySet(lmf1, umf)
         fuzzy_set.lower_membership_function = lmf2
-        assert fuzzy_set(x) == MembershipDegreeIT2((lmf2(x), umf(x)))
+        assert fuzzy_set(x) == (lmf2(x), umf(x))
 
     def test_lower_mf_setter_exception(self):
         lmf = sigmoid(2, 2)
