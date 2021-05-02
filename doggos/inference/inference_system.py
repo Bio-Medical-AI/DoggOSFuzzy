@@ -13,8 +13,8 @@ class InferenceSystem(ABC):
     def output(self, features: Dict[str, float], method: str) -> float:
         pass
 
-    def _center_of_gravity(self, domain, weights):
-        return np.average(domain, weights=weights)
+    def _center_of_gravity(self, domain, cut):
+        return np.average(domain, weights=cut)
 
     def _largest_of_maximum(self, domain, cut):
         maximum = np.max(cut)
@@ -39,10 +39,15 @@ class InferenceSystem(ABC):
         return total / size
 
     def _center_of_sums(self, domain, membership_functions):
-        for x in domain:
-            for membership_function in membership_functions:
-
-
+        nominator = 0
+        denominator = 0
+        domain_values = np.zeros(shape=(2, len(domain)))
+        domain_values[0] = domain
+        for membership_function in membership_functions:
+            domain_values[1] = membership_function
+            nominator += np.sum(np.prod(domain_values, axis=0))
+            denominator += np.sum(domain_values[1])
+        return nominator / denominator
 
     def _karnik_mendel(self, lmf: np.ndarray, umf: np.ndarray, domain: np.ndarray) -> float:
         """

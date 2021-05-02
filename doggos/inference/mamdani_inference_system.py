@@ -45,39 +45,25 @@ class MamdaniInferenceSystem(InferenceSystem):
         """
         Inferences output based on features of given object using chosen method
         :param features: dictionary of linguistic variables and their values
-        :param method: 'karnik_mendel', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM'
+        :param method: 'karnik_mendel', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
         :return: decision value
         """
-        if method == 'COG':
-            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
-            cut = self.__membership_func_union(membership_functions)
-            return self._center_of_gravity(domain, cut)
+        type1_method = {
+            'COG': self._center_of_gravity,
+            'LOM': self._largest_of_maximum,
+            'MOM': self._middle_of_maximum,
+            'SOM': self._smallest_of_maximum,
+            'MeOM': self._mean_of_maxima
+        }[method]
 
-        elif method == 'LOM':
-            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
-            cut = self.__membership_func_union(membership_functions)
-            return self._largest_of_maximum(domain, cut)
-
-        elif method == 'MOM':
-            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
-            cut = self.__membership_func_union(membership_functions)
-            return self._middle_of_maximum(domain, cut)
-
-        elif method == 'SOM':
-            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
-            cut = self.__membership_func_union(membership_functions)
-            return self._smallest_of_maximum(domain, cut)
-
-        elif method == 'MeOM':
-            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
-            cut = self.__membership_func_union(membership_functions)
-            return self._mean_of_maxima(domain, cut)
-
-        elif method == 'karnik_mendel':
+        if method == 'karnik_mendel':
             domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(features)
             lower_cut = self.__membership_func_union(lmfs)
             upper_cut = self.__membership_func_union(umfs)
             return self._karnik_mendel(lower_cut, upper_cut, domain)
+        else:
+            domain, cut = self.__get_domain_and_cut(features)
+            type1_method(domain, cut)
 
     def __membership_func_union(self, mfs: List[np.ndarray]) -> np.ndarray:
         """
@@ -99,6 +85,10 @@ class MamdaniInferenceSystem(InferenceSystem):
         domain = self.__rule_base[0].consequent.clause.linguistic_variable.domain()
         return domain, membership_functions
 
+    def __get_domain_and_cut(self, features: Dict[LinguisticVariable, float]):
+        domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+        cut = self.__membership_func_union(membership_functions)
+        return domain, cut
 
     def __get_domain_and_memberships_for_it2(self, features: Dict[LinguisticVariable, float]) \
             -> Tuple[np.ndarray, List[np.ndarray], List[np.ndarray]]:
