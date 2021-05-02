@@ -2,6 +2,9 @@ from __future__ import annotations
 from typing import Callable, NoReturn
 
 
+import numpy as np
+
+
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 
@@ -9,24 +12,20 @@ class Type1FuzzySet(FuzzySet):
     """
     Class used to represent a type I fuzzy set:
     https://en.wikipedia.org/wiki/Fuzzy_set
-
     Attributes
     --------------------------------------------
     __membership_function : Callable[[float], float]
         membership function, determines degree of membership to a fuzzy set
-
     Methods
     --------------------------------------------
     __call__(x: float) -> float
         calculate degree of membership of element to a fuzzy set
-
     Examples:
     --------------------------------------------
     Creating simple type I fuzzy setand calculate degree of belonging
-    >>> fuzzy_set = Type1FuzzySet(lambda x: 0 if x < 0 else 1)
+    >>> fuzzy_set = Type1FuzzySet(lambda x: 1)
     >>> fuzzy_set(2)
     1
-
     Creating type I fuzzy set using numpy functions
     >>> import numpy as np
     >>> def sigmoid(x):
@@ -47,7 +46,7 @@ class Type1FuzzySet(FuzzySet):
         """
         if not callable(membership_function):
             raise ValueError('Membership function must be callable')
-        self.__membership_function = membership_function
+        self.__membership_function = np.vectorize(membership_function)
 
     def __call__(self, x: float) -> float:
         """
