@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, NoReturn
+from typing import Callable, NoReturn, Sequence
 
 
 import numpy as np
@@ -34,7 +34,7 @@ class Type1FuzzySet(FuzzySet):
     >>> fuzzy_set = Type1FuzzySet(sigmoid)
     >>> fuzzy_set(2.5)
     0.9241
-    >>> fuzzy_set([0, 2.5])
+    >>> fuzzy_set([0.0, 2.5])
     array([0.5, 0.9241])
     """
 
@@ -50,7 +50,7 @@ class Type1FuzzySet(FuzzySet):
             raise ValueError('Membership function must be callable')
         self.__membership_function = np.vectorize(membership_function)
 
-    def __call__(self, x: float) -> float:
+    def __call__(self, x: float or Sequence[float]) -> float or np.ndarray:
         """
         Calculate the degree of membership to a type I fuzzy set for of an element
         :param x: element of domain
