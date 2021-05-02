@@ -1,4 +1,4 @@
-from typing import NoReturn, Dict
+from typing import NoReturn, Dict, Tuple
 
 from doggos.knowledge import LinguisticVariable
 from doggos.knowledge.consequents.consequent import Consequent
@@ -13,14 +13,16 @@ class TakagiSugenoConsequent(Consequent):
         --------------------------------------------
         __function_parameters : Dict[str, float]
             supplies parameters to consequent output function, which takes form y = ax1 + bx2 + ... + c
-        __consequent_output : float
+        __consequent_output : Tuple[LinguisticVariable, float]
             represents output of consequent function
+        __linguistic_variable : represents attribute of output inference
 
         Methods
         --------------------------------------------
 
-        output: float
-            value representing output from calculating consequent function with provided input parameters
+        output: Tuple[LinguisticVariable, float]
+            pair representing linguistic variable and output from calculating consequent function with provided
+             input parameters
 
         Examples:
         --------------------------------------------
@@ -30,13 +32,14 @@ class TakagiSugenoConsequent(Consequent):
         output = ts.output({ling_var: 1}) == -2.4)
         """
 
-    def __init__(self, function_parameters: Dict[str, float]):
+    def __init__(self, function_parameters: Dict[str, float], linguistic_variable: LinguisticVariable):
         """
         Create Rules Consequent used in Takagi-Sugeno Inference System.
         :param function_parameters: Dict[str, float] of input LinguisticVariable name and parameter used for calculating
          output of consequent function
         """
         self.__function_parameters = function_parameters
+        self.__linguistic_variable = linguistic_variable
         self.__consequent_output = 0
 
     @property
@@ -60,14 +63,14 @@ class TakagiSugenoConsequent(Consequent):
             raise ValueError("Takagi-Sugeno consequent parameters must be Dict[str, float]!")
         self.__function_parameters = new_function_parameters
 
-    def output(self, consequent_input: Dict[LinguisticVariable, float]) -> float:
+    def output(self, consequent_input: Dict[LinguisticVariable, float]) -> Tuple[LinguisticVariable, float]:
         """
         Return rule output level by calculating consequent function with inputs as variables.
         :param consequent_input: inputs of the inference system in Dict[LinguisticVariable, float], which reflects
          input feature name and value
                 IMPORTANT: Each of input variable which will be considered in inference process, needs to have
                 corresponding function parameter provided.
-        :return: crisp rule output value that needs to be used in aggregation process
+        :return: name of feature and crisp rule output value that needs to be used in aggregation process
         """
         self.__consequent_output = 0
         if all(key in self.__function_parameters.keys() for key in [x.name for x in consequent_input.keys()] +
@@ -76,6 +79,6 @@ class TakagiSugenoConsequent(Consequent):
                 self.__consequent_output += consequent_input[key] * self.__function_parameters[key.name]
             if 'const' in self.__function_parameters.keys():
                 self.__consequent_output += self.__function_parameters['const']
-            return self.__consequent_output
+            return self.__linguistic_variable, self.__consequent_output
         else:
             raise Exception("Function parameters contain value for input which was not provided!")
