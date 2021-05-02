@@ -30,7 +30,7 @@ class TestGodelAlgebra:
     @pytest.mark.parametrize('a, b, c', zip(
         [(0.9, 1.0)],
         [[0.2, 1.0]],
-        [[0.9, 1.0]]
+        [[0.2, 1.0]]
     ))
     def test_t_norm_iterable(self, a, b, c):
         assert all(res == approx(exp) for res, exp in zip(
@@ -65,7 +65,7 @@ class TestGodelAlgebra:
     @pytest.mark.parametrize('a, b, c', zip(
         [np.array([0.9, 1.0, 1.0, 0.2])],
         [np.array([0.2, 1.0, 0.0, 0.35])],
-        [[1.0, 1.0, 1.0, 0.55]]
+        [[0.9, 1.0, 1.0, 0.35]]
     ))
     def test_s_norm_array(self, a, b, c):
         assert all(res == approx(exp) for res, exp in zip(
@@ -76,7 +76,7 @@ class TestGodelAlgebra:
     @pytest.mark.parametrize('a, b, c', zip(
         [(0.9, 1.0)],
         [[0.2, 1.0]],
-        [[1.0, 1.0]]
+        [[0.9, 1.0]]
     ))
     def test_s_norm_iterable(self, a, b, c):
         assert all(res == approx(exp) for res, exp in zip(
@@ -127,17 +127,17 @@ class TestGodelAlgebra:
         ))
 
     @pytest.mark.parametrize('a, b, c', zip(
-        [0.9, 1.0, 1.0, 0.2],
-        [0.2, 1.0, 0.0, 0.35],
-        [0.0, 1.0, 1.0, 0.25]
+        [1.0, 0.0, 0.2, 0.95],
+        [0.0, 1.0, 0.35, 0.2],
+        [0.0, 1.0, 0.8, 0.2]
     ))
     def test_implication(self, a, b, c):
         assert GodelAlgebra.implication(a, b) == approx(c)
 
     @pytest.mark.parametrize('a, b, c', zip(
-        [np.array([0.9, 1.0, 1.0, 0.2])],
-        [np.array([0.2, 1.0, 0.0, 0.35])],
-        [[0.0, 1.0, 1.0, 0.25]]
+        [np.array([1.0, 0.0, 0.2, 0.95])],
+        [np.array([0.0, 1.0, 0.35, 0.2])],
+        [[0.0, 1.0, 0.8, 0.2]]
     ))
     def test_implication_array(self, a, b, c):
         assert all(res == approx(exp) for res, exp in zip(
@@ -146,9 +146,9 @@ class TestGodelAlgebra:
         ))
 
     @pytest.mark.parametrize('a, b, c', zip(
-        [(0.9, 1.0), [0.2, 1.0]],
-        [(0.2, 1.0), np.array([0.35, 0.0])],
-        [(0.0, 1.0), (0.25, 1.0)]
+        [(1.0, 0.0), [0.2, 0.95]],
+        [(0.0, 1.0), np.array([0.35, 0.2])],
+        [(0.0, 1.0), (0.8, 0.2)]
     ))
     def test_implication_iterable(self, a, b, c):
         assert all(res == approx(exp) for res, exp in zip(
