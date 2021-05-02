@@ -45,7 +45,7 @@ class TestMamdaniConsequent:
                               [np.array([0.3, 0.5]), np.array([0.2, 0.7]), np.array([0, 1])],
                               [np.array([[0.3], [0.5]]), np.array([[0.2], [0.7]]), np.array([[0], [1]])]]
                              )
-    def test_output_it2_firing(self, first_rule_firing, second_rule_firing, third_rule_firing):
+    def test_output_it2_firing_types(self, first_rule_firing, second_rule_firing, third_rule_firing):
         watering = LinguisticVariable('watering', Domain(0, 1, 0.001))
 
         low_watering = IntervalType2FuzzySet(triangular(0, 0.25, 0.5), triangular(-0.1, 0.25, 0.6))
@@ -77,5 +77,36 @@ class TestMamdaniConsequent:
         assert np.array_equal(third_consequent_output,
                               np.minimum(high_watering_clause.values, third_rule_firing))
 
-    def test_output_it2_firing_as_ndarray(self):
-        assert True
+    @pytest.mark.parametrize('rule_firing',
+                             [{0: 0.2, 1: 0.3},
+                              "(0.2, 1)",
+                              np.array([[0.1], [0.2], [0.3], [0.4]]),
+                              np.array([[0.2, 0.3], [0.1, 0.2]])])
+    def test_output_throws_exception_in_case_of_wrong_rule_firing_type(self, rule_firing):
+        watering = LinguisticVariable('watering', Domain(0, 1, 0.001))
+        low_watering = IntervalType2FuzzySet(triangular(0, 0.25, 0.5), triangular(-0.1, 0.25, 0.6))
+        low_watering_clause = Clause(watering, 'Low', low_watering)
+        low_watering_consequent = MamdaniConsequent(low_watering_clause)
+
+        with pytest.raises(ValueError):
+            low_watering_consequent.output(rule_firing)
+
+    def test_clause_getter(self):
+        watering = LinguisticVariable('watering', Domain(0, 1, 0.001))
+        low_watering = IntervalType2FuzzySet(triangular(0, 0.25, 0.5), triangular(-0.1, 0.25, 0.6))
+        low_watering_clause = Clause(watering, 'Low', low_watering)
+        low_watering_consequent = MamdaniConsequent(low_watering_clause)
+
+        low_watering_consequent.output((0.2, 0.3))
+
+        assert low_watering_consequent.clause == low_watering_clause
+
+    def test_cut_clause_getter(self):
+        watering = LinguisticVariable('watering', Domain(0, 1, 0.001))
+        low_watering = IntervalType2FuzzySet(triangular(0, 0.25, 0.5), triangular(-0.1, 0.25, 0.6))
+        low_watering_clause = Clause(watering, 'Low', low_watering)
+        low_watering_consequent = MamdaniConsequent(low_watering_clause)
+
+        cut_clause = low_watering_consequent.output((0.2, 0.3))
+
+        assert low_watering_consequent.cut_clause == cut_clause
