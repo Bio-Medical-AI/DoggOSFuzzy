@@ -1,6 +1,6 @@
 from typing import NoReturn, Dict, Tuple
 
-from doggos.knowledge import LinguisticVariable
+from doggos.knowledge import LinguisticVariable, Domain
 from doggos.knowledge.consequents.consequent import Consequent
 
 
@@ -96,11 +96,21 @@ class TakagiSugenoConsequent(Consequent):
                 corresponding function parameter provided.
         :return: name of feature and crisp rule output value that needs to be used in aggregation process
         """
-        self.__consequent_output = self.bias
-        if all(key in self.__function_parameters.keys() for key in consequent_input.keys()):
+        self.__consequent_output = self.__bias
+        try:
             for key in consequent_input:
                 self.__consequent_output += consequent_input[key] * self.__function_parameters[key]
-
             return self.__consequent_output
-        else:
-            raise ValueError("Function parameters contain value for input which was not provided!")
+        except KeyError:
+            print("Function parameters contain value for input which was not provided!")
+            raise
+
+
+domain = Domain(0, 10, 0.01)
+lv_f1 = LinguisticVariable('F1', domain)
+lv_f2 = LinguisticVariable('F2', domain)
+lv_f3 = LinguisticVariable('F3', domain)
+output_lv = LinguisticVariable('output', domain)
+
+ts = TakagiSugenoConsequent({lv_f1: 1, lv_f2: 2, lv_f3: 3}, 4, output_lv)
+ts.output({lv_f1: 1, lv_f2: 2})
