@@ -40,6 +40,14 @@ class MamdaniConsequent(Consequent):
         self.__clause = clause
         self.__cut_clause = None
 
+    @property
+    def clause(self):
+        return self.__clause
+
+    @property
+    def cut_clause(self):
+        return self.__cut_clause
+
     def output(self, rule_firing: MembershipDegree) -> Clause:
         """
         Cuts membership function to the level of rule firing. It is a minimum of membership function values
@@ -55,6 +63,8 @@ class MamdaniConsequent(Consequent):
         elif isinstance(rule_firing, Iterable):
             if not isinstance(rule_firing, np.ndarray):
                 rule_firing = np.array(rule_firing).reshape((len(rule_firing), 1))
+            if rule_firing.shape != (len(rule_firing), 1):
+                rule_firing.reshape(len(rule_firing), 1)
             return self.__cut(rule_firing)
         else:
             raise ValueError(f"Incorrect type of rule firing: {rule_firing}")
