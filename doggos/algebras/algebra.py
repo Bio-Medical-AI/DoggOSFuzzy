@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -16,12 +16,12 @@ def validate_input(function):
     :return: decorated negation
     """
     def operation(a, b):
-        if isinstance(a, Iterable):
+        if isinstance(a, Sequence):
             a = np.array(a)
             size_a = a.shape[0]
         else:
             size_a = 1
-        if isinstance(b, Iterable):
+        if isinstance(b, Sequence):
             b = np.array(b)
             size_b = b.shape[0]
         else:
@@ -40,7 +40,7 @@ def expand_negation_argument(negation):
     :return: decorated function
     """
     def operation(a):
-        if isinstance(a, Iterable):
+        if isinstance(a, Sequence):
             a = np.array(a)
         return negation(a)
     return operation
