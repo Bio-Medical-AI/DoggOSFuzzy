@@ -15,7 +15,7 @@ class Consequent(ABC):
     Methods
     --------------------------------------------
     output(*args) -> ConsequentOutput
-        cut fuzzy set provided by Clause to rule firing level
+        calculate output of Consequent
     """
     @abstractmethod
     def output(self, *args) -> ConsequentOutput:

@@ -1,3 +1,4 @@
+from collections import Iterable
 from typing import Tuple, List
 import numpy as np
 from copy import deepcopy
@@ -24,7 +25,7 @@ class MamdaniConsequent(Consequent):
 
     Methods
     --------------------------------------------
-    output(rule_firing: MembershipDegree) -> ConsequentOutput
+    output(rule_firing: MembershipDegree) -> Clause
         cut fuzzy set provided by Clause to rule firing level
 
     Examples:
@@ -49,16 +50,18 @@ class MamdaniConsequent(Consequent):
         Make sure type of fuzzy set used in Clause matches type of fuzzy sets used in Antecedent of Rule and therefore
         its firing type.
         :param rule_firing: firing value of a Rule in which Consequent is used
-        :return: fuzzy set membership function or tuple of those, cut to the level of firing value
+        :return: Clause with cut membership function
         """
         if isinstance(rule_firing, float):
             return self.__t1_cut(rule_firing)
-        elif isinstance(rule_firing, tuple) and len(rule_firing) == 2:
+        elif isinstance(rule_firing, Iterable) and len(rule_firing) == 2:
+            if not isinstance(rule_firing, np.ndarray):
+                rule_firing = np.array(rule_firing).reshape((2, 1))
             return self.__it2_cut(rule_firing)
         else:
             raise ValueError(f"Incorrect type of rule firing: {rule_firing}")
 
-    def __t1_cut(self, rule_firing: float) -> Clause:
+    def __cut(self, rule_firing: float) -> Clause:
         """
         Makes a cut for type one fuzzy sets. If Clause fuzzy set type mismatches rule_firing type, exception is raised.
         :param rule_firing: crisp value of rule firing
@@ -67,16 +70,3 @@ class MamdaniConsequent(Consequent):
         self.__cut_clause = deepcopy(self.__clause)
         self.__cut_clause.values = np.minimum(self.__cut_clause.values, rule_firing)
         return self.__cut_clause
-
-    def __it2_cut(self, rule_firing: Tuple[float, float]) -> Clause:
-        """
-        Makes a cut for interval type two fuzzy sets. If Clause fuzzy set type mismatches rule_firing type, exception is
-        raised. Lower membership function is cut to level of first element of tuple, upper membership function is cut to
-        level of second element of tuple.
-        :param rule_firing: tuple of crisp values of rule firing
-        :return: tuple of fuzzy set membership functions, cut to the level of firing value
-        """
-        self.__cut_mf = deepcopy(self.__clause)
-        self.__cut_mf.values = np.ndarray(np.minimum(self.__cut_clause.values[0], rule_firing[0]),
-                                          np.minimum(self.__cut_clause.values[1], rule_firing[1]))
-        return self.__cut_mf
