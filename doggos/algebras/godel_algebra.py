@@ -1,6 +1,6 @@
 import numpy as np
 
-from doggos.algebras.algebra import Algebra, validate_input
+from doggos.algebras.algebra import Algebra, validate_input, expand_negation_argument
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
 
@@ -18,6 +18,7 @@ class GodelAlgebra(Algebra):
         return np.maximum(1 - a, b)
 
     @staticmethod
+    @expand_negation_argument
     def negation(a: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Gödel negation
@@ -35,7 +36,7 @@ class GodelAlgebra(Algebra):
         :param b: second value
         :return: max(a, b)
         """
-        return max(a, b)
+        return np.maximum(a, b)
 
     @staticmethod
     @validate_input
@@ -46,4 +47,8 @@ class GodelAlgebra(Algebra):
         :param b: second value
         :return: min(a, b)
         """
-        return min(a, b)
+        return np.minimum(a, b)
+
+
+if __name__ == '__main__':
+    z = GodelAlgebra.t_norm((0.9, 1.0), (0.1, 1.0))

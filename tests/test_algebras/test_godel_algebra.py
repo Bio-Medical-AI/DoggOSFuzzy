@@ -1,64 +1,176 @@
+import pytest
+import numpy as np
+
+
 from tests.test_tools import approx
 from doggos.algebras import GodelAlgebra
 
 
 class TestGodelAlgebra:
 
-    def test_t_norm_float(self):
-        assert GodelAlgebra.t_norm(0.9, 0.2) == approx(0.2)
-        assert GodelAlgebra.t_norm(1.0, 1.0) == approx(1.0)
-        assert GodelAlgebra.t_norm(1.0, 0.0) == approx(0.0)
-        assert GodelAlgebra.t_norm(0.2, 0.35) == approx(0.2)
+    @pytest.mark.parametrize('a, b, c', zip(
+        [0.9, 1.0, 1.0, 0.2],
+        [0.2, 1.0, 0.0, 0.35],
+        [0.2, 1.0, 0.0, 0.2]
+    ))
+    def test_t_norm(self, a, b, c):
+        assert GodelAlgebra.t_norm(a, b) == approx(c)
 
-    def test_t_norm_array(self):
-        pass
+    @pytest.mark.parametrize('a, b, c', zip(
+        [np.array([0.9, 1.0, 1.0, 0.2])],
+        [np.array([0.2, 1.0, 0.0, 0.35])],
+        [[0.2, 1.0, 0.0, 0.2]]
+    ))
+    def test_t_norm_array(self, a, b, c):
+        assert all(res == approx(exp) for res, exp in zip(
+            GodelAlgebra.t_norm(a, b),
+            c
+        ))
 
-    def test_t_norm_iterable(self):
-        pass
+    @pytest.mark.parametrize('a, b, c', zip(
+        [(0.9, 1.0)],
+        [[0.2, 1.0]],
+        [[0.9, 1.0]]
+    ))
+    def test_t_norm_iterable(self, a, b, c):
+        print(a, b, c)
+        print(GodelAlgebra.t_norm(a, b))
+        print(pytest.approx(c, rel=1e-6))
+        assert all(res == approx(exp) for res, exp in zip(
+            GodelAlgebra.t_norm(a, b),
+            c
+        ))
 
-    def test_t_norm_incompatible_dimensions(self):
-        pass
+    @pytest.mark.parametrize('a, b', zip(
+            [np.random.randn(2),
+             np.random.randn(3),
+             np.random.randn(2, 3),
+             np.random.randn(5, 3),
+             ],
+            [np.random.randn(1),
+             3,
+             np.random.randn(3, 2),
+             np.random.randn(5, 2),
+             ],
+    ))
+    def test_t_norm_incompatible_dimensions(self, a, b):
+        with pytest.raises(ValueError):
+            _ = GodelAlgebra.t_norm(a, b)
 
-    def test_s_norm_float(self):
-        assert GodelAlgebra.s_norm(0.9, 0.2) == approx(0.9)
-        assert GodelAlgebra.s_norm(1.0, 1.0) == approx(1.0)
-        assert GodelAlgebra.s_norm(1.0, 0.0) == approx(1.0)
-        assert GodelAlgebra.s_norm(0.2, 0.35) == approx(0.35)
+    @pytest.mark.parametrize('a, b, c', zip(
+        [0.9, 1.0, 1.0, 0.2],
+        [0.2, 1.0, 0.0, 0.35],
+        [0.9, 1.0, 1.0, 0.35]
+    ))
+    def test_s_norm(self, a, b, c):
+        assert GodelAlgebra.s_norm(a, b) == approx(c)
 
-    def test_s_norm_array(self):
-        pass
+    @pytest.mark.parametrize('a, b, c', zip(
+        [np.array([0.9, 1.0, 1.0, 0.2])],
+        [np.array([0.2, 1.0, 0.0, 0.35])],
+        [[1.0, 1.0, 1.0, 0.55]]
+    ))
+    def test_s_norm_array(self, a, b, c):
+        assert all(res == approx(exp) for res, exp in zip(
+            GodelAlgebra.s_norm(a, b),
+            c
+        ))
 
-    def test_s_norm_iterable(self):
-        pass
+    @pytest.mark.parametrize('a, b, c', zip(
+        [(0.9, 1.0)],
+        [[0.2, 1.0]],
+        [[1.0, 1.0]]
+    ))
+    def test_s_norm_iterable(self, a, b, c):
+        assert all(res == approx(exp) for res, exp in zip(
+            GodelAlgebra.s_norm(a, b),
+            c
+        ))
 
-    def test_s_norm_incompatible_dimensions(self):
-        pass
+    @pytest.mark.parametrize('a, b', zip(
+            [np.random.randn(2),
+             np.random.randn(3),
+             np.random.randn(2, 3),
+             np.random.randn(5, 3),
+             ],
+            [np.random.randn(1),
+             3,
+             np.random.randn(3, 2),
+             np.random.randn(5, 2),
+             ],
+    ))
+    def test_s_norm_incompatible_dimensions(self, a, b):
+        with pytest.raises(ValueError):
+            _ = GodelAlgebra.s_norm(a, b)
 
-    def test_negation_float(self):
-        assert GodelAlgebra.negation(1.0) == approx(0.0)
-        assert GodelAlgebra.negation(0.0) == approx(1.0)
-        assert GodelAlgebra.negation(0.2) == approx(0.8)
+    @pytest.mark.parametrize('a, b', zip(
+        [1.0, 0.0, 0.2],
+        [0.0, 1.0, 0.8]
+    ))
+    def test_negation(self, a, b):
+        assert GodelAlgebra.negation(a) == approx(b)
 
-    def test_negation_array(self):
-        pass
+    @pytest.mark.parametrize('a, b', zip(
+        [np.array([1.0, 0.0, 0.2])],
+        [[0.0, 1.0, 0.8]]
+    ))
+    def test_negation_array(self, a, b):
+        assert all(res == approx(exp) for res, exp in zip(
+            GodelAlgebra.negation(a),
+            b
+        ))
 
-    def test_negation_iterable(self):
-        pass
+    @pytest.mark.parametrize('a, b', zip(
+        [[0.1, 0.2], (0.1, 0.9)],
+        [[0.9, 0.8], (0.9, 0.1)]
+    ))
+    def test_negation_iterable(self, a, b):
+        assert all(res == approx(exp) for res, exp in zip(
+            GodelAlgebra.negation(a), b
+        ))
 
-    def test_negation_incompatible_dimensions(self):
-        pass
+    @pytest.mark.parametrize('a, b, c', zip(
+        [0.9, 1.0, 1.0, 0.2],
+        [0.2, 1.0, 0.0, 0.35],
+        [0.0, 1.0, 1.0, 0.25]
+    ))
+    def test_implication(self, a, b, c):
+        assert GodelAlgebra.implication(a, b) == approx(c)
 
-    def test_implication_float(self):
-        assert GodelAlgebra.implication(1.0, 0.0) == approx(0.0)
-        assert GodelAlgebra.implication(0.0, 1.0) == approx(1.0)
-        assert GodelAlgebra.implication(0.2, 0.35) == approx(0.8)
-        assert GodelAlgebra.implication(0.95, 0.2) == approx(0.2)
+    @pytest.mark.parametrize('a, b, c', zip(
+        [np.array([0.9, 1.0, 1.0, 0.2])],
+        [np.array([0.2, 1.0, 0.0, 0.35])],
+        [[0.0, 1.0, 1.0, 0.25]]
+    ))
+    def test_implication_array(self, a, b, c):
+        assert all(res == approx(exp) for res, exp in zip(
+            GodelAlgebra.implication(a, b),
+            c
+        ))
 
-    def test_implication_array(self):
-        pass
+    @pytest.mark.parametrize('a, b, c', zip(
+        [(0.9, 1.0), [0.2, 1.0]],
+        [(0.2, 1.0), np.array([0.35, 0.0])],
+        [(0.0, 1.0), (0.25, 1.0)]
+    ))
+    def test_implication_iterable(self, a, b, c):
+        assert all(res == approx(exp) for res, exp in zip(
+            GodelAlgebra.implication(a, b),
+            c
+        ))
 
-    def test_implication_iterable(self):
-        pass
-
-    def test_implication_incompatible_dimensions(self):
-        pass
+    @pytest.mark.parametrize('a, b', zip(
+            [np.random.randn(2),
+             np.random.randn(3),
+             np.random.randn(2, 3),
+             np.random.randn(5, 3),
+             ],
+            [np.random.randn(1),
+             3,
+             np.random.randn(3, 2),
+             np.random.randn(5, 2),
+             ],
+    ))
+    def test_implication_incompatible_dimensions(self, a, b):
+        with pytest.raises(ValueError):
+            _ = GodelAlgebra.implication(a, b)
