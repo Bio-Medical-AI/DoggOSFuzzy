@@ -51,15 +51,15 @@ class MamdaniConsequent(Consequent):
         :return: Clause with fuzzy set membership function, cut to the level of firing value
         """
         if isinstance(rule_firing, float):
-            return self.__t1_cut(rule_firing)
-        elif isinstance(rule_firing, Iterable) and len(rule_firing) == 2:
+            return self.__cut(rule_firing)
+        elif isinstance(rule_firing, Iterable):
             if not isinstance(rule_firing, np.ndarray):
-                rule_firing = np.array(rule_firing).reshape((2, 1))
-            return self.__it2_cut(rule_firing)
+                rule_firing = np.array(rule_firing).reshape((len(rule_firing), 1))
+            return self.__cut(rule_firing)
         else:
             raise ValueError(f"Incorrect type of rule firing: {rule_firing}")
 
-    def __cut(self, rule_firing: float) -> Clause:
+    def __cut(self, rule_firing: np.ndarray or float) -> Clause:
         """
         Makes a cut for type one fuzzy sets. If Clause fuzzy set type mismatches rule_firing type, exception is raised.
         :param rule_firing: crisp value of rule firing
