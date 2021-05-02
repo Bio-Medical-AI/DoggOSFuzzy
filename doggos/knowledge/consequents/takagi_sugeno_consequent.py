@@ -1,5 +1,5 @@
 from doggos.knowledge.consequents.consequent import Consequent
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+from doggos.fuzzy_sets import MembershipDegree
 
 
 class TakagiSugenoConsequent(Consequent):
