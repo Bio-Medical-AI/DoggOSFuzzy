@@ -30,13 +30,13 @@ class TestMamdaniConsequent:
         second_rule_firing = 0.5
         third_rule_firing = 0.65
 
-        assert np.array_equal(low_watering_consequent.output(first_rule_firing).values,
-                              np.minimum(low_watering_clause.values, first_rule_firing))
+        assert np.allclose(low_watering_consequent.output(first_rule_firing).values,
+                           np.minimum(low_watering_clause.values, first_rule_firing))
 
-        assert np.array_equal(medium_watering_consequent.output(second_rule_firing).values,
+        assert np.allclose(medium_watering_consequent.output(second_rule_firing).values,
                               np.minimum(medium_watering_clause.values, second_rule_firing))
 
-        assert np.array_equal(high_watering_consequent.output(third_rule_firing).values,
+        assert np.allclose(high_watering_consequent.output(third_rule_firing).values,
                               np.minimum(high_watering_clause.values, third_rule_firing))
 
     @pytest.mark.parametrize(['first_rule_firing', 'second_rule_firing', 'third_rule_firing'],
@@ -68,13 +68,13 @@ class TestMamdaniConsequent:
         second_rule_firing = np.array(second_rule_firing).reshape(2, 1)
         third_rule_firing = np.array(third_rule_firing).reshape(2, 1)
 
-        assert np.array_equal(first_consequent_output,
+        assert np.allclose(first_consequent_output,
                               np.minimum(low_watering_clause.values, first_rule_firing))
 
-        assert np.array_equal(second_consequent_output,
+        assert np.allclose(second_consequent_output,
                               np.minimum(medium_watering_clause.values, second_rule_firing))
 
-        assert np.array_equal(third_consequent_output,
+        assert np.allclose(third_consequent_output,
                               np.minimum(high_watering_clause.values, third_rule_firing))
 
     @pytest.mark.parametrize('rule_firing',
