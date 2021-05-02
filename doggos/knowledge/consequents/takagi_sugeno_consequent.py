@@ -87,6 +87,25 @@ class TakagiSugenoConsequent(Consequent):
             raise ValueError("Bias value needs to be float or int!")
         self.__bias = new_bias
 
+    @property
+    def linguistic_variable(self) -> float:
+        """
+        Getter of linguistic_variable
+        :return: linguistic_variable
+        """
+        return self.__linguistic_variable
+
+    @linguistic_variable.setter
+    def linguistic_variable(self, new_linguistic_variable: LinguisticVariable) -> NoReturn:
+        """
+        Sets new linguistic_variable
+        :param new_linguistic_variable: new linguistic_variable
+        :return: NoReturn
+        """
+        if not (isinstance(new_linguistic_variable, LinguisticVariable)):
+            raise ValueError("linguistic_variable needs to be instance of LinguisticVariable object!")
+        self.__linguistic_variable = new_linguistic_variable
+
     def output(self, consequent_input: Dict[LinguisticVariable, float]) -> float:
         """
         Return rule output level by calculating consequent function with inputs as variables.
@@ -98,19 +117,8 @@ class TakagiSugenoConsequent(Consequent):
         """
         self.__consequent_output = self.__bias
         try:
-            for key in consequent_input:
+            for key in self.__function_parameters:
                 self.__consequent_output += consequent_input[key] * self.__function_parameters[key]
             return self.__consequent_output
         except KeyError:
-            print("Function parameters contain value for input which was not provided!")
-            raise
-
-
-domain = Domain(0, 10, 0.01)
-lv_f1 = LinguisticVariable('F1', domain)
-lv_f2 = LinguisticVariable('F2', domain)
-lv_f3 = LinguisticVariable('F3', domain)
-output_lv = LinguisticVariable('output', domain)
-
-ts = TakagiSugenoConsequent({lv_f1: 1, lv_f2: 2, lv_f3: 3}, 4, output_lv)
-ts.output({lv_f1: 1, lv_f2: 2})
+            raise KeyError("Function parameters contain value for input {0} which was not provided!".format(key.name))
