@@ -1,12 +1,10 @@
 from collections import Iterable
-from typing import Tuple, List
 import numpy as np
 from copy import deepcopy
 
 from doggos.knowledge.consequents.consequent import Consequent
 from doggos.knowledge.clause import Clause
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
-from doggos.knowledge.consequents.consequent import ConsequentOutput
 
 
 class MamdaniConsequent(Consequent):
@@ -50,7 +48,7 @@ class MamdaniConsequent(Consequent):
         Make sure type of fuzzy set used in Clause matches type of fuzzy sets used in Antecedent of Rule and therefore
         its firing type.
         :param rule_firing: firing value of a Rule in which Consequent is used
-        :return: Clause with cut membership function
+        :return: Clause with fuzzy set membership function, cut to the level of firing value
         """
         if isinstance(rule_firing, float):
             return self.__t1_cut(rule_firing)
@@ -65,7 +63,7 @@ class MamdaniConsequent(Consequent):
         """
         Makes a cut for type one fuzzy sets. If Clause fuzzy set type mismatches rule_firing type, exception is raised.
         :param rule_firing: crisp value of rule firing
-        :return: fuzzy set membership function, cut to the level of firing value
+        :return: Clause with fuzzy set membership function, cut to the level of firing value
         """
         self.__cut_clause = deepcopy(self.__clause)
         self.__cut_clause.values = np.minimum(self.__cut_clause.values, rule_firing)
