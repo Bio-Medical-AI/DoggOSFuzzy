@@ -30,10 +30,10 @@ class TakagiSugenoConsequent(Consequent):
         domain = Domain(0, 10, 0.01)
         ling_var_f1 = LinguisticVariable('F1', domain)
         ling_var_f2 = LinguisticVariable('F2', domain)
-        output_ling_var = LinguisticVariable('output', domain)
+        output_lv = LinguisticVariable('output', domain)
 
-        ts1 = TakagiSugenoConsequent({'F1': 2, 'F2': 10, 'const': 1}, output_ling_var)
-        output = ts1.output({ling_var_f1: 1, ling_var_f2: 1})
+        ts2 = TakagiSugenoConsequent({ling_var_f1: 2, ling_var_f2: 10}, 1, output_lv)
+        output = ts2.output({ling_var_f1: 1, ling_var_f2: 1})
         """
 
     def __init__(self, function_parameters: Dict[LinguisticVariable, float], bias: float,
@@ -89,7 +89,7 @@ class TakagiSugenoConsequent(Consequent):
         self.__bias = new_bias
 
     @property
-    def linguistic_variable(self) -> float:
+    def linguistic_variable(self) -> LinguisticVariable:
         """
         Getter of linguistic_variable
         :return: linguistic_variable
