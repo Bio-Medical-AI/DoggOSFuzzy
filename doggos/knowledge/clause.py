@@ -68,10 +68,7 @@ class Clause:
         :param x: degree of belonging
         """
         index = self._find_index(x)
-        if isinstance(self.fuzzy_set, Type1FuzzySet):
-            return self.__values[:, index]
-        else:
-            return self.__values[:, index]
+        return np.take(self.__values, index, axis=-1)
 
     def _calculate_values(self) -> Sequence[MembershipDegree]:
         """

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, Tuple, Iterable, NoReturn
+from typing import Callable, Iterable, NoReturn
 
 import numpy as np
 
