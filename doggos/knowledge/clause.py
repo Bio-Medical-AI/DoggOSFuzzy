@@ -1,9 +1,10 @@
+import numpy as np
+from typing import NoReturn, Sequence
+
+from doggos.fuzzy_sets import Type1FuzzySet
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
-
-import numpy as np
-from typing import NoReturn, Sequence
 
 
 class Clause:
@@ -66,7 +67,11 @@ class Clause:
         returns a value representing membership degree
         :param x: degree of belonging
         """
-        return self.__values[self._find_index(x)]
+        index = self._find_index(x)
+        if isinstance(self.fuzzy_set, Type1FuzzySet):
+            return self.__values[index]
+        else:
+            return self.__values[:, index]
 
     def _calculate_values(self) -> Sequence[MembershipDegree]:
         """

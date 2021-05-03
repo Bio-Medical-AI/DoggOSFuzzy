@@ -53,19 +53,19 @@ class TestFuzzifier:
             [0.1, 0.2, 0.3, 0.4]
         ))
 
-    # def test_fuzzify_interval_type2_fuzzy_sets(self, df, proper_lw, t2_sets):
-    #     lw1, lw2 = proper_lw
-    #     f1, f2, f3, f4 = t2_sets
-    #     clauses = list()
-    #     clauses.append(Clause(lw1, 'high', f1))
-    #     clauses.append(Clause(lw1, 'low', f2))
-    #     clauses.append(Clause(lw2, 'small', f3))
-    #     clauses.append(Clause(lw2, 'medium', f4))
-    #     result = fuzzify(df, clauses)
-    #     assert all(result[res] == approx(exp) for res, exp in zip(
-    #         clauses,
-    #         [(0.11, 0.12), (0.21, 0.22), (0.31, 32), (0.41, 0.42)]
-    #     ))
+    def test_fuzzify_interval_type2_fuzzy_sets(self, df, proper_lw, t2_sets):
+        lw1, lw2 = proper_lw
+        f1, f2, f3, f4 = t2_sets
+        clauses = list()
+        clauses.append(Clause(lw1, 'high', f1))
+        clauses.append(Clause(lw1, 'low', f2))
+        clauses.append(Clause(lw2, 'small', f3))
+        clauses.append(Clause(lw2, 'medium', f4))
+        result = fuzzify(df, clauses)
+        assert all(result[res][0] == approx(exp[0]) and result[res][1] == approx(exp[1]) for res, exp in zip(
+            clauses,
+            [(0.11, 0.12), (0.21, 0.22), (0.31, 32), (0.41, 0.42)]
+        ))
 
     def test_fuzzify_key_error(self, df, t1_sets):
         lw1 = LinguisticVariable('water', Domain(-5,  5, 0.01))
