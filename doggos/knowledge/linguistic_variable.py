@@ -103,3 +103,12 @@ class LinguisticVariable:
         :return: the domain of the linguistic variable
         """
         return self.__domain
+
+    @property
+    def name(self) -> str:
+        """
+        Returns the name
+
+        :return: the name of the linguistic variable
+        """
+        return self.__name
