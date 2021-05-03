@@ -1,9 +1,7 @@
 from __future__ import annotations
-from typing import Callable, NoReturn, Sequence
-
+from typing import Callable, NoReturn, Iterable
 
 import numpy as np
-
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
@@ -50,7 +48,7 @@ class Type1FuzzySet(FuzzySet):
             raise ValueError('Membership function must be callable')
         self.__membership_function = np.vectorize(membership_function)
 
-    def __call__(self, x: float or Sequence[float]) -> float or np.ndarray:
+    def __call__(self, x: float or Iterable[float]) -> float or np.ndarray:
         """
         Calculate the degree of membership to a type I fuzzy set for of an element
         :param x: element of domain

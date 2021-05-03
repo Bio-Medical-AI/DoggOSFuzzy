@@ -1,8 +1,7 @@
 import pytest
 import numpy as np
 
-from tests.test_fuzzy_sets import _random_sample
-from tests.test_tools import approx
+from tests.test_tools import approx, _random_sample
 
 from doggos.fuzzy_sets import IntervalType2FuzzySet
 from doggos.utils.membership_functions import linear, sigmoid

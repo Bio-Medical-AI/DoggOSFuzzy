@@ -1,6 +1,5 @@
 import pytest
 
-from doggos.knowledge import LinguisticVariable, Domain
 from doggos.knowledge import Clause
 from doggos.fuzzy_sets import Type1FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable, Domain
@@ -30,7 +29,7 @@ class TestClause:
         fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         values = fuzzy_set(domain())
-        index = np.round((x - domain.min)/domain.precision).astype(int)
+        index = np.round((x - domain.min) / domain.precision).astype(int)
         assert values[index] == clause.get_value(x)
 
     @pytest.mark.parametrize('x, y, z', zip(np.arange(0, 10, 1), np.arange(2, 12, 1), np.arange(3, 13, 1)))
@@ -41,7 +40,7 @@ class TestClause:
         fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         values = fuzzy_set(domain())
-        index = np.round((collection - domain.min)/domain.precision).astype(int)
+        index = np.round((collection - domain.min) / domain.precision).astype(int)
         assert np.array_equal(values[index], clause.get_value(collection))
 
     @pytest.mark.parametrize('x', np.arange(-5, -1, 1))
@@ -101,3 +100,31 @@ class TestClause:
         clause = Clause(ling_var, 'High', fuzzy_set)
         assert clause.gradation_adjective == 'High'
 
+    def test_setter_exception_typeerror_values(self):
+        domain = Domain(0, 10, 0.01)
+        ling_var = LinguisticVariable('Temperature', domain)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
+        clause = Clause(ling_var, 'High', fuzzy_set)
+        func = lambda x: 0.7 * x
+        new_domain = Domain(0, 11, 0.01)
+        new_values = func(new_domain())
+        with pytest.raises(ValueError) as e:
+            clause.values = new_values
+            assert 'Values length mismatches domain of linguistic variable' in str(e.value)
+
+    def test_getter_values(self):
+        domain = Domain(0, 10, 0.01)
+        ling_var = LinguisticVariable('Temperature', domain)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
+        clause = Clause(ling_var, 'High', fuzzy_set)
+        new_values = fuzzy_set(domain())
+        assert np.array_equal(clause.values, new_values)
+
+    def test_setter_values(self):
+        domain = Domain(0, 10, 0.01)
+        ling_var = LinguisticVariable('Temperature', domain)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
+        clause = Clause(ling_var, 'High', fuzzy_set)
+        func = lambda x: 0.7 * x
+        new_values = func(domain())
+        clause.values = new_values
