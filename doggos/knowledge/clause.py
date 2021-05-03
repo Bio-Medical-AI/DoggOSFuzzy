@@ -69,7 +69,7 @@ class Clause:
         """
         index = self._find_index(x)
         if isinstance(self.fuzzy_set, Type1FuzzySet):
-            return self.__values[index]
+            return self.__values[:, index]
         else:
             return self.__values[:, index]
 
