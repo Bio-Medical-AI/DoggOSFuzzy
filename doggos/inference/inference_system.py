@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterable as Iter
+import collections.abc as abc
 from typing import Callable, Iterable
 
 from doggos.knowledge import Rule
@@ -9,7 +9,7 @@ class InferenceSystem(ABC):
     __rule_base: Iterable[Rule]
 
     def __init__(self, rule_base: Iterable[Rule]):
-        if not isinstance(rule_base, Iter) or any(not isinstance(rule, Rule) for rule in rule_base):
+        if not isinstance(rule_base, abc.Iterable) or any(not isinstance(rule, Rule) for rule in rule_base):
             raise TypeError('rule_base must be an iterable of type Rule')
 
         self._rule_base = rule_base

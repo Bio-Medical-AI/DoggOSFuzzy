@@ -1,6 +1,6 @@
 import numpy as np
 from typing import List, Dict, Tuple, Callable, Iterable, NoReturn
-from collections.abc import Iterable as Iter
+import collections.abc as abc
 
 from doggos.fuzzy_sets import MembershipDegree
 from doggos.knowledge.clause import Clause
@@ -129,6 +129,6 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     @rule_base.setter
     def rule_base(self, rule_base: Iterable[Rule]) -> NoReturn:
-        if not isinstance(rule_base, Iter) or any(not isinstance(rule, Rule) for rule in rule_base):
+        if not isinstance(rule_base, abc.Iterable) or any(not isinstance(rule, Rule) for rule in rule_base):
             raise TypeError('rule_base must be an iterable of type Rule')
         self._rule_base = rule_base
