@@ -1,10 +1,6 @@
 from functools import partial
-from typing import List, Dict
 
 import numpy as np
-
-from doggos.fuzzy_sets import MembershipDegree
-from doggos.knowledge import Rule, Clause, LinguisticVariable
 
 
 def center_of_gravity(domain, cut):
@@ -106,57 +102,44 @@ def __find_k(c: float, domain: np.ndarray) -> float:
     return np.where(domain <= c)[0][-1]
 
 
-def takagi_sugeno_weighted_average(rules: List[Rule],
-                                   features: Dict[Clause, MembershipDegree],
-                                   measures: Dict[LinguisticVariable, float]) -> float:
+def weighted_average(firings: np.ndarray,
+                                   outputs: np.ndarray) -> float:
     """
     Method of calculating output of Takagi-Sugeno inference system for fuzzy sets of type 1
     Used for fuzzy sets of type 1.
 
-    :param rules: list of rules from rulebase
-    :param features: a dictionary of clauses and their membership value calculated for measures
-    :param measures: a dictionary of measures consisting of Linguistic variables, and measured values for them
-    :return: float that is output of whole inference system
+    :param firings: firings of rules
+    :param outputs: outputs of rules
+    :return: float that is weighted average of all outputs with firings as their weights
     """
-    nominator = 0
-    denominator = 0
-    for rule in rules:
-        memb = rule.antecedent.fire(features)
-        out = rule.consequent.output(measures)
-        nominator += out * memb
-        denominator += memb
-    return nominator / denominator
+    return np.average(outputs, weights=firings)
 
 
-def takagi_sugeno_karnik_mendel(rules: List[Rule],
-                                features: Dict[Clause, MembershipDegree],
-                                measures: Dict[LinguisticVariable, float], step: float) -> float:
+def takagi_sugeno_karnik_mendel(firings: np.ndarray,
+                                outputs: np.ndarray,
+                                step: float = 0.01) -> float:
     """
     Method of calculating output of Takagi-Sugeno inference system using Karnik-Mendel algorithm.
     Used for fuzzy sets of type 2.
 
-    :param features: a dictionary of clauses and their membership value calculated for measures
-    :param measures: a dictionary of measures consisting of Linguistic variables, and measured values for them
+
+    :param firings: firings of rules
+    :param outputs: outputs of rules
     :param step: size of step used in Karnik-Mendel algorithm
     :return: float that is output of whole inference system
     """
-
-    outputs_of_rules = np.zeros(shape=(len(rules), 3))
-    for rule, outputs in zip(rules, outputs_of_rules):
-        outputs[0] = rule.consequent.output(measures)
-        firing = rule.antecedent.fire(features)
-        outputs[1] = firing[0]
-        outputs[2] = firing[1]
-
+    outputs_of_rules = np.concatenate((outputs, firings), axis=1)
     outputs_of_rules = outputs_of_rules[np.argsort(outputs_of_rules[:, 0])]
-    domain = np.arange(outputs_of_rules[0][0], outputs_of_rules[-1][0], step)
+    domain = np.arange(outputs_of_rules[0][0], outputs_of_rules[-1][0] + step, step)
     lmf = np.zeros(shape=domain.shape)
     umf = np.zeros(shape=domain.shape)
-    for i in range(domain.shape):
+
+    for i in range(domain.shape[0]):
         lmf[i] = calculate_membership(domain[i], outputs_of_rules[:, :2])
         umf[i] = calculate_membership(domain[i],
-                                      np.concatenate((outputs_of_rules[:, 0], outputs_of_rules[:, 2]), axis=1))
-
+                                      np.concatenate((outputs_of_rules[:, 0].reshape(-1, 1),
+                                                      outputs_of_rules[:, 2].reshape(-1, 1)),
+                                                     axis=1))
     return karnik_mendel(lmf, umf, domain)
 
 

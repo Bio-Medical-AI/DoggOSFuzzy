@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections.abc import Iterable
 
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet

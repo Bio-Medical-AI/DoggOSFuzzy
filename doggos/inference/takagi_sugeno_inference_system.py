@@ -1,4 +1,7 @@
 from typing import Dict, List, Callable
+
+import numpy as np
+
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.inference.inference_system import InferenceSystem
 from doggos.knowledge.linguistic_variable import LinguisticVariable
@@ -9,17 +12,16 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
     def infer(self,
               defuzzification_method: Callable,
               features: Dict[Clause, List[MembershipDegree]],
-              measures: Dict[LinguisticVariable, List[float]],
-              step: float = 0.01) -> list[float]:
+              measures: Dict[LinguisticVariable, List[float]]) -> list[float]:
         """
         Inferences output based on features of given object and measured values of them, using chosen method
 
-        :param defuzzification_method: method of calculating final output,
-        must match to the type of fuzzy sets used in rules and be callable
+        :param defuzzification_method: method of calculating final output.
+        Must match to the type of fuzzy sets used in rules and be callable, and takes two ndarrays as parameters.
+        Those arrays represent firing values of antecedents of all rules in _rule_base and outputs of their consequents
         :param features: a dictionary of clauses and list of their membership values calculated for measures
         :param measures: a dictionary of measures consisting of Linguistic variables, and list of measured float values
         for them
-        :param step: size of step used in Karnik-Mendel algorithm
         :return: float that is output of whole inference system
         """
         if not isinstance(features, Dict):
@@ -29,7 +31,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
         if not isinstance(defuzzification_method, Callable):
             raise ValueError("Defuzzification_method must be Callable")
 
-        outputs = []
+        conclusions = []
         for i in range(len(list(features.values())[0])):
             single_features = {}
             single_measures = {}
@@ -37,5 +39,11 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
                 single_features[key] = value[i]
             for key, value in measures.items():
                 single_measures[key] = value[i]
-            outputs.append(defuzzification_method(self._rule_base, single_features, single_measures))
-        return outputs
+            firings = np.zeros(shape=len(list(self._rule_base)))
+            outputs = np.zeros(shape=len(list(self._rule_base)))
+            for j in range(len(list(self._rule_base))):
+                firings[j] = list(self._rule_base)[j].antecedent.fire(single_features)
+                outputs[j] = list(self._rule_base)[j].consequent.output(single_measures)
+
+            conclusions.append(defuzzification_method(firings, outputs))
+        return conclusions
