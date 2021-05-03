@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, Sequence, Callable, NoReturn
 from doggos.algebras.algebra import Algebra
-from doggos.fuzzy_sets import MembershipDegree
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.knowledge.clause import Clause
 from doggos.knowledge.antecedent import Antecedent
 

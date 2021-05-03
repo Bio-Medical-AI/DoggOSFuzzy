@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections.abc import Iterable
 import numpy as np
 from copy import deepcopy
 
@@ -64,7 +64,7 @@ class MamdaniConsequent(Consequent):
             if not isinstance(rule_firing, np.ndarray):
                 rule_firing = np.array(rule_firing).reshape((len(rule_firing), 1))
             if rule_firing.shape != (len(rule_firing), 1):
-                rule_firing.reshape(len(rule_firing), 1)
+                rule_firing = rule_firing.reshape(len(rule_firing), 1)
             return self.__cut(rule_firing)
         else:
             raise ValueError(f"Incorrect type of rule firing: {rule_firing}")
