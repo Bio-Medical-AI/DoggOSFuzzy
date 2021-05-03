@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, Tuple, Sequence, NoReturn
+from typing import Callable, Iterable, NoReturn
 
 import numpy as np
 
@@ -8,7 +8,7 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 class IntervalType2FuzzySet(FuzzySet):
     """
-    Class used to represent a interval type II fuzzy set :
+    Class used to represent a interval type II fuzzy set:
 
     https://en.wikipedia.org/wiki/Fuzzy_set
 
@@ -47,7 +47,7 @@ class IntervalType2FuzzySet(FuzzySet):
                  lower_membership_function: Callable[[float], float],
                  upper_membership_function: Callable[[float], float]):
         """
-        Create Create interval type II fuzzy set with given lower membership function and upper membership function.
+        Create interval type II fuzzy set with given lower membership function and upper membership function.
         Both functions should return values from range [0, 1].
         IMPORTANT:
         Lower membership function should return lower respective values.
@@ -61,7 +61,7 @@ class IntervalType2FuzzySet(FuzzySet):
         self.__upper_membership_function = np.vectorize(upper_membership_function)
         self.__lower_membership_function = np.vectorize(lower_membership_function)
 
-    def __call__(self, x: float or Sequence[float]) -> Tuple[float, float] or Tuple[np.ndarray, np.ndarray]:
+    def __call__(self, x: float or Iterable[float]) -> np.ndarray:
         """
         Calculate the degree of belonging (lower_membership, upper_membership),
         raises an exception if lower_membership > upper_membership
@@ -72,7 +72,7 @@ class IntervalType2FuzzySet(FuzzySet):
         lower_membership, upper_membership = self.__lower_membership_function(x), self.__upper_membership_function(x)
         if np.any(lower_membership > upper_membership):
             raise ValueError('Lower membership function returned higher value than upper membership function')
-        return lower_membership, upper_membership
+        return np.array([lower_membership, upper_membership])
 
     @property
     def upper_membership_function(self) -> Callable[[float], float]:

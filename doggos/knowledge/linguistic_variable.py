@@ -1,4 +1,4 @@
-from typing import Sequence, Tuple, NoReturn
+from typing import Sequence
 
 import numpy as np
 
@@ -22,6 +22,7 @@ class Domain:
     domain -> Sequence[float]
         Returns sequence from assigned intervals and precision
     """
+
     def __init__(self, min_value: float, max_value: float, precision: float):
         """
         Creates a domain.
@@ -83,6 +84,7 @@ class LinguisticVariable:
         a domain     
     
     """
+
     def __init__(self, name: str, domain: Domain):
         """
         Creates linguistic variable with given name and domain

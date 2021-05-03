@@ -26,7 +26,7 @@ class Rule:
             raise TypeError("antecedent must be an Antecedent type")
         if not isinstance(consequent, Consequent):
             raise TypeError("consequent must be a Consequent type")
-        
+
         self.__antecedent = antecedent
         self.__consequent = consequent
 
