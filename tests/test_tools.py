@@ -2,9 +2,7 @@ import pytest
 from functools import partial
 import numpy as np
 
-
 FLOAT_PRECISION = 1e-12
-
 
 approx = partial(pytest.approx, abs=FLOAT_PRECISION)
 

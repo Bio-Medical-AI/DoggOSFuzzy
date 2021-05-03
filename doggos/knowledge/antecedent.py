@@ -1,4 +1,4 @@
-from typing import Dict, Sequence, Callable, NoReturn
+from typing import Dict, Callable
 from doggos.algebras.algebra import Algebra
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.knowledge.clause import Clause

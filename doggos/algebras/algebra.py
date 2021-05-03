@@ -15,6 +15,7 @@ def validate_input(function):
     :param function: operation, that takes two arguments a and b, for example: implication, t_norm, s_norm
     :return: decorated negation
     """
+
     def operation(a, b):
         if isinstance(a, Iterable):
             a = np.array(a)
@@ -29,6 +30,7 @@ def validate_input(function):
         if size_a != size_b:
             raise ValueError(f'Dimensions {size_a} and {size_b} are not compatible')
         return function(a, b)
+
     return operation
 
 
@@ -39,10 +41,12 @@ def expand_negation_argument(negation):
     :param negation: negation function, takes one argument
     :return: decorated function
     """
+
     def operation(a):
         if isinstance(a, Iterable):
             a = np.array(a)
         return negation(a)
+
     return operation
 
 

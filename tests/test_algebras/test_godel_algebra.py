@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 
-
 from tests.test_tools import approx
 from doggos.algebras import GodelAlgebra
 
@@ -39,16 +38,16 @@ class TestGodelAlgebra:
         ))
 
     @pytest.mark.parametrize('a, b', zip(
-            [np.random.randn(2),
-             np.random.randn(3),
-             np.random.randn(2, 3),
-             np.random.randn(5, 3),
-             ],
-            [np.random.randn(1),
-             3,
-             np.random.randn(3, 2),
-             np.random.randn(5, 2),
-             ],
+        [np.random.randn(2),
+         np.random.randn(3),
+         np.random.randn(2, 3),
+         np.random.randn(5, 3),
+         ],
+        [np.random.randn(1),
+         3,
+         np.random.randn(3, 2),
+         np.random.randn(5, 2),
+         ],
     ))
     def test_t_norm_incompatible_dimensions(self, a, b):
         with pytest.raises(ValueError):
@@ -85,16 +84,16 @@ class TestGodelAlgebra:
         ))
 
     @pytest.mark.parametrize('a, b', zip(
-            [np.random.randn(2),
-             np.random.randn(3),
-             np.random.randn(2, 3),
-             np.random.randn(5, 3),
-             ],
-            [np.random.randn(1),
-             3,
-             np.random.randn(3, 2),
-             np.random.randn(5, 2),
-             ],
+        [np.random.randn(2),
+         np.random.randn(3),
+         np.random.randn(2, 3),
+         np.random.randn(5, 3),
+         ],
+        [np.random.randn(1),
+         3,
+         np.random.randn(3, 2),
+         np.random.randn(5, 2),
+         ],
     ))
     def test_s_norm_incompatible_dimensions(self, a, b):
         with pytest.raises(ValueError):
@@ -157,16 +156,16 @@ class TestGodelAlgebra:
         ))
 
     @pytest.mark.parametrize('a, b', zip(
-            [np.random.randn(2),
-             np.random.randn(3),
-             np.random.randn(2, 3),
-             np.random.randn(5, 3),
-             ],
-            [np.random.randn(1),
-             3,
-             np.random.randn(3, 2),
-             np.random.randn(5, 2),
-             ],
+        [np.random.randn(2),
+         np.random.randn(3),
+         np.random.randn(2, 3),
+         np.random.randn(5, 3),
+         ],
+        [np.random.randn(1),
+         3,
+         np.random.randn(3, 2),
+         np.random.randn(5, 2),
+         ],
     ))
     def test_implication_incompatible_dimensions(self, a, b):
         with pytest.raises(ValueError):

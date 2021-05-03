@@ -2,9 +2,8 @@ from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
-
 import numpy as np
-from typing import NoReturn, Iterable, List
+from typing import NoReturn, Iterable
 
 
 class Clause:
@@ -43,7 +42,8 @@ class Clause:
     __gradation_adjective: str
     __fuzzy_set: FuzzySet
 
-    def __init__(self, linguistic_variable: LinguisticVariable, gradation_adjective: str, fuzzy_set: FuzzySet) -> object:
+    def __init__(self, linguistic_variable: LinguisticVariable, gradation_adjective: str,
+                 fuzzy_set: FuzzySet) -> object:
         """
         Creates clause with given linguistic variable, gradation adjective and fuzzy set.
 
@@ -69,7 +69,7 @@ class Clause:
         """
         index = self._find_index(x)
         return np.take(self.__values, index, axis=-1)
-    
+
     def _calculate_values(self) -> Iterable[MembershipDegree]:
         """
         Calculates values for every element in the domain
@@ -175,8 +175,8 @@ class Clause:
                 if len(self.__values[0]) != len(values[0]):
                     raise ValueError("Values length mismatches domain of linguistic variable")
             except TypeError:
-              if len(self.__values) != len(values):
-                raise ValueError("Values length mismatches domain of linguistic variable")
+                if len(self.__values) != len(values):
+                    raise ValueError("Values length mismatches domain of linguistic variable")
         else:
             if len(self.__values) != len(values):
                 raise ValueError("Values length mismatches domain of linguistic variable")

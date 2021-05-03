@@ -1,7 +1,6 @@
 import pytest
 import pandas as pd
 
-
 from tests.test_tools import approx
 from doggos.knowledge import Domain, LinguisticVariable, Clause, fuzzify
 from doggos.fuzzy_sets import Type1FuzzySet, IntervalType2FuzzySet
@@ -68,7 +67,7 @@ class TestFuzzifier:
         ))
 
     def test_fuzzify_key_error(self, df, t1_sets):
-        lw1 = LinguisticVariable('water', Domain(-5,  5, 0.01))
+        lw1 = LinguisticVariable('water', Domain(-5, 5, 0.01))
         lw2 = LinguisticVariable('fire', Domain(-5, 5, 0.01))
         f1, f2, _, _ = t1_sets
         clauses = list()

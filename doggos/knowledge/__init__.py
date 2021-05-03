@@ -4,6 +4,3 @@ from doggos.knowledge.antecedent import Antecedent
 from doggos.knowledge.term import Term
 from doggos.knowledge.rule import Rule
 from doggos.knowledge.fuzzifier import fuzzify
-
-
-

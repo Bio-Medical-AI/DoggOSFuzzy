@@ -1,9 +1,7 @@
 from __future__ import annotations
 from typing import Callable, NoReturn, Iterable
 
-
 import numpy as np
-
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
