@@ -6,7 +6,6 @@ from doggos.knowledge.clause import Clause
 from doggos.knowledge.rule import Rule
 from doggos.knowledge.consequents.mamdani_consequent import MamdaniConsequent
 from doggos.inference.inference_system import InferenceSystem
-from doggos.knowledge.linguistic_variable import LinguisticVariable
 from doggos.fuzzy_sets.type1_fuzzy_set import Type1FuzzySet
 
 
@@ -18,36 +17,39 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     Attributes
     --------------------------------------------
-    __rule_base: List[Rule]
+    _rule_base: Iterable[Rule]
         fuzzy knowledge base used for inference
 
     Methods
     --------------------------------------------
-    infer(self, features: Dict[Clause, List[MembershipDegree]], method: str = 'karnik_mendel') -> float:
+    infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]])
+            -> Iterable[float] or float:
         infer decision from knowledge base
 
     Examples:
     --------------------------------------------
     Creating simple mamdani inference system and infering decision
-    >>> rules = [first_rule, second_rule, third_rule]
+    >>> rule_base = [first_rule, second_rule, third_rule]
     >>> features: Dict[Clause, MembershipDegree] = fuzzifier.fuzzify(dataset)
-    >>> mamdani = MamdaniInferenceSystem(rules)
-    >>> mamdani.output(features, 'karnik_mendel')
+    >>> mamdani = MamdaniInferenceSystem(rule_base)
+    >>> defuzzifiaction_method = karnik_mendel
+    >>> mamdani.infer(defuzzifiaction_method, features)
     0.5
     """
-    __rule_base: List[Rule]
+    _rule_base: Iterable[Rule]
+    # TODO: setter and getter for _rule_base
 
-    def __init__(self, rules: List[Rule]):
+    def __init__(self, rule_base: Iterable[Rule]):
         """
         Create mamdani inference system with given knowledge base
         All rules should have the same consequent type and consequents should be defined on the same domain
-        :param rules: fuzzy knowledge base used for inference
+        :param rule_base: fuzzy knowledge base used for inference
         """
-        super().__init__(rules)
+        super().__init__(rule_base)
         self.__validate_consequents()
 
     def infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]]) \
-            -> Iterable[float]:
+            -> Iterable[float] or float:
         """
         Inferences output based on features of given object using chosen method
         :param defuzzification_method: 'KM', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
@@ -60,8 +62,9 @@ class MamdaniInferenceSystem(InferenceSystem):
             raise ValueError("Defuzzifiaction method must be callable")
 
         degrees = self.__get_degrees(features)
-        result = np.zeros(shape=(1, len(degrees)))
         is_type1 = self.__is_consequent_type1()
+        result = np.zeros(shape=(1, len(degrees)))
+
         for i in range(len(degrees)):
             single_features = {}
             for clause, memberships in features.items():
@@ -99,8 +102,8 @@ class MamdaniInferenceSystem(InferenceSystem):
         :return: domain, lower membership functions and upper membership functions extracted from rule base
         """
         domain, membership_functions = self.__get_domain_and_membership_functions(features)
-        lmfs = [output[0] for output in membership_functions]
-        umfs = [output[1] for output in membership_functions]
+        lmfs = [membership_function[0] for membership_function in membership_functions]
+        umfs = [membership_function[1] for membership_function in membership_functions]
         return domain, lmfs, umfs
 
     def __get_domain_and_membership_functions(self, features: Dict[Clause, List[MembershipDegree]]) \
