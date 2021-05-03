@@ -101,3 +101,32 @@ class TestClause:
         clause = Clause(ling_var, 'High', fuzzy_set)
         assert clause.gradation_adjective == 'High'
 
+    def test_setter_exception_typeerror_values(self):
+        domain = Domain(0, 10, 0.01)
+        ling_var = LinguisticVariable('Temperature', domain)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
+        clause = Clause(ling_var, 'High', fuzzy_set)
+        func = lambda x: 0.7*x
+        new_domain = Domain(0,11,0.01)
+        new_values = func(new_domain())
+        with pytest.raises(ValueError) as e:
+            clause.values = new_values
+            assert 'Values length mismatches domain of linguistic variable' in str(e.value)
+            
+    def test_getter_values(self):
+        domain = Domain(0, 10, 0.01)
+        ling_var = LinguisticVariable('Temperature', domain)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
+        clause = Clause(ling_var, 'High', fuzzy_set)
+        new_values = fuzzy_set(domain())
+        assert np.array_equal(clause.values, new_values)        
+    
+    def test_setter_values(self):
+        domain = Domain(0, 10, 0.01)
+        ling_var = LinguisticVariable('Temperature', domain)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
+        clause = Clause(ling_var, 'High', fuzzy_set)
+        func = lambda x: 0.7*x
+        new_values = func(domain())
+        clause.values = new_values
+        

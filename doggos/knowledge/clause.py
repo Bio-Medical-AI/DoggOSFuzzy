@@ -170,7 +170,11 @@ class Clause:
             raise TypeError("Values must be Iterable")
 
         if isinstance(self.__values, tuple) or (isinstance(self.__values, np.ndarray) and self.__values.shape[0] > 1):
-            if len(self.__values[0]) != len(values[0]):
+            try:
+                if len(self.__values[0]) != len(values[0]):
+                    raise ValueError("Values length mismatches domain of linguistic variable")
+            except TypeError:
+              if len(self.__values) != len(values):
                 raise ValueError("Values length mismatches domain of linguistic variable")
         else:
             if len(self.__values) != len(values):
