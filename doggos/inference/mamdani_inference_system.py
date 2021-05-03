@@ -1,7 +1,9 @@
-from typing import List, Dict, Tuple
-from doggos.knowledge.rule import Rule
 import numpy as np
+from typing import List, Dict, Tuple, Callable
 
+from doggos.fuzzy_sets import MembershipDegree
+from doggos.knowledge.clause import Clause
+from doggos.knowledge.rule import Rule
 from doggos.inference.inference_system import InferenceSystem
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
@@ -19,7 +21,7 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     Methods
     --------------------------------------------
-    output(self, features: Dict[str, float], method: str = 'karnik_mendel') -> float:
+    infer(self, features: Dict[Clause, List[MembershipDegree]], method: str = 'karnik_mendel') -> float:
         infer decision from knowledge base
 
     Examples:
@@ -41,33 +43,44 @@ class MamdaniInferenceSystem(InferenceSystem):
         """
         self.__rule_base = rules
 
-    def output(self, features: Dict[LinguisticVariable, float], method: str) -> float:
+    def infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]]) -> float:
         """
         Inferences output based on features of given object using chosen method
         :param features: dictionary of linguistic variables and their values
         :param method: 'KM', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
         :return: decision value
         """
-        if method == 'KM':
-            domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(features)
-            lower_cut = self.__membership_func_union(lmfs)
-            upper_cut = self.__membership_func_union(umfs)
-            return self._karnik_mendel(lower_cut, upper_cut, domain)
+        if not isinstance(features, Dict):
+            raise ValueError("Features")
 
-        elif method == 'COS':
-            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
-            return self._center_of_sums(domain, membership_functions)
+        values = np.array(features.values())
+        degrees = values[0]
 
-        else:
-            type1_method = {
-                'COG': self._center_of_gravity,
-                'LOM': self._largest_of_maximum,
-                'MOM': self._middle_of_maximum,
-                'SOM': self._smallest_of_maximum,
-                'MeOM': self._mean_of_maxima
-            }[method]
-            domain, cut = self.__get_domain_and_cut(features)
-            return type1_method(domain, cut)
+        for i in range(len(degrees)):
+            single_features = {}
+            for clause, memberships in features.items():
+                single_features[clause] = memberships[i]
+
+            if defuzzification_method == 'KM':
+                domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(features)
+                lower_cut = self.__membership_func_union(lmfs)
+                upper_cut = self.__membership_func_union(umfs)
+                return self._karnik_mendel(lower_cut, upper_cut, domain)
+
+            elif defuzzification_method == 'COS':
+                domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+                return self._center_of_sums(domain, membership_functions)
+
+            else:
+                type1_method = {
+                    'COG': self._center_of_gravity,
+                    'LOM': self._largest_of_maximum,
+                    'MOM': self._middle_of_maximum,
+                    'SOM': self._smallest_of_maximum,
+                    'MeOM': self._mean_of_maxima
+                }[defuzzification_method]
+                domain, cut = self.__get_domain_and_cut(features)
+                return type1_method(domain, cut)
 
     def __membership_func_union(self, mfs: List[np.ndarray]) -> np.ndarray:
         """
