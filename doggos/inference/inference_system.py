@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections import Iterable as Iter
+from collections.abc import Iterable as Iter
 from typing import Callable, Iterable
 
 from doggos.knowledge import Rule

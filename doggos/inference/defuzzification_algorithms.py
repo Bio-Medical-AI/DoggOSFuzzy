@@ -5,24 +5,24 @@ from typing import List
 import numpy as np
 
 
-def center_of_gravity(domain, membership_functions):
+def center_of_gravity(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
     cut = __membership_func_union(membership_functions)
     return np.average(domain, weights=cut)
 
 
-def largest_of_maximum(domain, membership_functions):
+def largest_of_maximum(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
     cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     return domain[np.where(cut == maximum)[0][-1]]
 
 
-def smallest_of_maximum(domain, membership_functions):
+def smallest_of_maximum(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
     cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     return domain[np.where(cut == maximum)[0][0]]
 
 
-def middle_of_maximum(domain, membership_functions):
+def middle_of_maximum(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
     cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     indices = np.where(cut == maximum)[0]
@@ -31,7 +31,7 @@ def middle_of_maximum(domain, membership_functions):
     return domain[[indices[middle]]]
 
 
-def mean_of_maxima(domain, membership_functions):
+def mean_of_maxima(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
     cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     indices = np.where(cut == maximum)[0]
@@ -40,7 +40,7 @@ def mean_of_maxima(domain, membership_functions):
     return total / size
 
 
-def center_of_sums(domain, membership_functions):
+def center_of_sums(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
     if not isinstance(membership_functions[0], Iterable):
         sums_of_memberships = membership_functions
     else:

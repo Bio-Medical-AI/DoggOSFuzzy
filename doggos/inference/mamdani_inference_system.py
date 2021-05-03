@@ -1,5 +1,6 @@
 import numpy as np
 from typing import List, Dict, Tuple, Callable, Iterable, NoReturn
+from collections.abc import Iterable as Iter
 
 from doggos.fuzzy_sets import MembershipDegree
 from doggos.knowledge.clause import Clause
@@ -81,16 +82,16 @@ class MamdaniInferenceSystem(InferenceSystem):
 
         return result
 
-    def __get_degrees(self, features: Dict[Clause, List[MembershipDegree]]):
+    def __get_degrees(self, features: Dict[Clause, List[MembershipDegree]]) -> List[MembershipDegree]:
         values = np.array(features.values())
         return values[0]
 
-    def __validate_consequents(self):
+    def __validate_consequents(self) -> NoReturn:
         for rule in self._rule_base:
             if not isinstance(rule.consequent, MamdaniConsequent):
                 raise ValueError("All rule consequents must be mamdani consequents")
 
-    def __is_consequent_type1(self):
+    def __is_consequent_type1(self) -> bool:
         return isinstance(self.__rule_base[0].consequent.clause.fuzzy_set, Type1FuzzySet)
 
     def __get_domain_and_consequents_memberships_for_it2(self, features: Dict[Clause, List[MembershipDegree]]) \
@@ -123,9 +124,11 @@ class MamdaniInferenceSystem(InferenceSystem):
         return self.__rule_base[0].consequent.clause.linguistic_variable.domain()
 
     @property
-    def rule_base(self):
+    def rule_base(self) -> Iterable[Rule]:
         return self._rule_base
 
     @rule_base.setter
     def rule_base(self, rule_base: Iterable[Rule]) -> NoReturn:
+        if not isinstance(rule_base, Iter) or any(not isinstance(rule, Rule) for rule in rule_base):
+            raise TypeError('rule_base must be an iterable of type Rule')
         self._rule_base = rule_base
