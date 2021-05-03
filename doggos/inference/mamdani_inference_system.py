@@ -1,6 +1,8 @@
 import numpy as np
-from typing import List, Dict, Tuple, Sequence, Callable, NoReturn
-from collections.abc import Iterable
+import collections.abc as abc
+
+from typing import List, Dict, Tuple, Sequence, Callable, NoReturn, Iterable
+
 
 from doggos.fuzzy_sets import MembershipDegree
 from doggos.knowledge.clause import Clause
@@ -37,9 +39,9 @@ class MamdaniInferenceSystem(InferenceSystem):
     >>> mamdani.infer(defuzzifiaction_method, features)
     0.5
     """
-    _rule_base: Sequence[Rule]
+    _rule_base: Iterable[Rule]
 
-    def __init__(self, rule_base: Sequence[Rule]):
+    def __init__(self, rule_base: Iterable[Rule]):
         """
         Create mamdani inference system with given rule base
         All rules should have the same consequent type and consequents should be defined on the same domain
@@ -49,7 +51,7 @@ class MamdaniInferenceSystem(InferenceSystem):
         self.__validate_consequents()
 
     def infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]]) \
-            -> Iterable[float] or float:
+            -> Sequence[float] or float:
         """
         Inferences output based on features of given object using chosen method
         :param defuzzification_method: 'KM', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
@@ -83,7 +85,7 @@ class MamdaniInferenceSystem(InferenceSystem):
         return result
 
     def __get_degrees(self, features: Dict[Clause, List[MembershipDegree]]) -> List[MembershipDegree]:
-        values = np.array(features.values())
+        values = np.array(list(features.values()))
         return values[0]
 
     def __validate_consequents(self) -> NoReturn:
@@ -129,6 +131,6 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     @rule_base.setter
     def rule_base(self, rule_base: Iterable[Rule]) -> NoReturn:
-        if not isinstance(rule_base, Iterable) or any(not isinstance(rule, Rule) for rule in rule_base):
+        if not isinstance(rule_base, abc.Iterable) or any(not isinstance(rule, Rule) for rule in rule_base):
             raise TypeError('rule_base must be an iterable of type Rule')
         self._rule_base = rule_base
