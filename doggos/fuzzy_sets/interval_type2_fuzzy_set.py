@@ -8,7 +8,7 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
 class IntervalType2FuzzySet(FuzzySet):
     """
-    Class used to represent a interval type II fuzzy set :
+    Class used to represent a interval type II fuzzy set:
 
     https://en.wikipedia.org/wiki/Fuzzy_set
 
@@ -47,7 +47,7 @@ class IntervalType2FuzzySet(FuzzySet):
                  lower_membership_function: Callable[[float], float],
                  upper_membership_function: Callable[[float], float]):
         """
-        Create Create interval type II fuzzy set with given lower membership function and upper membership function.
+        Create interval type II fuzzy set with given lower membership function and upper membership function.
         Both functions should return values from range [0, 1].
         IMPORTANT:
         Lower membership function should return lower respective values.

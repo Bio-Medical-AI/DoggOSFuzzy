@@ -1,61 +1,72 @@
+from collections.abc import Iterable
 from functools import partial
+from typing import List
 
 import numpy as np
 
 
-def center_of_gravity(domain, cut):
+def center_of_gravity(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
+    cut = __membership_func_union(membership_functions)
     return np.average(domain, weights=cut)
 
 
-def largest_of_maximum(domain, cut):
+def largest_of_maximum(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
+    cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
-    return domain[np.where(cut == maximum)[-1]]
+    return domain[np.where(cut == maximum)[0][-1]]
 
 
-def smallest_of_maximum(domain, cut):
+def smallest_of_maximum(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
+    cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
-    return domain[np.where(cut == maximum)[0]]
+    return domain[np.where(cut == maximum)[0][0]]
 
 
-def middle_of_maximum(domain, cut):
+def middle_of_maximum(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
+    cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     indices = np.where(cut == maximum)[0]
-    size = len(indices)
+    size = indices.size
     middle = int(size / 2)
     return domain[[indices[middle]]]
 
 
-def mean_of_maxima(domain, cut):
+def mean_of_maxima(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
+    cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     indices = np.where(cut == maximum)[0]
-    size = len(indices)
+    size = indices.size
     total = np.sum([domain[index] for index in indices])
     return total / size
 
 
-def center_of_sums(domain, membership_functions):
-    nominator = 0
-    denominator = 0
-    domain_values = np.zeros(shape=(2, len(domain)))
-    domain_values[0] = domain
-    for membership_function in membership_functions:
-        domain_values[1] = membership_function
-        nominator += np.sum(np.prod(domain_values, axis=0))
-        denominator += np.sum(domain_values[1])
-    return nominator / denominator
+def center_of_sums(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
+    if not isinstance(membership_functions[0], Iterable):
+        sums_of_memberships = membership_functions
+    else:
+        universe = np.array(membership_functions)
+        sums_of_memberships = np.sum(universe, axis=0)
+
+    domain_memberships_sums = np.array((domain, sums_of_memberships))
+    numerator = np.sum(np.prod(domain_memberships_sums, axis=0))
+    denominator = np.sum(sums_of_memberships)
+
+    return numerator / denominator
 
 
-def karnik_mendel(lmf: np.ndarray, umf: np.ndarray, domain: np.ndarray) -> float:
+def karnik_mendel(lmfs: List[np.ndarray], umfs: List[np.ndarray], domain: np.ndarray) -> float:
     """
     Karnik-Mendel algorithm for interval type II fuzzy sets
-    :param lmf: lower membership function
-    :param umf: upper membership function
+    :param lmfs: lower membership functions
+    :param umfs: upper membership functions
     :param domain: universe on which rule consequents are defined
     :return: decision value
     """
-    thetas = (lmf + umf) / 2
-    y_l = __find_y(partial(__find_c_minute, under_k_mf=umf, over_k_mf=lmf), domain, thetas)
-    y_r = __find_y(partial(__find_c_minute, under_k_mf=lmf, over_k_mf=umf), domain, thetas)
+    lower_cut = __membership_func_union(lmfs)
+    upper_cut = __membership_func_union(umfs)
+    thetas = (lower_cut + upper_cut) / 2
+    y_l = __find_y(partial(__find_c_minute, under_k_mf=upper_cut, over_k_mf=lower_cut), domain, thetas)
+    y_r = __find_y(partial(__find_c_minute, under_k_mf=lower_cut, over_k_mf=upper_cut), domain, thetas)
     return (y_l + y_r) / 2
 
 
@@ -100,3 +111,20 @@ def __find_k(c: float, domain: np.ndarray) -> float:
     :return: index for weighted average in given domain
     """
     return np.where(domain <= c)[0][-1]
+
+
+def __membership_func_union(mfs: List[np.ndarray]) -> np.ndarray:
+    """
+    Performs merge of given membership functions by choosing maximum of respective values
+    :param mfs: membership functions to unify
+    :return: unified membership functions
+    """
+    if not isinstance(mfs[0], Iterable):
+        mfs = [mfs]
+    n_functions = len(mfs)
+    universe_size = len(mfs[0])
+    reshaped_mfs = np.zeros(shape=(n_functions, universe_size))
+    for i, mf in enumerate(mfs):
+        reshaped_mfs[i] = mf
+    union = np.max(reshaped_mfs, axis=0)
+    return union
