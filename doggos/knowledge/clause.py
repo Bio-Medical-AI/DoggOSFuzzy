@@ -156,3 +156,9 @@ class Clause:
     @values.setter
     def values(self, values: Sequence[MembershipDegree]):
         self.__values = values
+
+    def __str__(self) -> str:
+        return f'Clause {self.linguistic_variable.name} is {self.gradation_adjective}'
+
+    def __repr__(self) -> str:
+        return self.__str__()
