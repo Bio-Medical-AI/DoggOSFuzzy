@@ -15,12 +15,18 @@ class Rule:
     consequent : Consequent
         Consequent of the rule. Has only getter (is immutable).
     """
+
     def __init__(self, antecedent: Antecedent, consequent: Consequent):
         """
         Create a new rule with defined antecedent and consequent.
         :param antecedent: antecedent of the rule
         :param consequent: consequent of the rule
         """
+        if not isinstance(antecedent, Antecedent):
+            raise TypeError("antecedent must be an Antecedent type")
+        if not isinstance(consequent, Consequent):
+            raise TypeError("consequent must be a Consequent type")
+        
         self.__antecedent = antecedent
         self.__consequent = consequent
 
