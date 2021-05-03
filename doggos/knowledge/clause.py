@@ -3,7 +3,7 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
 import numpy as np
-from typing import NoReturn, Sequence
+from typing import NoReturn, Sequence, List
 
 
 class Clause:
@@ -149,9 +149,19 @@ class Clause:
         self.__gradation_adjective = gradation_adjective
 
     @property
-    def values(self):
+    def values(self) -> Sequence[MembershipDegree]:
+        """
+        Getter of values of fuzzy set calculated on domain of provided LinguisticVariable.
+        :return: values of membership function on linguistic_variable's domain
+        """
         return self.__values
 
     @values.setter
-    def values(self, values: Sequence[MembershipDegree]):
+    def values(self, values: Sequence[MembershipDegree]) -> NoReturn:
+        """
+        Sets new list of values. Should only be used by a Consequent which needs to cut fuzzy set of provided Clause
+        or in similar case.
+        :param values: values of membership function on linguistic_variable's domain
+        :return:
+        """
         self.__values = values
