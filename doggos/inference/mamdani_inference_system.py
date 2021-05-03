@@ -59,20 +59,29 @@ class MamdaniInferenceSystem(InferenceSystem):
         if not isinstance(defuzzification_method, Callable):
             raise ValueError("Defuzzifiaction method must be callable")
 
-        values = np.array(features.values())
-        degrees = values[0]
-
+        degrees = self.__get_degrees(features)
+        result = np.zeros(shape=(1, len(degrees)))
+        is_type1 = self.__is_consequent_type1()
         for i in range(len(degrees)):
             single_features = {}
             for clause, memberships in features.items():
                 single_features[clause] = memberships[i]
 
-            if self.__is_consequent_type1():
+            if is_type1:
                 domain, membership_functions = self.__get_domain_and_membership_functions(single_features)
-                yield defuzzification_method(domain, membership_functions)
+                result[i] = defuzzification_method(domain, membership_functions)
             else:
                 domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(single_features)
-                yield defuzzification_method(lmfs, umfs, domain)
+                result[i] = defuzzification_method(lmfs, umfs, domain)
+
+        if result.shape[1] == 1:
+            return result.item()
+
+        return result
+
+    def __get_degrees(self, features: Dict[Clause, List[MembershipDegree]]):
+        values = np.array(features.values())
+        return values[0]
 
     def __validate_consequents(self):
         for rule in self._rule_base:

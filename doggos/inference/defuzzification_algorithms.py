@@ -1,3 +1,4 @@
+from collections import Iterable
 from functools import partial
 from typing import List
 
@@ -40,10 +41,13 @@ def mean_of_maxima(domain, membership_functions):
 
 
 def center_of_sums(domain, membership_functions):
-    universe = np.array(membership_functions)
-    sums_of_memberships = np.sum(universe, axis=0)
-    domain_memberships_sums = np.array((domain, sums_of_memberships))
+    if not isinstance(membership_functions[0], Iterable):
+        sums_of_memberships = membership_functions
+    else:
+        universe = np.array(membership_functions)
+        sums_of_memberships = np.sum(universe, axis=0)
 
+    domain_memberships_sums = np.array((domain, sums_of_memberships))
     numerator = np.sum(np.prod(domain_memberships_sums, axis=0))
     denominator = np.sum(sums_of_memberships)
 
@@ -115,6 +119,8 @@ def __membership_func_union(mfs: List[np.ndarray]) -> np.ndarray:
     :param mfs: membership functions to unify
     :return: unified membership functions
     """
+    if not isinstance(mfs[0], Iterable):
+        mfs = [mfs]
     n_functions = len(mfs)
     universe_size = len(mfs[0])
     reshaped_mfs = np.zeros(shape=(n_functions, universe_size))
