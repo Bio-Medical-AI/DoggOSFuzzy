@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import collections.abc as abc
-from typing import Callable, Iterable
+from typing import Iterable
 
 from doggos.knowledge import Rule
 
