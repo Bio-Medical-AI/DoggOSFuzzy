@@ -49,7 +49,7 @@ class Clause:
         :param linguistic_variable: linguistic variable, provides a name for a feature
                                     and determines the domain of a fuzzy set
         :param gradation_adjective: gradation adjective, string representation of belonging level
-        :param fuzzy_set: fuzzy set provides its memebership function
+        :param fuzzy_set: fuzzy set provides its membership function
         """
         if not isinstance(linguistic_variable, LinguisticVariable):
             raise TypeError("Linguistic variable must be a LinguisticVariable type")
