@@ -6,7 +6,7 @@ from doggos.knowledge import Rule
 
 
 class InferenceSystem(ABC):
-    __rule_base: Iterable[Rule]
+    _rule_base: Iterable[Rule]
 
     def __init__(self, rule_base: Iterable[Rule]):
         if not isinstance(rule_base, abc.Iterable) or any(not isinstance(rule, Rule) for rule in rule_base):
