@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List, Dict, Tuple, Callable, Iterable
+from typing import List, Dict, Tuple, Callable, Iterable, NoReturn
 
 from doggos.fuzzy_sets import MembershipDegree
 from doggos.knowledge.clause import Clause
@@ -18,13 +18,13 @@ class MamdaniInferenceSystem(InferenceSystem):
     Attributes
     --------------------------------------------
     _rule_base: Iterable[Rule]
-        fuzzy knowledge base used for inference
+        fuzzy rule base used for inference
 
     Methods
     --------------------------------------------
     infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]])
             -> Iterable[float] or float:
-        infer decision from knowledge base
+        infer decision from rule base
 
     Examples:
     --------------------------------------------
@@ -37,11 +37,10 @@ class MamdaniInferenceSystem(InferenceSystem):
     0.5
     """
     _rule_base: Iterable[Rule]
-    # TODO: setter and getter for _rule_base
 
     def __init__(self, rule_base: Iterable[Rule]):
         """
-        Create mamdani inference system with given knowledge base
+        Create mamdani inference system with given rule base
         All rules should have the same consequent type and consequents should be defined on the same domain
         :param rule_base: fuzzy knowledge base used for inference
         """
@@ -122,3 +121,11 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __get_consequent_domain(self) -> np.ndarray:
         return self.__rule_base[0].consequent.clause.linguistic_variable.domain()
+
+    @property
+    def rule_base(self):
+        return self._rule_base
+
+    @rule_base.setter
+    def rule_base(self, rule_base: Iterable[Rule]) -> NoReturn:
+        self._rule_base = rule_base
