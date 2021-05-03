@@ -1,6 +1,6 @@
 import numpy as np
-from typing import List, Dict, Tuple, Callable, Iterable, NoReturn
-from collections.abc import Iterable as Iter
+from typing import List, Dict, Tuple, Sequence, Callable, NoReturn
+from collections.abc import Iterable
 
 from doggos.fuzzy_sets import MembershipDegree
 from doggos.knowledge.clause import Clause
@@ -37,9 +37,9 @@ class MamdaniInferenceSystem(InferenceSystem):
     >>> mamdani.infer(defuzzifiaction_method, features)
     0.5
     """
-    _rule_base: Iterable[Rule]
+    _rule_base: Sequence[Rule]
 
-    def __init__(self, rule_base: Iterable[Rule]):
+    def __init__(self, rule_base: Sequence[Rule]):
         """
         Create mamdani inference system with given rule base
         All rules should have the same consequent type and consequents should be defined on the same domain
@@ -129,6 +129,6 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     @rule_base.setter
     def rule_base(self, rule_base: Iterable[Rule]) -> NoReturn:
-        if not isinstance(rule_base, Iter) or any(not isinstance(rule, Rule) for rule in rule_base):
+        if not isinstance(rule_base, Iterable) or any(not isinstance(rule, Rule) for rule in rule_base):
             raise TypeError('rule_base must be an iterable of type Rule')
         self._rule_base = rule_base
