@@ -1,3 +1,4 @@
+import pytest
 from functools import partial
 import numpy as np
 
