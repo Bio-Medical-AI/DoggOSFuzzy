@@ -27,22 +27,22 @@ class TestClause:
     def test_get_value(self, x):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
-        fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         values = fuzzy_set(domain())
-        index = np.round((x - domain.min)/domain.precision)
+        index = np.round((x - domain.min)/domain.precision).astype(int)
         assert values[index] == clause.get_value(x)
-        
+
     @pytest.mark.parametrize('x, y, z', zip(np.arange(0, 10, 1), np.arange(2, 12, 1), np.arange(3, 13, 1)))
     def test_get_value_collection(self, x, y, z):
         collection = np.array([x, y, z])
         domain = Domain(0, 15, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
-        fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         values = fuzzy_set(domain())
         index = np.round((collection - domain.min)/domain.precision).astype(int)
-        assert values[index] == clause.get_value(collection)
+        assert np.array_equal(values[index], clause.get_value(collection))
 
     @pytest.mark.parametrize('x', np.arange(-5, -1, 1))
     def test_exception_value_error_get_value(self, x):
@@ -57,7 +57,7 @@ class TestClause:
     def test_exception_typerror_setter_fuzzy_set(self):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
-        fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         with pytest.raises(TypeError) as e:
             clause.fuzzy_set = []
@@ -66,14 +66,14 @@ class TestClause:
     def test_getter_fuzzy_set(self):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
-        fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         assert clause.fuzzy_set == fuzzy_set
 
     def test_exception_typerror_setter_ling_var(self):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
-        fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         with pytest.raises(TypeError) as e:
             clause.linguistic_variable = []
@@ -82,14 +82,14 @@ class TestClause:
     def test_getter_ling_var(self):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
-        fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
-        assert  clause.linguistic_variable == ling_var
+        assert clause.linguistic_variable == ling_var
 
     def test_gradation_adj_setter(self):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
-        fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         clause.gradation_adjective = 'Low'
         assert clause.gradation_adjective == 'Low'
@@ -97,6 +97,7 @@ class TestClause:
     def test_getter_gradation_adj(self):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
-        fuzzy_set = Type1FuzzySet(lambda x: 0.5*x)
+        fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         assert clause.gradation_adjective == 'High'
+
