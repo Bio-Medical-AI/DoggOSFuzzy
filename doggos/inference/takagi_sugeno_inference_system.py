@@ -22,7 +22,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
         :param features: a dictionary of clauses and list of their membership values calculated for measures
         :param measures: a dictionary of measures consisting of Linguistic variables, and list of measured float values
         for them
-        :return: float that is output of whole inference system
+        :return: list of floats that is output of whole inference system
         """
         if not isinstance(features, Dict):
             raise ValueError("Features must be dictionary")
@@ -32,26 +32,15 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
             raise ValueError("Defuzzification_method must be Callable")
 
         conclusions = []
-        length = len(list(self._rule_base))
-        for i in range(len(list(features.values())[0])):
+        for i in range(len(list(measures.values())[0])):
             single_features = {}
             single_measures = {}
             for key, value in features.items():
-                single_features[key] = value[i]
+                single_features[key] = np.take(value, i, axis=-1)
             for key, value in measures.items():
                 single_measures[key] = value[i]
-            firings = np.zeros(shape=length)
-            outputs = np.zeros(shape=length)
-            # print(firings)
-            # print(list(self._rule_base)[0].antecedent.fire(single_features))
-
-            #for j in range(length):
-            #    firings[j] = list(self._rule_base)[j].antecedent.fire(single_features)
-            #    outputs[j] = list(self._rule_base)[j].consequent.output(single_measures)
             firings = np.array([rule.antecedent.fire(single_features) for rule in self._rule_base])
             outputs = np.array([rule.consequent.output(single_measures) for rule in self._rule_base])
-            print(firings.shape)
-            print(outputs.shape)
-            print(firings)
+            
             conclusions.append(defuzzification_method(firings, outputs))
         return conclusions

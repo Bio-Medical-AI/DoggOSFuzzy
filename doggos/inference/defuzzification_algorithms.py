@@ -139,6 +139,7 @@ def takagi_sugeno_karnik_mendel(firings: np.ndarray,
     :param step: size of step used in Karnik-Mendel algorithm
     :return: float that is output of whole inference system
     """
+    outputs = outputs.reshape((-1, 1))
     outputs_of_rules = np.concatenate((outputs, firings), axis=1)
     outputs_of_rules = outputs_of_rules[np.argsort(outputs_of_rules[:, 0])]
     domain = np.arange(outputs_of_rules[0][0], outputs_of_rules[-1][0] + step, step)
