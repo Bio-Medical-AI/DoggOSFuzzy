@@ -100,4 +100,3 @@ class TestClause:
         fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         assert clause.gradation_adjective == 'High'
-

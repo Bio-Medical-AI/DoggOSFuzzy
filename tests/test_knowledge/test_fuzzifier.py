@@ -1,12 +1,10 @@
 import pytest
 import pandas as pd
-import numpy as np
 
 
-from tests.test_tools import approx, _random_sample
+from tests.test_tools import approx
 from doggos.knowledge import Domain, LinguisticVariable, Clause, fuzzify
 from doggos.fuzzy_sets import Type1FuzzySet, IntervalType2FuzzySet
-from doggos.utils.membership_functions import linear, sigmoid
 
 
 class TestFuzzifier:
@@ -79,11 +77,6 @@ class TestFuzzifier:
         with pytest.raises(KeyError):
             _ = fuzzify(df, clauses)
 
-    def test_fuzzify_empty_dataset_error(self):
-        pass
-
-    def test_fuzzify_empty_clauses(self):
-        pass
-
-    def test_out_of_domain_dataset(self):
-        pass
+    def test_fuzzify_empty_clauses(self, df):
+        result = fuzzify(df, [])
+        assert result == dict()
