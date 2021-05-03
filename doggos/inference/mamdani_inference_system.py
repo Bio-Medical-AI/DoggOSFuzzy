@@ -69,16 +69,10 @@ class MamdaniInferenceSystem(InferenceSystem):
 
             if self.__is_consequent_type1():
                 domain, membership_functions = self.__get_domain_and_membership_functions(single_features)
-                cut = self.__membership_func_union(membership_functions)
-                return defuzzification_method(domain, cut)
+                yield defuzzification_method(domain, membership_functions)
             else:
                 domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(single_features)
-                lower_cut = self.__membership_func_union(lmfs)
-                upper_cut = self.__membership_func_union(umfs)
-                return defuzzification_method(lower_cut, upper_cut, domain)
-
-            domain, membership_functions = self.__get_domain_and_membership_functions(single_features)
-            return self._center_of_sums(domain, membership_functions)
+                yield defuzzification_method(lmfs, umfs, domain)
 
     def __validate_consequents(self):
         for rule in self._rule_base:
@@ -87,25 +81,6 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __is_consequent_type1(self):
         return isinstance(self.__rule_base[0].consequent.clause.fuzzy_set, Type1FuzzySet)
-
-    def __membership_func_union(self, mfs: List[np.ndarray]) -> np.ndarray:
-        """
-        Performs merge of given membership functions by choosing maximum of respective values
-        :param mfs: membership functions to unify
-        :return: unified membership functions
-        """
-        n_functions = len(mfs)
-        universe_size = len(mfs[0])
-        reshaped_mfs = np.zeros(shape=(n_functions, universe_size))
-        for i, mf in enumerate(mfs):
-            reshaped_mfs[i] = mf
-        union = np.max(reshaped_mfs, axis=0)
-        return union
-
-    def __get_domain_and_cut(self, features: Dict[Clause, List[MembershipDegree]]):
-        domain, membership_functions = self.__get_domain_and_membership_functions(features)
-        cut = self.__membership_func_union(membership_functions)
-        return domain, cut
 
     def __get_domain_and_memberships_for_it2(self, features: Dict[Clause, List[MembershipDegree]]) \
             -> Tuple[np.ndarray, List[np.ndarray], List[np.ndarray]]:
@@ -119,7 +94,8 @@ class MamdaniInferenceSystem(InferenceSystem):
         umfs = [output[1] for output in membership_functions]
         return domain, lmfs, umfs
 
-    def __get_domain_and_membership_functions(self, features: Dict[Clause, List[MembershipDegree]]):
+    def __get_domain_and_membership_functions(self, features: Dict[Clause, List[MembershipDegree]]) \
+            -> Tuple[np.ndarray, List[np.ndarray]]:
         domain = self.__get_consequent_domain()
         membership_functions = self.__get_consequents_membership_functions(features)
         return domain, membership_functions
@@ -132,5 +108,5 @@ class MamdaniInferenceSystem(InferenceSystem):
         """
         return np.array([rule.consequent.output(rule.antecedent.fire(features)).values for rule in self.__rule_base])
 
-    def __get_consequent_domain(self):
+    def __get_consequent_domain(self) -> np.ndarray:
         return self.__rule_base[0].consequent.clause.linguistic_variable.domain()

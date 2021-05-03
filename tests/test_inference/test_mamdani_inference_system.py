@@ -5,6 +5,7 @@ import numpy as np
 from tests.test_tools import approx
 from doggos.utils.membership_functions.membership_functions import triangular, trapezoidal
 from doggos.inference.mamdani_inference_system import MamdaniInferenceSystem
+from doggos.inference.defuzzification_algorithms import *
 
 
 class TestMamdaniInferenceSystem:
@@ -56,23 +57,25 @@ class TestMamdaniInferenceSystem:
 
     def test_karnik_mendel_output(self, patch_domain_and_memberships_for_it2):
         mamdani = MamdaniInferenceSystem([])
-        output = mamdani.output({}, 'KM')
+        output = mamdani.infer(karnik_mendel, {})
         assert output == approx(0.5)
 
     def test_center_of_sums(self, patch_domain_and_memberships_for_center_of_sums):
         mamdani = MamdaniInferenceSystem([])
-        output = mamdani.output({}, 'COS')
+        output = mamdani.infer(center_of_sums, {})
         assert output == approx(5)
 
-    @pytest.mark.parametrize('method', ['COG', 'LOM', 'MOM', 'SOM', 'MeOM'])
+    @pytest.mark.parametrize('method', [center_of_gravity, largest_of_maximum, middle_of_maximum,
+                                        smallest_of_maximum, mean_of_maxima])
     def test_type1_defuzzification_methods(self, patch_domain_and_cut, method):
         mamdani = MamdaniInferenceSystem([])
-        output = mamdani.output({}, method)
+        output = mamdani.infer(method, {})
         assert output == approx(0.5)
 
-    @pytest.mark.parametrize('method, expected', zip(['LOM', 'MOM', 'SOM', 'MeOM'], [0.75, 0.5, 0.25, 0.5]))
+    @pytest.mark.parametrize('method, expected', zip([largest_of_maximum, middle_of_maximum, smallest_of_maximum,
+                                                      mean_of_maxima], [0.75, 0.5, 0.25, 0.5]))
     def test_maxima(self, patch_domain_and_cut_for_maxima, method, expected):
         mamdani = MamdaniInferenceSystem([])
-        output = mamdani.output({}, method)
+        output = mamdani.infer(method, {})
         assert output == approx(expected)
 

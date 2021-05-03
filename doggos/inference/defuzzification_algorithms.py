@@ -1,23 +1,28 @@
 from functools import partial
+from typing import List
 
 import numpy as np
 
 
-def center_of_gravity(domain, cut):
+def center_of_gravity(domain, membership_functions):
+    cut = __membership_func_union(membership_functions)
     return np.average(domain, weights=cut)
 
 
-def largest_of_maximum(domain, cut):
+def largest_of_maximum(domain, membership_functions):
+    cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     return domain[np.where(cut == maximum)[0][-1]]
 
 
-def smallest_of_maximum(domain, cut):
+def smallest_of_maximum(domain, membership_functions):
+    cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     return domain[np.where(cut == maximum)[0][0]]
 
 
-def middle_of_maximum(domain, cut):
+def middle_of_maximum(domain, membership_functions):
+    cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     indices = np.where(cut == maximum)[0]
     size = len(indices)
@@ -25,7 +30,8 @@ def middle_of_maximum(domain, cut):
     return domain[[indices[middle]]]
 
 
-def mean_of_maxima(domain, cut):
+def mean_of_maxima(domain, membership_functions):
+    cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     indices = np.where(cut == maximum)[0]
     size = len(indices)
@@ -44,17 +50,19 @@ def center_of_sums(domain, membership_functions):
     return numerator / denominator
 
 
-def karnik_mendel(lmf: np.ndarray, umf: np.ndarray, domain: np.ndarray) -> float:
+def karnik_mendel(lmfs: List[np.ndarray], umfs: List[np.ndarray], domain: np.ndarray) -> float:
     """
     Karnik-Mendel algorithm for interval type II fuzzy sets
-    :param lmf: lower membership function
-    :param umf: upper membership function
+    :param lmfs: lower membership functions
+    :param umfs: upper membership functions
     :param domain: universe on which rule consequents are defined
     :return: decision value
     """
-    thetas = (lmf + umf) / 2
-    y_l = __find_y(partial(__find_c_minute, under_k_mf=umf, over_k_mf=lmf), domain, thetas)
-    y_r = __find_y(partial(__find_c_minute, under_k_mf=lmf, over_k_mf=umf), domain, thetas)
+    lower_cut = __membership_func_union(lmfs)
+    upper_cut = __membership_func_union(umfs)
+    thetas = (lower_cut + upper_cut) / 2
+    y_l = __find_y(partial(__find_c_minute, under_k_mf=upper_cut, over_k_mf=lower_cut), domain, thetas)
+    y_r = __find_y(partial(__find_c_minute, under_k_mf=lower_cut, over_k_mf=upper_cut), domain, thetas)
     return (y_l + y_r) / 2
 
 
@@ -99,3 +107,18 @@ def __find_k(c: float, domain: np.ndarray) -> float:
     :return: index for weighted average in given domain
     """
     return np.where(domain <= c)[0][-1]
+
+
+def __membership_func_union(mfs: List[np.ndarray]) -> np.ndarray:
+    """
+    Performs merge of given membership functions by choosing maximum of respective values
+    :param mfs: membership functions to unify
+    :return: unified membership functions
+    """
+    n_functions = len(mfs)
+    universe_size = len(mfs[0])
+    reshaped_mfs = np.zeros(shape=(n_functions, universe_size))
+    for i, mf in enumerate(mfs):
+        reshaped_mfs[i] = mf
+    union = np.max(reshaped_mfs, axis=0)
+    return union
