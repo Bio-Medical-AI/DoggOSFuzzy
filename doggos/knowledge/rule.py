@@ -1,26 +1,41 @@
-from typing import Dict, Tuple, List
-
-import numpy as np
-
-from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.knowledge.antecedent import Antecedent
 from doggos.knowledge.consequents.consequent import Consequent
 
 
 class Rule:
+    """
+    Class used to represent a fuzzy rule.
+    It is used in fuzzy logic systems to infer an output based on input variables.
+    It consists from an antecedent(premise) and a consequent.
+    https://en.wikipedia.org/wiki/Fuzzy_rule
+    Attributes
+    --------------------------------------------
+    antecedent : Antecedent
+        Antecedent of the rule. Has only getter (is immutable).
+    consequent : Consequent
+        Consequent of the rule. Has only getter (is immutable).
+    """
     def __init__(self, antecedent: Antecedent, consequent: Consequent):
-        self.__firing_value: MembershipDegree = None
-        self.__rule_output: np.ndarray or float = None
+        """
+        Create a new rule with defined antecedent and consequent.
+        :param antecedent: antecedent of the rule
+        :param consequent: consequent of the rule
+        """
         self.__antecedent = antecedent
         self.__consequent = consequent
 
     @property
     def antecedent(self) -> Antecedent:
-        pass
+        """
+        Getter of antecedent
+        :return: antecedent
+        """
+        return self.__antecedent
 
     @property
     def consequent(self) -> Consequent:
-        pass
-
-    def output(self, features: Dict[str, float]) -> List[MembershipDegree] or float:
-        pass
+        """
+        Getter of consequent
+        :return: consequent
+        """
+        return self.__consequent
