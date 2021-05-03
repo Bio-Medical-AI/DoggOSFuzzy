@@ -46,13 +46,14 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
         else:
             raise ValueError("Inference system must take rules as parameters")
 
-    def output(self, features: Dict[Clause, MembershipDegree], measures: Dict[LinguisticVariable, float],
-               method: str = "average", step: float = 0.0001) -> float:
+    def output(self, features: Dict[Clause, list[MembershipDegree]], measures: Dict[LinguisticVariable, list[float]],
+               method: str = "average", step: float = 0.01) -> list[float]:
         """
         Inferences output based on features of given object and measured values of them, using chosen method
 
-        :param features: a dictionary of clauses and their membership value calculated for measures
-        :param measures: a dictionary of measures consisting of Linguistic variables, and measured values for them
+        :param features: a dictionary of clauses and list of their membership values calculated for measures
+        :param measures: a dictionary of measures consisting of Linguistic variables, and list of measured float values
+        for them
         :param method: method of calculating final output, must match type of fuzzy sets used in rules
         :param step: size of step used in Karnik-Mendel algorithm
         :return: float that is output of whole inference system
@@ -61,17 +62,36 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
             raise ValueError("Features must be dictionary")
         if not isinstance(features, Dict):
             raise ValueError("Measures must be dictionary")
-
         if len(self._rule_base) == 0:
             raise IndexError("Rule base of inference system is empty")
+
         if method == "average":
-            return self.__type_1_basic_output(features, measures)
+            outputs = []
+            for i in range(len(list(features.values())[0])):
+                single_features = {}
+                single_measures = {}
+                for key, value in features.items():
+                    single_features[key] = value[i]
+                for key, value in measures.items():
+                    single_measures[key] = value[i]
+                outputs.append(self.__type_1_basic_output(single_features, single_measures))
+            return outputs
         elif method == "karnik-mendel":
-            return self.__type_2_basic_output(features, measures, step)
+            outputs = []
+            for i in range(len(list(features.values())[0])):
+                single_features = {}
+                single_measures = {}
+                for key, value in features.items():
+                    single_features[key] = value[i]
+                for key, value in measures.items():
+                    single_measures[key] = value[i]
+                outputs.append(self.__type_2_basic_output(single_features, single_measures, step))
+            return outputs
         else:
             raise NotImplementedError("There is no method of that name")
 
-    def __type_1_basic_output(self, features: Dict[Clause, MembershipDegree], measures: Dict[LinguisticVariable, float]) -> float:
+    def __type_1_basic_output(self, features: Dict[Clause, MembershipDegree],
+                              measures: Dict[LinguisticVariable, float]) -> float:
         """
         Method of calculating output of Takagi-Sugeno inference system for fuzzy sets of type 1
 
@@ -88,8 +108,8 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
             denominator += memb
         return nominator / denominator
 
-    def __type_2_basic_output(self, features: Dict[Clause, MembershipDegree], measures: Dict[LinguisticVariable, float],
-                              step: float) -> float:
+    def __type_2_basic_output(self, features: Dict[Clause, MembershipDegree],
+                              measures: Dict[LinguisticVariable, float], step: float) -> float:
         """
         Method of calculating output of Takagi-Sugeno inference system using Karnik-Mendel algorithm
 
