@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from doggos.inference.takagi_sugeno_inference_system import calculate_membership
+from doggos.inference.defuzzification_algorithms import calculate_membership
 
 
 class TestTakagiSugenoInferenceSystem:
