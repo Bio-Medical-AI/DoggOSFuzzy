@@ -1,9 +1,11 @@
+from collections import Iterable
+
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
 import numpy as np
-from typing import NoReturn, Sequence, List
+from typing import NoReturn, Iterable, List
 
 
 class Clause:
@@ -61,21 +63,21 @@ class Clause:
         self.__fuzzy_set = fuzzy_set
         self.__values = self._calculate_values()
 
-    def get_value(self, x: Sequence[float] or float) -> MembershipDegree or Sequence[MembershipDegree]:
+    def get_value(self, x: Iterable[float] or float) -> MembershipDegree or Iterable[MembershipDegree]:
         """
         returns a value representing membership degree
         :param x: degree of belonging
         """
         return self.__values[self._find_index(x)]
     
-    def _calculate_values(self) -> Sequence[MembershipDegree]:
+    def _calculate_values(self) -> Iterable[MembershipDegree]:
         """
         Calculates values for every element in the domain
         :return: array of membership degrees
         """
         return self.__fuzzy_set(self.linguistic_variable.domain())
     
-    def _find_index(self, x: Sequence[float] or float) -> int or Sequence[int]:
+    def _find_index(self, x: Iterable[float] or float) -> int or Iterable[int]:
         """
         Returns the index of given x in the values table 
         
@@ -149,7 +151,7 @@ class Clause:
         self.__gradation_adjective = gradation_adjective
 
     @property
-    def values(self) -> Sequence[MembershipDegree]:
+    def values(self) -> Iterable[MembershipDegree]:
         """
         Getter of values of fuzzy set calculated on domain of provided LinguisticVariable.
         :return: values of membership function on linguistic_variable's domain
@@ -157,11 +159,21 @@ class Clause:
         return self.__values
 
     @values.setter
-    def values(self, values: Sequence[MembershipDegree]) -> NoReturn:
+    def values(self, values: Iterable[MembershipDegree]) -> NoReturn:
         """
         Sets new list of values. Should only be used by a Consequent which needs to cut fuzzy set of provided Clause
         or in similar case.
         :param values: values of membership function on linguistic_variable's domain
         :return:
         """
+        if not isinstance(values, Iterable):
+            raise TypeError("Values must be Iterable")
+
+        if isinstance(self.__values, tuple) or (isinstance(self.__values, np.ndarray) and self.__values.shape[0] > 1):
+            if len(self.__values[0]) != len(values[0]):
+                raise ValueError("Values length mismatches domain of linguistic variable")
+        else:
+            if len(self.__values) != len(values):
+                raise ValueError("Values length mismatches domain of linguistic variable")
+
         self.__values = values

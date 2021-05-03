@@ -52,7 +52,7 @@ class MamdaniConsequent(Consequent):
     @property
     def clause(self) -> Clause:
         """
-        Getter of clause
+        Getter of the clause
         :return: clause
         """
         return self.__clause
