@@ -42,7 +42,7 @@ class Clause:
     __gradation_adjective: str
     __fuzzy_set: FuzzySet
 
-    def __init__(self, linguistic_variable: LinguisticVariable, gradation_adjective: str, fuzzy_set: FuzzySet):
+    def __init__(self, linguistic_variable: LinguisticVariable, gradation_adjective: str, fuzzy_set: FuzzySet) -> object:
         """
         Creates clause with given linguistic variable, gradation adjective and fuzzy set.
 
