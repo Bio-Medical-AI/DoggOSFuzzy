@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections.abc import Iterable
 from functools import partial
 from typing import List
 
@@ -26,7 +26,7 @@ def middle_of_maximum(domain, membership_functions):
     cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     indices = np.where(cut == maximum)[0]
-    size = len(indices)
+    size = indices.size
     middle = int(size / 2)
     return domain[[indices[middle]]]
 
@@ -35,7 +35,7 @@ def mean_of_maxima(domain, membership_functions):
     cut = __membership_func_union(membership_functions)
     maximum = np.max(cut)
     indices = np.where(cut == maximum)[0]
-    size = len(indices)
+    size = indices.size
     total = np.sum([domain[index] for index in indices])
     return total / size
 

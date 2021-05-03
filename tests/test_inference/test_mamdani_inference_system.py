@@ -17,7 +17,7 @@ class TestMamdaniInferenceSystem:
         umf = np.array([upper_func(x) for x in domain])
         domain_lmf_umf = (domain, lmf, umf)
         get_domain_and_memberships_path = 'doggos.inference.mamdani_inference_system.MamdaniInferenceSystem' \
-                                          '._MamdaniInferenceSystem__get_domain_and_memberships_for_it2'
+                                          '._MamdaniInferenceSystem__get_domain_and_consequents_memberships_for_it2'
         mocker.patch(get_domain_and_memberships_path).return_value = domain_lmf_umf
 
     @pytest.fixture
@@ -26,8 +26,9 @@ class TestMamdaniInferenceSystem:
         domain = np.arange(0, 1, 0.001)
         mf = np.array([membership_function(x) for x in domain])
         domain_mfs = (domain, mf)
-        get_domain_and_membership_functions_path = 'doggos.inference.mamdani_inference_system.MamdaniInferenceSystem' \
-                                                   '._MamdaniInferenceSystem__get_domain_and_membership_functions'
+        get_domain_and_membership_functions_path = 'doggos.inference.mamdani_inference_system.' \
+                                                   'MamdaniInferenceSystem._MamdaniInferenceSystem' \
+                                                   '__get_domain_and_consequents_membership_functions'
         mocker.patch(get_domain_and_membership_functions_path).return_value = domain_mfs
 
     @pytest.fixture
@@ -37,7 +38,7 @@ class TestMamdaniInferenceSystem:
         cut_values = np.array([cut(x) for x in domain])
         domain_cut = (domain, cut_values)
         get_domain_and_cut_path = 'doggos.inference.mamdani_inference_system.MamdaniInferenceSystem' \
-                                  '._MamdaniInferenceSystem__get_domain_and_membership_functions'
+                                  '._MamdaniInferenceSystem__get_domain_and_consequents_membership_functions'
         mocker.patch(get_domain_and_cut_path).return_value = domain_cut
 
     @pytest.fixture

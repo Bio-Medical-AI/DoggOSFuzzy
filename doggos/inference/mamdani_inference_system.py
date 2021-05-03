@@ -70,10 +70,10 @@ class MamdaniInferenceSystem(InferenceSystem):
                 single_features[clause] = memberships[i]
 
             if is_type1:
-                domain, membership_functions = self.__get_domain_and_membership_functions(single_features)
+                domain, membership_functions = self.__get_domain_and_consequents_membership_functions(single_features)
                 result[i] = defuzzification_method(domain, membership_functions)
             else:
-                domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(single_features)
+                domain, lmfs, umfs = self.__get_domain_and_consequents_memberships_for_it2(single_features)
                 result[i] = defuzzification_method(lmfs, umfs, domain)
 
         if result.shape[1] == 1:
@@ -93,19 +93,19 @@ class MamdaniInferenceSystem(InferenceSystem):
     def __is_consequent_type1(self):
         return isinstance(self.__rule_base[0].consequent.clause.fuzzy_set, Type1FuzzySet)
 
-    def __get_domain_and_memberships_for_it2(self, features: Dict[Clause, List[MembershipDegree]]) \
+    def __get_domain_and_consequents_memberships_for_it2(self, features: Dict[Clause, List[MembershipDegree]]) \
             -> Tuple[np.ndarray, List[np.ndarray], List[np.ndarray]]:
         """
         Extracts domain and membership functions from rule base
         :param features: dictionary of linguistic variables and their values
         :return: domain, lower membership functions and upper membership functions extracted from rule base
         """
-        domain, membership_functions = self.__get_domain_and_membership_functions(features)
+        domain, membership_functions = self.__get_domain_and_consequents_membership_functions(features)
         lmfs = [membership_function[0] for membership_function in membership_functions]
         umfs = [membership_function[1] for membership_function in membership_functions]
         return domain, lmfs, umfs
 
-    def __get_domain_and_membership_functions(self, features: Dict[Clause, List[MembershipDegree]]) \
+    def __get_domain_and_consequents_membership_functions(self, features: Dict[Clause, List[MembershipDegree]]) \
             -> Tuple[np.ndarray, List[np.ndarray]]:
         domain = self.__get_consequent_domain()
         membership_functions = self.__get_consequents_membership_functions(features)
