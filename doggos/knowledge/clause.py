@@ -1,4 +1,4 @@
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 
@@ -147,3 +147,11 @@ class Clause:
         :return: NoReturn
         """
         self.__gradation_adjective = gradation_adjective
+
+    @property
+    def values(self):
+        return self.__values
+
+    @values.setter
+    def values(self, values: Sequence[MembershipDegree]):
+        self.__values = values

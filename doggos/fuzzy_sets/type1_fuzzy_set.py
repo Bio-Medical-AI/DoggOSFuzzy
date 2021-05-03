@@ -1,33 +1,31 @@
 from __future__ import annotations
-from typing import Callable, NoReturn
+from typing import Callable, NoReturn, Sequence
+
+
+import numpy as np
 
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
-from doggos.fuzzy_sets.membership import MembershipDegreeT1
 
 
 class Type1FuzzySet(FuzzySet):
     """
     Class used to represent a type I fuzzy set:
     https://en.wikipedia.org/wiki/Fuzzy_set
-
     Attributes
     --------------------------------------------
     __membership_function : Callable[[float], float]
         membership function, determines degree of membership to a fuzzy set
-
     Methods
     --------------------------------------------
     __call__(x: float) -> float
         calculate degree of membership of element to a fuzzy set
-
     Examples:
     --------------------------------------------
     Creating simple type I fuzzy setand calculate degree of belonging
-    >>> fuzzy_set = Type1FuzzySet(lambda x: 0 if x < 0 else 1)
+    >>> fuzzy_set = Type1FuzzySet(lambda x: 1)
     >>> fuzzy_set(2)
     1
-
     Creating type I fuzzy set using numpy functions
     >>> import numpy as np
     >>> def sigmoid(x):
@@ -36,6 +34,8 @@ class Type1FuzzySet(FuzzySet):
     >>> fuzzy_set = Type1FuzzySet(sigmoid)
     >>> fuzzy_set(2.5)
     0.9241
+    >>> fuzzy_set([0.0, 2.5])
+    array([0.5, 0.9241])
     """
 
     __membership_function: Callable[[float], float]
@@ -48,15 +48,15 @@ class Type1FuzzySet(FuzzySet):
         """
         if not callable(membership_function):
             raise ValueError('Membership function must be callable')
-        self.__membership_function = membership_function
+        self.__membership_function = np.vectorize(membership_function)
 
-    def __call__(self, x: float) -> MembershipDegreeT1:
+    def __call__(self, x: float or Sequence[float]) -> float or np.ndarray:
         """
         Calculate the degree of membership to a type I fuzzy set for of an element
         :param x: element of domain
         :return: degree of membership of an element
         """
-        return MembershipDegreeT1(self.__membership_function(x))
+        return self.__membership_function(x)
 
     @property
     def membership_function(self) -> Callable[[float], float]:

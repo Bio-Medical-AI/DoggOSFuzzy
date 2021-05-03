@@ -1,20 +1,25 @@
-from doggos.algebras.algebra import Algebra
+import numpy as np
+
+from doggos.algebras.algebra import Algebra, validate_input, expand_negation_argument
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 
 
 class LukasiewiczAlgebra(Algebra):
 
     @staticmethod
-    def implication(a: float, b: float) -> float:
+    @validate_input
+    def implication(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Lukasiewicz implication
         :param a: first value
         :param b: second value
         :return: min(1., 1 - a + b)
         """
-        return min(1., 1 - a + b)
+        return np.minimum(1., 1 - a + b)
 
     @staticmethod
-    def negation(a: float) -> float:
+    @expand_negation_argument
+    def negation(a: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Lukasiewicz negation
         :param a: value
@@ -23,21 +28,23 @@ class LukasiewiczAlgebra(Algebra):
         return 1 - a
 
     @staticmethod
-    def s_norm(a: float, b: float) -> float:
+    @validate_input
+    def s_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Lukasiewicz S-norm
         :param a: first value
         :param b: second value
         :return: min(1, a + b)
         """
-        return min(1., a + b)
+        return np.minimum(1., a + b)
 
     @staticmethod
-    def t_norm(a: float, b: float) -> float:
+    @validate_input
+    def t_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
         Calculate the Lukasiewicz T-norm
         :param a: first value
         :param b: second value
         :return: max(.0, a + b - 1)
         """
-        return max(.0, a + b - 1.0)
+        return np.maximum(.0, a + b - 1.0)

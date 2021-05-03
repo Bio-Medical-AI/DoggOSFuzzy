@@ -1,7 +1,6 @@
 from typing import Callable, NoReturn
 
-from doggos.fuzzy_sets.fuzzy_set import FuzzySet
-from doggos.fuzzy_sets.membership import MembershipDegreeT2
+from doggos.fuzzy_sets.fuzzy_set import FuzzySet, MembershipDegree
 
 
 class Type2FuzzySet(FuzzySet):
@@ -12,7 +11,7 @@ class Type2FuzzySet(FuzzySet):
     def __init__(self):
         raise NotImplementedError()
 
-    def __call__(self, x: float) -> MembershipDegreeT2:
+    def __call__(self, x: float) -> MembershipDegree:
         pass
 
     @property

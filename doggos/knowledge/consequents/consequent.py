@@ -1,11 +1,22 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import NewType
 
-from doggos.fuzzy_sets.membership.membership_degree import MembershipDegree
+ConsequentOutput = NewType('ConsequentOutput', None)
+"""
+"""
 
 
 class Consequent(ABC):
+    """
+    Base class for Consequents of Fuzzy Rules.
+    https://en.wikipedia.org/wiki/Fuzzy_rule
+
+    Methods
+    --------------------------------------------
+    output(*args) -> ConsequentOutput
+        calculate output of Consequent
+    """
 
     @abstractmethod
-    def output(self, rule_firing: MembershipDegree) -> List[MembershipDegree] or float:
+    def output(self, *args) -> ConsequentOutput:
         pass
