@@ -2,7 +2,7 @@ import pytest
 
 from doggos.knowledge import LinguisticVariable, Domain
 from doggos.knowledge import Clause
-from doggos.fuzzy_sets import Type1FuzzySet
+from doggos.fuzzy_sets import Type1FuzzySet, IntervalType2FuzzySet
 from doggos.knowledge.linguistic_variable import LinguisticVariable, Domain
 
 import numpy as np
@@ -63,10 +63,19 @@ class TestClause:
             clause.fuzzy_set = []
             assert 'Fuzzy set must be a FuzzySet type' in str(e.value)
 
-    def test_getter_fuzzy_set(self):
+    def test_getter_type1fuzzy_set(self):
         domain = Domain(0, 10, 0.01)
         ling_var = LinguisticVariable('Temperature', domain)
         fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
+        clause = Clause(ling_var, 'High', fuzzy_set)
+        assert clause.fuzzy_set == fuzzy_set
+        
+    def test_getter_interval_type2fuzzy_set(self):
+        domain = Domain(0, 10, 0.01)
+        ling_var = LinguisticVariable('Temperature', domain)
+        upper_mf = lambda x: 1 / (1 + np.exp(-x))
+        lower_mf = lambda x: 1
+        fuzzy_set = IntervalType2FuzzySet(upper_mf, lower_mf)
         clause = Clause(ling_var, 'High', fuzzy_set)
         assert clause.fuzzy_set == fuzzy_set
 
@@ -100,4 +109,3 @@ class TestClause:
         fuzzy_set = Type1FuzzySet(lambda x: 0.5 * x)
         clause = Clause(ling_var, 'High', fuzzy_set)
         assert clause.gradation_adjective == 'High'
-
