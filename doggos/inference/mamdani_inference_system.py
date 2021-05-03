@@ -1,11 +1,13 @@
 import numpy as np
-from typing import List, Dict, Tuple, Callable
+from typing import List, Dict, Tuple, Callable, Iterable
 
 from doggos.fuzzy_sets import MembershipDegree
 from doggos.knowledge.clause import Clause
 from doggos.knowledge.rule import Rule
+from doggos.knowledge.consequents.mamdani_consequent import MamdaniConsequent
 from doggos.inference.inference_system import InferenceSystem
 from doggos.knowledge.linguistic_variable import LinguisticVariable
+from doggos.fuzzy_sets.type1_fuzzy_set import Type1FuzzySet
 
 
 class MamdaniInferenceSystem(InferenceSystem):
@@ -41,17 +43,21 @@ class MamdaniInferenceSystem(InferenceSystem):
         All rules should have the same consequent type and consequents should be defined on the same domain
         :param rules: fuzzy knowledge base used for inference
         """
-        self.__rule_base = rules
+        super().__init__(rules)
+        self.__validate_consequents()
 
-    def infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]]) -> float:
+    def infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]]) \
+            -> Iterable[float]:
         """
         Inferences output based on features of given object using chosen method
+        :param defuzzification_method: 'KM', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
         :param features: dictionary of linguistic variables and their values
-        :param method: 'KM', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
         :return: decision value
         """
         if not isinstance(features, Dict):
-            raise ValueError("Features")
+            raise ValueError("Features must be fuzzified dictionary")
+        if not isinstance(defuzzification_method, Callable):
+            raise ValueError("Defuzzifiaction method must be callable")
 
         values = np.array(features.values())
         degrees = values[0]
@@ -61,26 +67,26 @@ class MamdaniInferenceSystem(InferenceSystem):
             for clause, memberships in features.items():
                 single_features[clause] = memberships[i]
 
-            if defuzzification_method == 'KM':
-                domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(features)
+            if self.__is_consequent_type1():
+                domain, membership_functions = self.__get_domain_and_membership_functions(single_features)
+                cut = self.__membership_func_union(membership_functions)
+                return defuzzification_method(domain, cut)
+            else:
+                domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(single_features)
                 lower_cut = self.__membership_func_union(lmfs)
                 upper_cut = self.__membership_func_union(umfs)
-                return self._karnik_mendel(lower_cut, upper_cut, domain)
+                return defuzzification_method(lower_cut, upper_cut, domain)
 
-            elif defuzzification_method == 'COS':
-                domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
-                return self._center_of_sums(domain, membership_functions)
+            domain, membership_functions = self.__get_domain_and_membership_functions(single_features)
+            return self._center_of_sums(domain, membership_functions)
 
-            else:
-                type1_method = {
-                    'COG': self._center_of_gravity,
-                    'LOM': self._largest_of_maximum,
-                    'MOM': self._middle_of_maximum,
-                    'SOM': self._smallest_of_maximum,
-                    'MeOM': self._mean_of_maxima
-                }[defuzzification_method]
-                domain, cut = self.__get_domain_and_cut(features)
-                return type1_method(domain, cut)
+    def __validate_consequents(self):
+        for rule in self._rule_base:
+            if not isinstance(rule.consequent, MamdaniConsequent):
+                raise ValueError("All rule consequents must be mamdani consequents")
+
+    def __is_consequent_type1(self):
+        return isinstance(self.__rule_base[0].consequent.clause.fuzzy_set, Type1FuzzySet)
 
     def __membership_func_union(self, mfs: List[np.ndarray]) -> np.ndarray:
         """
@@ -96,34 +102,35 @@ class MamdaniInferenceSystem(InferenceSystem):
         union = np.max(reshaped_mfs, axis=0)
         return union
 
-    def __get_domain_and_memberships_for_type1(self, features: Dict[LinguisticVariable, float]) \
-            -> Tuple[np.ndarray, List[np.ndarray]]:
-        membership_functions = self.__get_rule_outputs(features)
-        domain = self.__rule_base[0].consequent.clause.linguistic_variable.domain()
-        return domain, membership_functions
-
-    def __get_domain_and_cut(self, features: Dict[LinguisticVariable, float]):
-        domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+    def __get_domain_and_cut(self, features: Dict[Clause, List[MembershipDegree]]):
+        domain, membership_functions = self.__get_domain_and_membership_functions(features)
         cut = self.__membership_func_union(membership_functions)
         return domain, cut
 
-    def __get_domain_and_memberships_for_it2(self, features: Dict[LinguisticVariable, float]) \
+    def __get_domain_and_memberships_for_it2(self, features: Dict[Clause, List[MembershipDegree]]) \
             -> Tuple[np.ndarray, List[np.ndarray], List[np.ndarray]]:
         """
         Extracts domain and membership functions from rule base
         :param features: dictionary of linguistic variables and their values
         :return: domain, lower membership functions and upper membership functions extracted from rule base
         """
-        rule_outputs = self.__get_rule_outputs(features)
-        domain = self.__rule_base[0].consequent.clause.linguistic_variable.domain()
-        lmfs = [output[0] for output in rule_outputs]
-        umfs = [output[1] for output in rule_outputs]
+        domain, membership_functions = self.__get_domain_and_membership_functions(features)
+        lmfs = [output[0] for output in membership_functions]
+        umfs = [output[1] for output in membership_functions]
         return domain, lmfs, umfs
 
-    def __get_rule_outputs(self, features: Dict[LinguisticVariable, float]) -> np.ndarray:
+    def __get_domain_and_membership_functions(self, features: Dict[Clause, List[MembershipDegree]]):
+        domain = self.__get_consequent_domain()
+        membership_functions = self.__get_consequents_membership_functions(features)
+        return domain, membership_functions
+
+    def __get_consequents_membership_functions(self, features: Dict[Clause, List[MembershipDegree]]) -> np.ndarray:
         """
         Extracts rule outputs from rule base
         :param features: dictionary of linguistic variables and their values
         :return: cut membership functions from rule base
         """
-        return np.array([rule.output(features) for rule in self.__rule_base])
+        return np.array([rule.consequent.output(rule.antecedent.fire(features)).values for rule in self.__rule_base])
+
+    def __get_consequent_domain(self):
+        return self.__rule_base[0].consequent.clause.linguistic_variable.domain()
