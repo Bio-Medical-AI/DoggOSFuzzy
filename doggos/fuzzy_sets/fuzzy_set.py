@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import NewType
+from typing import NewType, Iterable
 
 
 MembershipDegree = NewType('MembershipDegree', None)
@@ -17,6 +17,6 @@ For other types of fuzzy sets is a membership degree defined by user.
 class FuzzySet(ABC):
 
     @abstractmethod
-    def __call__(self, x: float) -> MembershipDegree:
+    def __call__(self, x: float or Iterable[float]) -> MembershipDegree:
         pass
 

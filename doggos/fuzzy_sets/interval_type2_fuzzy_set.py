@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, Tuple, Sequence, NoReturn
+from typing import Callable, Tuple, Iterable, NoReturn
 
 import numpy as np
 
@@ -61,7 +61,7 @@ class IntervalType2FuzzySet(FuzzySet):
         self.__upper_membership_function = np.vectorize(upper_membership_function)
         self.__lower_membership_function = np.vectorize(lower_membership_function)
 
-    def __call__(self, x: float or Sequence[float]) -> Tuple[float, float] or Tuple[np.ndarray, np.ndarray]:
+    def __call__(self, x: float or Iterable[float]) -> Tuple[float, float] or Tuple[np.ndarray, np.ndarray]:
         """
         Calculate the degree of belonging (lower_membership, upper_membership),
         raises an exception if lower_membership > upper_membership
