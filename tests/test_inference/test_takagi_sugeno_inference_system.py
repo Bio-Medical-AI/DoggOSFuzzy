@@ -6,7 +6,8 @@ from doggos.inference.takagi_sugeno_inference_system import calculate_membership
 
 class TestTakagiSugenoInferenceSystem:
     def test_calculate_membership(self):
-        outputs_of_rules = [(3, (1, 3)), (6, (3, 7)), (9, (5, 7)), (13, (3, 6)), (19, (1, 9)), (21, (4, 6))]
+        lower_outputs_of_rules = np.array([[3, 1], [6, 3], [9, 5], [13, 3], [19, 1], [21, 4]])
+        upper_outputs_of_rules = np.array([[3, 3], [6, 7], [9, 7], [13, 6], [19, 9], [21, 6]])
         domain = np.arange(1, 23, 1)
         lmf = np.zeros(shape=domain.shape)
         umf = np.zeros(shape=domain.shape)
@@ -16,6 +17,7 @@ class TestTakagiSugenoInferenceSystem:
                         9., 7.5, 6., 0.]
 
         for i in range(domain.shape[0]):
-            lmf[i], umf[i] = calculate_membership(domain[i], outputs_of_rules)
+            lmf[i] = calculate_membership(domain[i], lower_outputs_of_rules)
+            umf[i] = calculate_membership(domain[i], upper_outputs_of_rules)
         assert all(a == pytest.approx(b, 0.1) for a, b in zip(lmf.tolist(), expected_lmf))
         assert all(a == pytest.approx(b, 0.1) for a, b in zip(umf.tolist(), expected_umf))

@@ -1,6 +1,6 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List
 import numpy as np
-from doggos.fuzzy_sets.membership import MembershipDegree
+from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.inference.inference_system import InferenceSystem
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 from doggos.knowledge.rule import Rule
@@ -8,12 +8,13 @@ from doggos.knowledge.clause import Clause
 
 
 def calculate_membership(x: float,
-                         outputs_of_rules: List[Tuple[float, Tuple[float, float]]]) -> Tuple[float, float]:
+                         outputs_of_rules: np.ndarray) -> float:
     """
     Calculates values of lower membership function and upper membership function for given element of domain,
     basing on outputs of the rules
     :param x: value from domain for which values are calculated
-    :param outputs_of_rules: list of tuples of output values from rules and their firing values, sorted by outputs
+    :param outputs_of_rules: ndarray with shape nx2, where n is number of records, where first column contains elements
+    of domain sorted ascending and second one contains elements from their codomain. All elements are floats.
     :return: returns value of both lower membership function and upper membership function for given x
     """
     if len(outputs_of_rules) == 1:
@@ -24,13 +25,11 @@ def calculate_membership(x: float,
             for i in range(1, len(outputs_of_rules)):
                 if x <= outputs_of_rules[i][0]:
                     distance_horizontal = outputs_of_rules[i][0] - outputs_of_rules[i - 1][0]
-                    distance_vertical_lower = outputs_of_rules[i][1][0] - outputs_of_rules[i - 1][1][0]
-                    distance_vertical_upper = outputs_of_rules[i][1][1] - outputs_of_rules[i - 1][1][1]
+                    distance_vertical = outputs_of_rules[i][1] - outputs_of_rules[i - 1][1]
                     distance_of_x = x - outputs_of_rules[i - 1][0]
                     horizontal_proportion = distance_of_x / distance_horizontal
-                    return (distance_vertical_lower * horizontal_proportion + outputs_of_rules[i - 1][1][0],
-                            distance_vertical_upper * horizontal_proportion + outputs_of_rules[i - 1][1][1])
-    return 0, 0
+                    return distance_vertical * horizontal_proportion + outputs_of_rules[i - 1][1]
+    return 0
 
 
 class TakagiSugenoInferenceSystem(InferenceSystem):
@@ -43,7 +42,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
         :param rules: fuzzy knowledge base used for inference
         """
         if isinstance(rules, List):
-            self.__rule_base = rules
+            self._rule_base = rules
         else:
             raise ValueError("Inference system must take rules as parameters")
 
@@ -80,13 +79,14 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
         :param measures: a dictionary of measures consisting of Linguistic variables, and measured values for them
         :return: float that is output of whole inference system
         """
-        numerator = 0
+        nominator = 0
         denominator = 0
         for rule in self._rule_base:
-            out, memb = rule.output(features, measures)
-            numerator += out * memb
+            memb = rule.antecedent.fire(features)
+            out = rule.consequent.output(measures)
+            nominator += out * memb
             denominator += memb
-        return numerator / denominator
+        return nominator / denominator
 
     def __type_2_basic_output(self, features: Dict[Clause, MembershipDegree], measures: Dict[LinguisticVariable, float],
                               step: float) -> float:
@@ -98,14 +98,21 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
         :param step: size of step used in Karnik-Mendel algorithm
         :return: float that is output of whole inference system
         """
-        outputs_of_rules = []
-        for rule in self._rule_base:
-            outputs_of_rules.append(rule.output(features, measures))
-        outputs_of_rules.sort(key=lambda tup: tup[0])
+
+        outputs_of_rules = np.zeros(shape=(len(self._rule_base), 3))
+        for rule, outputs in zip(self._rule_base, outputs_of_rules):
+            outputs[0] = rule.consequent.output(measures)
+            firing = rule.antecedent.fire(features)
+            outputs[1] = firing[0]
+            outputs[2] = firing[1]
+
+        outputs_of_rules = outputs_of_rules[np.argsort(outputs_of_rules[:, 0])]
         domain = np.arange(outputs_of_rules[0][0], outputs_of_rules[-1][0], step)
         lmf = np.zeros(shape=domain.shape)
         umf = np.zeros(shape=domain.shape)
         for i in range(domain.shape):
-            lmf[i], umf[i] = calculate_membership(domain[i], outputs_of_rules)
+            lmf[i] = calculate_membership(domain[i], outputs_of_rules[:, :2])
+            umf[i] = calculate_membership(domain[i],
+                                          np.concatenate((outputs_of_rules[:, 0], outputs_of_rules[:, 2]), axis=1))
 
         return self._karnik_mendel(self, lmf, umf, domain)
