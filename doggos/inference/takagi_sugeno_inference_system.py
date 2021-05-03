@@ -16,7 +16,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
         """
         Inferences output based on features of given object and measured values of them, using chosen method
 
-        :param defuzzification_method: method of calculating final output.
+        :param defuzzification_method: method of calculating inference system output.
         Must match to the type of fuzzy sets used in rules and be callable, and takes two ndarrays as parameters.
         Those arrays represent firing values of antecedents of all rules in _rule_base and outputs of their consequents
         :param features: a dictionary of clauses and list of their membership values calculated for measures
@@ -32,6 +32,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
             raise ValueError("Defuzzification_method must be Callable")
 
         conclusions = []
+        length = len(list(self._rule_base))
         for i in range(len(list(features.values())[0])):
             single_features = {}
             single_measures = {}
@@ -39,11 +40,18 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
                 single_features[key] = value[i]
             for key, value in measures.items():
                 single_measures[key] = value[i]
-            firings = np.zeros(shape=len(list(self._rule_base)))
-            outputs = np.zeros(shape=len(list(self._rule_base)))
-            for j in range(len(list(self._rule_base))):
-                firings[j] = list(self._rule_base)[j].antecedent.fire(single_features)
-                outputs[j] = list(self._rule_base)[j].consequent.output(single_measures)
+            firings = np.zeros(shape=length)
+            outputs = np.zeros(shape=length)
+            # print(firings)
+            # print(list(self._rule_base)[0].antecedent.fire(single_features))
 
+            #for j in range(length):
+            #    firings[j] = list(self._rule_base)[j].antecedent.fire(single_features)
+            #    outputs[j] = list(self._rule_base)[j].consequent.output(single_measures)
+            firings = np.array([rule.antecedent.fire(single_features) for rule in self._rule_base])
+            outputs = np.array([rule.consequent.output(single_measures) for rule in self._rule_base])
+            print(firings.shape)
+            print(outputs.shape)
+            print(firings)
             conclusions.append(defuzzification_method(firings, outputs))
         return conclusions
