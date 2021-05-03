@@ -48,7 +48,8 @@ class TestTakagiSugenoConsequent:
         ts = TakagiSugenoConsequent({lv_f1: 1, lv_f3: 1}, 4, output_lv)
         with pytest.raises(KeyError) as e:
             ts.output({lv_f2: 2})
-            assert "Function parameters contain value for input {0} which was not provided!".format("F1") in str(e.value)
+            assert "Function parameters contain value for input {0} which was not provided!".format("F1") in str(
+                e.value)
 
     def test_setter(self):
         domain = Domain(0, 10, 0.01)
