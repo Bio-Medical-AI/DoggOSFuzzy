@@ -18,11 +18,11 @@ class InferenceSystem(ABC):
 
     def _largest_of_maximum(self, domain, cut):
         maximum = np.max(cut)
-        return domain[np.where(cut == maximum)[-1]]
+        return domain[np.where(cut == maximum)[0][-1]]
 
     def _smallest_of_maximum(self, domain, cut):
         maximum = np.max(cut)
-        return domain[np.where(cut == maximum)[0]]
+        return domain[np.where(cut == maximum)[0][0]]
 
     def _middle_of_maximum(self, domain, cut):
         maximum = np.max(cut)
@@ -39,15 +39,14 @@ class InferenceSystem(ABC):
         return total / size
 
     def _center_of_sums(self, domain, membership_functions):
-        nominator = 0
-        denominator = 0
-        domain_values = np.zeros(shape=(2, len(domain)))
-        domain_values[0] = domain
-        for membership_function in membership_functions:
-            domain_values[1] = membership_function
-            nominator += np.sum(np.prod(domain_values, axis=0))
-            denominator += np.sum(domain_values[1])
-        return nominator / denominator
+        universe = np.array(membership_functions)
+        sums_of_memberships = np.sum(universe, axis=0)
+        domain_memberships_sums = np.array((domain, sums_of_memberships))
+
+        numerator = np.sum(np.prod(domain_memberships_sums, axis=0))
+        denominator = np.sum(sums_of_memberships)
+
+        return numerator / denominator
 
     def _karnik_mendel(self, lmf: np.ndarray, umf: np.ndarray, domain: np.ndarray) -> float:
         """

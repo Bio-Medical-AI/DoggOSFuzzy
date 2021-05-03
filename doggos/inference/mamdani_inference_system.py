@@ -41,29 +41,33 @@ class MamdaniInferenceSystem(InferenceSystem):
         """
         self.__rule_base = rules
 
-    def output(self, features: Dict[LinguisticVariable, float], method: str = 'karnik_mendel') -> float:
+    def output(self, features: Dict[LinguisticVariable, float], method: str) -> float:
         """
         Inferences output based on features of given object using chosen method
         :param features: dictionary of linguistic variables and their values
-        :param method: 'karnik_mendel', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
+        :param method: 'KM', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
         :return: decision value
         """
-        type1_method = {
-            'COG': self._center_of_gravity,
-            'LOM': self._largest_of_maximum,
-            'MOM': self._middle_of_maximum,
-            'SOM': self._smallest_of_maximum,
-            'MeOM': self._mean_of_maxima
-        }[method]
-
-        if method == 'karnik_mendel':
+        if method == 'KM':
             domain, lmfs, umfs = self.__get_domain_and_memberships_for_it2(features)
             lower_cut = self.__membership_func_union(lmfs)
             upper_cut = self.__membership_func_union(umfs)
             return self._karnik_mendel(lower_cut, upper_cut, domain)
+
+        elif method == 'COS':
+            domain, membership_functions = self.__get_domain_and_memberships_for_type1(features)
+            return self._center_of_sums(domain, membership_functions)
+
         else:
+            type1_method = {
+                'COG': self._center_of_gravity,
+                'LOM': self._largest_of_maximum,
+                'MOM': self._middle_of_maximum,
+                'SOM': self._smallest_of_maximum,
+                'MeOM': self._mean_of_maxima
+            }[method]
             domain, cut = self.__get_domain_and_cut(features)
-            type1_method(domain, cut)
+            return type1_method(domain, cut)
 
     def __membership_func_union(self, mfs: List[np.ndarray]) -> np.ndarray:
         """
