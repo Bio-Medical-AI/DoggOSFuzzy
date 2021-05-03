@@ -1,6 +1,8 @@
 import numpy as np
-from typing import List, Dict, Tuple, Callable, Iterable, NoReturn
 import collections.abc as abc
+
+from typing import List, Dict, Tuple, Sequence, Callable, NoReturn
+
 
 from doggos.fuzzy_sets import MembershipDegree
 from doggos.knowledge.clause import Clause
@@ -18,13 +20,13 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     Attributes
     --------------------------------------------
-    _rule_base: Iterable[Rule]
+    _rule_base: Sequence[Rule]
         fuzzy rule base used for inference
 
     Methods
     --------------------------------------------
     infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]])
-            -> Iterable[float] or float:
+            -> Sequence[float] or float:
         infer decision from rule base
 
     Examples:
@@ -37,9 +39,9 @@ class MamdaniInferenceSystem(InferenceSystem):
     >>> mamdani.infer(defuzzifiaction_method, features)
     0.5
     """
-    _rule_base: Iterable[Rule]
+    _rule_base: Sequence[Rule]
 
-    def __init__(self, rule_base: Iterable[Rule]):
+    def __init__(self, rule_base: Sequence[Rule]):
         """
         Create mamdani inference system with given rule base
         All rules should have the same consequent type and consequents should be defined on the same domain
@@ -49,7 +51,7 @@ class MamdaniInferenceSystem(InferenceSystem):
         self.__validate_consequents()
 
     def infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]]) \
-            -> Iterable[float] or float:
+            -> Sequence[float] or float:
         """
         Inferences output based on features of given object using chosen method
         :param defuzzification_method: 'KM', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
