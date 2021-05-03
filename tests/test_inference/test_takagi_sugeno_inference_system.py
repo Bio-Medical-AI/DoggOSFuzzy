@@ -66,8 +66,6 @@ class TestTakagiSugenoInferenceSystem:
 
         lingustic_variable_for_consequent_1 = LinguisticVariable('avatar', Domain(0, 1000, 0.01))
         lingustic_variable_for_consequent_2 = LinguisticVariable('momo', Domain(0, 1000, 0.01))
-        lingustic_variable_for_consequent_3 = LinguisticVariable('sprzedawca_kapusty', Domain(0, 1000, 0.01))
-        lingustic_variable_for_consequent_4 = LinguisticVariable('appa', Domain(0, 1000, 0.01))
 
         consequent1 = TakagiSugenoConsequent({lingustic_variable_1: 0.1,
                                               lingustic_variable_2: 10,
@@ -78,17 +76,17 @@ class TestTakagiSugenoInferenceSystem:
                                               lingustic_variable_2: 7,
                                               lingustic_variable_3: 0.05,
                                               lingustic_variable_4: 3},
-                                             -2.5, lingustic_variable_for_consequent_2)
+                                             -2.5, lingustic_variable_for_consequent_1)
         consequent3 = TakagiSugenoConsequent({lingustic_variable_1: 0.8,
                                               lingustic_variable_2: 12,
                                               lingustic_variable_3: 0.1,
                                               lingustic_variable_4: 1},
-                                             -2.5, lingustic_variable_for_consequent_3)
+                                             -2.5, lingustic_variable_for_consequent_2)
         consequent4 = TakagiSugenoConsequent({lingustic_variable_1: 0.4,
                                               lingustic_variable_2: 5,
                                               lingustic_variable_3: 0.15,
                                               lingustic_variable_4: 5},
-                                             -2.5, lingustic_variable_for_consequent_4)
+                                             -2.5, lingustic_variable_for_consequent_2)
         rules = [Rule(antecedent1, consequent1),
                  Rule(antecedent2, consequent2),
                  Rule(antecedent3, consequent3),
@@ -206,6 +204,3 @@ class TestTakagiSugenoInferenceSystem:
 
         print(system.infer(takagi_sugeno_karnik_mendel, fuzzified, measures))
 
-
-if __name__ == "__main__":
-    TestTakagiSugenoInferenceSystem().test_inference_type_I_2()

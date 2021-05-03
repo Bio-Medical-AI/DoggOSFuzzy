@@ -64,7 +64,7 @@ def karnik_mendel(lmfs: List[np.ndarray], umfs: List[np.ndarray], domain: np.nda
     """
     lower_cut = __membership_func_union(lmfs)
     upper_cut = __membership_func_union(umfs)
-    thetas = (lower_cut + upper_cut) / 2
+    thetas = (lower_cut + upper_cut) / 2 + 1e-10
     y_l = __find_y(partial(__find_c_minute, under_k_mf=upper_cut, over_k_mf=lower_cut), domain, thetas)
     y_r = __find_y(partial(__find_c_minute, under_k_mf=lower_cut, over_k_mf=upper_cut), domain, thetas)
     return (y_l + y_r) / 2
@@ -99,7 +99,7 @@ def __find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
     k = __find_k(c, domain)
     lower_thetas = under_k_mf[:(k + 1)]
     upper_thetas = over_k_mf[(k + 1):]
-    weights = np.append(lower_thetas, upper_thetas)
+    weights = np.append(lower_thetas, upper_thetas) + 1e-10
     return np.average(domain, weights=weights)
 
 
@@ -114,7 +114,7 @@ def __find_k(c: float, domain: np.ndarray) -> float:
 
 
 def weighted_average(firings: np.ndarray,
-                                   outputs: np.ndarray) -> float:
+                     outputs: np.ndarray) -> float:
     """
     Method of calculating output of Takagi-Sugeno inference system for fuzzy sets of type 1
     Used for fuzzy sets of type 1.
@@ -123,7 +123,7 @@ def weighted_average(firings: np.ndarray,
     :param outputs: outputs of rules
     :return: float that is weighted average of all outputs with firings as their weights
     """
-    return np.average(outputs, weights=firings)
+    return np.average(outputs, weights=firings + 1e-10)
 
 
 def takagi_sugeno_karnik_mendel(firings: np.ndarray,
