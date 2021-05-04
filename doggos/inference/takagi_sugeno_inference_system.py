@@ -10,7 +10,7 @@ from doggos.knowledge.clause import Clause
 
 class TakagiSugenoInferenceSystem(InferenceSystem):
     """
-    Class used to represent a mamdani inference system:
+    Class used to represent a takagi-sugeno inference system:
 
     https://www.mathworks.com/help/fuzzy/types-of-fuzzy-inference-systems.html
 
