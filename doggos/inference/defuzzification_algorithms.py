@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 from functools import partial
 from typing import List
+import math
 
 import numpy as np
 
@@ -142,7 +143,9 @@ def takagi_sugeno_karnik_mendel(firings: np.ndarray,
     outputs = outputs.reshape((-1, 1))
     outputs_of_rules = np.concatenate((outputs, firings), axis=1)
     outputs_of_rules = outputs_of_rules[np.argsort(outputs_of_rules[:, 0])]
-    domain = np.arange(outputs_of_rules[0][0], outputs_of_rules[-1][0] + step, step)
+    domain = np.arange(math.floor(outputs_of_rules[0][0] / step) * step,
+                       math.floor(outputs_of_rules[-1][0] / step + 1) * step,
+                       step)
     lmf = np.zeros(shape=domain.shape)
     umf = np.zeros(shape=domain.shape)
     for i in range(domain.shape[0]):
