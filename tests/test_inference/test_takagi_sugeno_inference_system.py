@@ -112,40 +112,40 @@ class TestTakagiSugenoInferenceSystem:
                     lingustic_variable_4: [0, 13, 5.1, 7.9, 2.2]}
 
         clause1 = Clause(lingustic_variable_1, 'high',
-                         IntervalType2FuzzySet(lambda x: triangular(106., 112., 112.1)(x)/2,
+                         IntervalType2FuzzySet(triangular(106., 112., 112.1, 0.5),
                                                triangular(106., 112., 112.1)))
         clause2 = Clause(lingustic_variable_1, 'medium',
-                         IntervalType2FuzzySet(lambda x: triangular(100, 106., 112)(x)/2,
+                         IntervalType2FuzzySet(triangular(100, 106., 112, 0.5),
                                                triangular(100, 106., 112)))
         clause3 = Clause(lingustic_variable_1, 'low',
-                         IntervalType2FuzzySet(lambda x: triangular(99.9, 100., 106.)(x)/2,
+                         IntervalType2FuzzySet(triangular(99.9, 100., 106., 0.5),
                                                triangular(99.9, 100., 106.)))
         clause4 = Clause(lingustic_variable_2, 'high',
-                         IntervalType2FuzzySet(lambda x: triangular(2.5, 4, 4.1)(x)/2,
+                         IntervalType2FuzzySet(triangular(2.5, 4, 4.1, 0.5),
                                                triangular(2.5, 4, 4.1)))
         clause5 = Clause(lingustic_variable_2, 'medium',
-                         IntervalType2FuzzySet(lambda x: triangular(1, 2.5, 4)(x)/2,
+                         IntervalType2FuzzySet(triangular(1, 2.5, 4, 0.5),
                                                triangular(1, 2.5, 4)))
         clause6 = Clause(lingustic_variable_2, 'low',
-                         IntervalType2FuzzySet(lambda x: triangular(0.9, 1, 2.5)(x)/2,
+                         IntervalType2FuzzySet(triangular(0.9, 1, 2.5, 0.5),
                                                triangular(0.9, 1, 2.5)))
         clause7 = Clause(lingustic_variable_3, 'high',
-                         IntervalType2FuzzySet(lambda x: triangular(300, 600, 602)(x)/2,
+                         IntervalType2FuzzySet(triangular(300, 600, 602, 0.5),
                                                triangular(300, 600, 602)))
         clause8 = Clause(lingustic_variable_3, 'medium',
-                         IntervalType2FuzzySet(lambda x: triangular(0, 300, 600)(x)/2,
+                         IntervalType2FuzzySet(triangular(0, 300, 600, 0.5),
                                                triangular(0, 300, 600)))
         clause9 = Clause(lingustic_variable_3, 'low',
-                         IntervalType2FuzzySet(lambda x: triangular(-2, 0, 300)(x)/2,
+                         IntervalType2FuzzySet(triangular(-2, 0, 300, 0.5),
                                                triangular(-2, 0, 300)))
         clause10 = Clause(lingustic_variable_4, 'high',
-                          IntervalType2FuzzySet(lambda x: triangular(6.5, 13, 13.1)(x)/2,
+                          IntervalType2FuzzySet(triangular(6.5, 13, 13.1, 0.5),
                                                 triangular(6.5, 13, 13.1)))
         clause11 = Clause(lingustic_variable_4, 'medium',
-                          IntervalType2FuzzySet(lambda x: triangular(0, 6.5, 13)(x)/2,
+                          IntervalType2FuzzySet(triangular(0, 6.5, 13, 0.5),
                                                 triangular(0, 6.5, 13)))
         clause12 = Clause(lingustic_variable_4, 'low',
-                          IntervalType2FuzzySet(lambda x: triangular(-0.1, 0, 6.5)(x)/2,
+                          IntervalType2FuzzySet(triangular(-0.1, 0, 6.5, 0.5),
                                                 triangular(-0.1, 0, 6.5)))
         fuzzified = fuzzify(df, [clause1, clause2, clause3,
                                  clause4, clause5, clause6,
