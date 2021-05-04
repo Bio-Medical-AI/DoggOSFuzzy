@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 from functools import partial
 from typing import List
+import math
 
 import numpy as np
 
@@ -64,7 +65,7 @@ def karnik_mendel(lmfs: List[np.ndarray], umfs: List[np.ndarray], domain: np.nda
     """
     lower_cut = __membership_func_union(lmfs)
     upper_cut = __membership_func_union(umfs)
-    thetas = (lower_cut + upper_cut) / 2
+    thetas = (lower_cut + upper_cut) / 2 + 1e-10
     y_l = __find_y(partial(__find_c_minute, under_k_mf=upper_cut, over_k_mf=lower_cut), domain, thetas)
     y_r = __find_y(partial(__find_c_minute, under_k_mf=lower_cut, over_k_mf=upper_cut), domain, thetas)
     return (y_l + y_r) / 2
@@ -97,9 +98,10 @@ def __find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
     :return: average for combined membership functions
     """
     k = __find_k(c, domain)
-    lower_thetas = under_k_mf[:(k + 1)]
-    upper_thetas = over_k_mf[(k + 1):]
-    weights = np.append(lower_thetas, upper_thetas)
+    weights = np.zeros(shape=domain.size)
+    weights[:(k + 1)] = under_k_mf[:(k + 1)]
+    weights[(k + 1):] = over_k_mf[(k + 1):]
+    weights += 1e-10
     return np.average(domain, weights=weights)
 
 
@@ -111,6 +113,75 @@ def __find_k(c: float, domain: np.ndarray) -> float:
     :return: index for weighted average in given domain
     """
     return np.where(domain <= c)[0][-1]
+
+
+def weighted_average(firings: np.ndarray,
+                     outputs: np.ndarray) -> float:
+    """
+    Method of calculating output of Takagi-Sugeno inference system for fuzzy sets of type 1
+    Used for fuzzy sets of type 1.
+
+    :param firings: firings of rules
+    :param outputs: outputs of rules
+    :return: float that is weighted average of all outputs with firings as their weights
+    """
+    return np.average(outputs, weights=firings + 1e-10)
+
+
+def takagi_sugeno_karnik_mendel(firings: np.ndarray,
+                                outputs: np.ndarray,
+                                step: float = 0.01) -> float:
+    """
+    Method of calculating output of Takagi-Sugeno inference system using Karnik-Mendel algorithm.
+    Used for fuzzy sets of type 2.
+
+
+    :param firings: firings of rules
+    :param outputs: outputs of rules
+    :param step: size of step used in Karnik-Mendel algorithm
+    :return: float that is output of whole inference system
+    """
+    outputs = outputs.reshape((-1, 1))
+    outputs_of_rules = np.concatenate((outputs, firings), axis=1)
+    outputs_of_rules = outputs_of_rules[np.argsort(outputs_of_rules[:, 0])]
+    domain = np.arange(math.floor(outputs_of_rules[0][0] / step) * step,
+                       math.floor(outputs_of_rules[-1][0] / step + 1) * step,
+                       step)
+    lmf = np.zeros(shape=domain.shape)
+    umf = np.zeros(shape=domain.shape)
+    for i in range(domain.shape[0]):
+        lmf[i] = calculate_membership(domain[i], outputs_of_rules[:, :2])
+        umf[i] = calculate_membership(domain[i],
+                                      np.concatenate((outputs_of_rules[:, 0].reshape(-1, 1),
+                                                      outputs_of_rules[:, 2].reshape(-1, 1)),
+                                                     axis=1))
+    return karnik_mendel(lmf, umf, domain)
+
+
+def calculate_membership(x: float,
+                         outputs_of_rules: np.ndarray) -> float:
+    """
+    Calculates values of lower membership function and upper membership function for given element of domain,
+    basing on outputs of the rules
+
+    :param x: value from domain for which values are calculated
+    :param outputs_of_rules: ndarray with shape nx2, where n is number of records, where first column contains elements
+    of domain sorted ascending and second one contains elements from their codomain. All elements are floats.
+    :return: returns value of both lower membership function and upper membership function for given x
+    """
+    if len(outputs_of_rules) == 1:
+        if x == outputs_of_rules[0][0]:
+            return outputs_of_rules[0][1]
+    elif len(outputs_of_rules) > 1:
+        if x >= outputs_of_rules[0][0]:
+            for i in range(1, len(outputs_of_rules)):
+                if x <= outputs_of_rules[i][0]:
+                    distance_horizontal = outputs_of_rules[i][0] - outputs_of_rules[i - 1][0]
+                    distance_vertical = outputs_of_rules[i][1] - outputs_of_rules[i - 1][1]
+                    distance_of_x = x - outputs_of_rules[i - 1][0]
+                    horizontal_proportion = distance_of_x / distance_horizontal
+                    return distance_vertical * horizontal_proportion + outputs_of_rules[i - 1][1]
+    return 0.
 
 
 def __membership_func_union(mfs: List[np.ndarray]) -> np.ndarray:
