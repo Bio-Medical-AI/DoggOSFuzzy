@@ -65,28 +65,28 @@ class MamdaniInferenceSystem(InferenceSystem):
 
         degrees = self.__get_degrees(features)
         is_type1 = self.__is_consequent_type1()
-        result = np.zeros(shape=(1, len(degrees)))
+        result = np.zeros(shape=(1, degrees))
 
-        for i in range(len(degrees)):
+        for i in range(degrees):
             single_features = {}
             for clause, memberships in features.items():
-                single_features[clause] = memberships[i]
+                single_features[clause] = np.take(memberships, i, axis=-1)
 
             if is_type1:
                 domain, membership_functions = self.__get_domain_and_consequents_membership_functions(single_features)
                 result[i] = defuzzification_method(domain, membership_functions)
             else:
                 domain, lmfs, umfs = self.__get_domain_and_consequents_memberships_for_it2(single_features)
-                result[i] = defuzzification_method(lmfs, umfs, domain)
+                result[:, i] = defuzzification_method(lmfs, umfs, domain)
 
         if result.shape[1] == 1:
             return result.item()
 
-        return result
+        return np.squeeze(result, 0)
 
     def __get_degrees(self, features: Dict[Clause, List[MembershipDegree]]) -> List[MembershipDegree]:
-        values = np.array(features.values())
-        return values[0]
+        values = np.array(list(features.values()))
+        return values[0].shape[1]
 
     def __validate_consequents(self) -> NoReturn:
         for rule in self._rule_base:
@@ -94,7 +94,7 @@ class MamdaniInferenceSystem(InferenceSystem):
                 raise ValueError("All rule consequents must be mamdani consequents")
 
     def __is_consequent_type1(self) -> bool:
-        return isinstance(self.__rule_base[0].consequent.clause.fuzzy_set, Type1FuzzySet)
+        return isinstance(self._rule_base[0].consequent.clause.fuzzy_set, Type1FuzzySet)
 
     def __get_domain_and_consequents_memberships_for_it2(self, features: Dict[Clause, List[MembershipDegree]]) \
             -> Tuple[np.ndarray, List[np.ndarray], List[np.ndarray]]:
@@ -120,10 +120,10 @@ class MamdaniInferenceSystem(InferenceSystem):
         :param features: dictionary of linguistic variables and their values
         :return: cut membership functions from rule base
         """
-        return np.array([rule.consequent.output(rule.antecedent.fire(features)).values for rule in self.__rule_base])
+        return np.array([rule.consequent.output(rule.antecedent.fire(features)).values for rule in self._rule_base])
 
     def __get_consequent_domain(self) -> np.ndarray:
-        return self.__rule_base[0].consequent.clause.linguistic_variable.domain()
+        return self._rule_base[0].consequent.clause.linguistic_variable.domain()
 
     @property
     def rule_base(self) -> Iterable[Rule]:
