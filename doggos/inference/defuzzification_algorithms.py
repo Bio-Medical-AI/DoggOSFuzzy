@@ -98,9 +98,10 @@ def __find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
     :return: average for combined membership functions
     """
     k = __find_k(c, domain)
-    lower_thetas = under_k_mf[:(k + 1)]
-    upper_thetas = over_k_mf[(k + 1):]
-    weights = np.append(lower_thetas, upper_thetas) + 1e-10
+    weights = np.zeros(shape=domain.size)
+    weights[:(k + 1)] = under_k_mf[:(k + 1)]
+    weights[(k + 1):] = over_k_mf[(k + 1):]
+    weights += 1e-10
     return np.average(domain, weights=weights)
 
 
