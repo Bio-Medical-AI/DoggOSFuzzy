@@ -1,6 +1,7 @@
 import numpy as np
 import sympy as sy
 from sympy import symbols, Eq, solve
+import matplotlib.pyplot as p
 
 from typing import Callable
 
@@ -178,10 +179,10 @@ def generate_equal_gausses(number_of_gausses: int, start: float, end: float):
     domain = end - start
     in_range_means = number_of_gausses - 2
     sigma = get_sigma(0, domain / (in_range_means + 1))
-    mean = 0
     for i in range(number_of_gausses):
-        result[i] = gaussian(mean, sigma, 1)
         mean = domain / (in_range_means + 1) * i
+        result[i] = gaussian(mean, sigma, 1)
+        print(f"{mean}, {sigma}")
     return result
 
 
