@@ -145,7 +145,6 @@ def takagi_sugeno_karnik_mendel(firings: np.ndarray,
     domain = np.arange(outputs_of_rules[0][0], outputs_of_rules[-1][0] + step, step)
     lmf = np.zeros(shape=domain.shape)
     umf = np.zeros(shape=domain.shape)
-
     for i in range(domain.shape[0]):
         lmf[i] = calculate_membership(domain[i], outputs_of_rules[:, :2])
         umf[i] = calculate_membership(domain[i],
