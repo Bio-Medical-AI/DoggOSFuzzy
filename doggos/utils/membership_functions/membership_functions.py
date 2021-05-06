@@ -1,6 +1,7 @@
 import numpy as np
-
+import sympy as sy
 from typing import Callable
+from sympy import symbols, Eq, solve
 
 
 def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float], float]:
@@ -169,3 +170,29 @@ def linear(a: float, b: float, max_value: float = 1) -> Callable[[float], float]
         return float(np.minimum((value * a) + b, max_value) if ((value * a) + b) > 0 else 0)
 
     return output_mf
+
+def generate_equal_gausses(number_of_gausses: int, start: float, end: float):
+    result = [None] * number_of_gausses
+    domain = end - start
+    in_range_means = number_of_gausses - 2
+    sigma = get_sigma(0, domain / (in_range_means + 1))
+    for i in range(number_of_gausses):
+        mean = domain / (in_range_means + 1) * i
+        result[i] = gaussian(mean, sigma, 1)
+        print(f"{mean}, {sigma}")
+    return result
+
+
+def get_sigma(mean_1, mean_2):
+    sigma_value = 0
+    x, sigma = symbols('x sigma')
+    eq1 = Eq(sy.exp(-((x - mean_1) ** 2.) / (2 * sigma ** 2.)) - 0.5, 0)
+    eq2 = Eq(sy.exp(-((x - mean_2) ** 2.) / (2 * sigma ** 2.)) - 0.5, 0)
+
+    res = solve((eq1, eq2), (x, sigma))
+    for x in res:
+        if x[1] >= 0:
+            sigma_value = x[1]
+            break
+
+    return np.float64(sigma_value)

@@ -4,9 +4,11 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
 from doggos.fuzzy_sets.type1_fuzzy_set import Type1FuzzySet
+from doggos.induction.rule_induction_WIP.inconsistencies_remover import InconsistenciesRemover
+from doggos.induction.rule_induction_WIP.reductor import Reductor
+from doggos.induction.rule_induction_WIP.rule_builder import RuleBuilder
 from doggos.knowledge import Clause, LinguisticVariable, Domain
-from doggos.utils.membership_functions import triangular, trapezoidal, gaussian
-from sklearn import preprocessing
+from doggos.utils.membership_functions.membership_functions import generate_equal_gausses
 
 
 class FuzzyDecisionTableGenerator:
@@ -18,7 +20,6 @@ class FuzzyDecisionTableGenerator:
         for feature in dataset.columns:
             self.__features.append(LinguisticVariable(str(feature), Domain(0, 1.001, 0.001)))
         self.__features_clauses = {col: [] for col in list(dataset.columns)}
-
 
     def get_highest_membership(self, feature: str, input: float):
         max_feature = None
@@ -49,10 +50,12 @@ class FuzzyDecisionTableGenerator:
 
         return fuzzy_dataset
 
+"""
+gausses = generate_equal_gausses(3, 0, 1)
+small = Type1FuzzySet(gausses[0])
+medium = Type1FuzzySet(gausses[1])
+large = Type1FuzzySet(gausses[2])
 
-small = Type1FuzzySet(triangular(0, 0.25, 0.5, 1))
-medium = Type1FuzzySet(triangular(0.25, 1, 0.75, 1))
-large = Type1FuzzySet(triangular(0.5, 0.75, 1., 1))
 fuzzy_sets = {'small': small, 'medium': medium, 'large': large}
 
 df = pd.read_csv('D:\\magis\\data\\DataBanknoteAuthenticationB.csv', sep=';')
@@ -64,3 +67,16 @@ df = pd.DataFrame(df_scaled, columns=df.columns)
 gen = FuzzyDecisionTableGenerator(fuzzy_sets, df)
 fuzzified_dataset = gen.fuzzify()
 print(fuzzified_dataset)
+df = fuzzified_dataset.rename(columns={'Value': 'Decision'})
+inc_rem = InconsistenciesRemover(df, list(df.columns)[:-1])
+decision_table, changed_decisions = inc_rem.inconsistenciesRemoving()
+print(decision_table)
+print(changed_decisions)
+reductor = Reductor(decision_table, True)
+
+decision_table_with_reduct, features_number_after_reduct = reductor.worker(decision_table)
+print(decision_table_with_reduct)
+rb = RuleBuilder(decision_table_with_reduct)
+rules = rb.induce_rules()
+print(rules)
+"""
