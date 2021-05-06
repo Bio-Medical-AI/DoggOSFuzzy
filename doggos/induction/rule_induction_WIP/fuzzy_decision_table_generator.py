@@ -39,10 +39,10 @@ class FuzzyDecisionTableGenerator:
         fuzzy_dataset = pd.DataFrame(list([self.__dataset.columns]), dtype="string")
         fuzzy_dataset.columns = self.__dataset.columns
         fuzzy_dataset.astype('str')
-        fuzzy_dataset["Value"] = pd.to_numeric(fuzzy_dataset["Value"], errors='ignore')
+        fuzzy_dataset["Decision"] = pd.to_numeric(fuzzy_dataset["Decision"], errors='ignore')
         for i, row in self.__dataset.iterrows():
             for f in self.__dataset:
-                if f == 'Value':
+                if f == 'Decision':
                     var = self.__dataset.at[i, f]
                     fuzzy_dataset.at[i, f] = var
                 else:
@@ -58,7 +58,7 @@ large = Type1FuzzySet(gausses[2])
 
 fuzzy_sets = {'small': small, 'medium': medium, 'large': large}
 
-df = pd.read_csv('D:\\magis\\data\\DataBanknoteAuthenticationB.csv', sep=';')
+df = pd.read_csv('..\\..\\Data Banknote Authentication.csv', sep=';')
 df_ar = df.values
 min_max_scaler = MinMaxScaler()
 df_scaled = min_max_scaler.fit_transform(df_ar)
@@ -67,8 +67,7 @@ df = pd.DataFrame(df_scaled, columns=df.columns)
 gen = FuzzyDecisionTableGenerator(fuzzy_sets, df)
 fuzzified_dataset = gen.fuzzify()
 print(fuzzified_dataset)
-df = fuzzified_dataset.rename(columns={'Value': 'Decision'})
-inc_rem = InconsistenciesRemover(df, list(df.columns)[:-1])
+inc_rem = InconsistenciesRemover(fuzzified_dataset, list(fuzzified_dataset.columns)[:-1])
 decision_table, changed_decisions = inc_rem.inconsistenciesRemoving()
 print(decision_table)
 print(changed_decisions)
