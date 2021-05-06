@@ -1,4 +1,10 @@
+from typing import Dict
+
 import pandas as pd
+
+from doggos.algebras import LukasiewiczAlgebra
+from doggos.fuzzy_sets import Type1FuzzySet
+from doggos.knowledge import Clause, LinguisticVariable, Domain, Term, Antecedent, Rule
 
 
 class RuleBuilder:
@@ -9,8 +15,19 @@ class RuleBuilder:
         self.clazzes = None
         self.rule_and_functions = None
         self.dataset = dataset
+        self.features = []
+        columns = list(dataset.columns)
+        columns.remove('Decision')
+        for feature in columns:
+            self.features.append(LinguisticVariable(str(feature), Domain(0, 1.001, 0.001)))
+        self.terms = {}
 
-    def induce_rules(self):
+
+    def induce_rules(self, fuzzy_sets):
+        algebra = LukasiewiczAlgebra()
+        for feature in self.features:
+            for key in fuzzy_sets:
+                self.terms[f"{feature.name}_{key}"] = Term(algebra, Clause(feature, key, fuzzy_sets[key]))
         differences = self.get_differences(self.dataset)
         classes = set(self.dataset['Decision'])
         clazz_to_records = dict([(clazz, []) for clazz in classes])
@@ -54,7 +71,7 @@ class RuleBuilder:
                         alternative += " " + c + " "
                     alternative += ")"
                 alternative += ")"
-        return alternative
+        return eval(alternative, self.terms)
 
     def get_implicants(self, differences, record, index):
 
@@ -69,9 +86,9 @@ class RuleBuilder:
             alternative = None
             for a in diff:
                 if alternative is None:
-                    alternative = [a + " is " + record[a]]
-                elif a + " is " + record[a] not in alternative:
-                    alternative.append(a + " is " + record[a])
+                    alternative = [a + "_" + record[a]]
+                elif a + "_" + record[a] not in alternative:
+                    alternative.append(a + "_" + record[a])
             all_alternatives.append(alternative)
         all_alternatives.sort(key=lambda x: len(x))
         res_alternatives = []
@@ -93,3 +110,7 @@ class RuleBuilder:
                 if len(differences) != 0:
                     differences[i].append(difference)
         return differences
+
+    def map_rules_to_fuzzy_sets(self, rules: Dict[str, str], fuzzy_sets: Dict[str, Type1FuzzySet]):
+        for rule in rules:
+            pass

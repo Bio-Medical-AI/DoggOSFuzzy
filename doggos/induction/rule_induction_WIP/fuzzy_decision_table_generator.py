@@ -3,12 +3,13 @@ from typing import Dict
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
+from doggos.fuzzy_sets import Type2FuzzySet, IntervalType2FuzzySet
 from doggos.fuzzy_sets.type1_fuzzy_set import Type1FuzzySet
 from doggos.induction.rule_induction_WIP.inconsistencies_remover import InconsistenciesRemover
 from doggos.induction.rule_induction_WIP.reductor import Reductor
 from doggos.induction.rule_induction_WIP.rule_builder import RuleBuilder
 from doggos.knowledge import Clause, LinguisticVariable, Domain
-from doggos.utils.membership_functions.membership_functions import generate_equal_gausses
+from doggos.utils.membership_functions.membership_functions import generate_equal_gausses, gaussian
 
 
 class FuzzyDecisionTableGenerator:
@@ -75,7 +76,18 @@ reductor = Reductor(decision_table, True)
 
 decision_table_with_reduct, features_number_after_reduct = reductor.worker(decision_table)
 print(decision_table_with_reduct)
+
+
+gausses_LMF = [gaussian(.0, .20), gaussian(.5, .20), gaussian(1., .20)]
+gausses_UMF = [gaussian(.0, .22), gaussian(.5, .22), gaussian(1., .22)]
+
+small_T2 = IntervalType2FuzzySet(gausses_LMF[0], gausses_UMF[0])
+medium_T2 = IntervalType2FuzzySet(gausses_LMF[0], gausses_UMF[0])
+large_T2 = IntervalType2FuzzySet(gausses_LMF[0], gausses_UMF[0])
+
+fuzzy_sets_T2 = {'small': small, 'medium': medium, 'large': large}
+
 rb = RuleBuilder(decision_table_with_reduct)
-rules = rb.induce_rules()
-print(rules)
+antecedents = rb.induce_rules(fuzzy_sets_T2)
+print(antecedents)
 """
