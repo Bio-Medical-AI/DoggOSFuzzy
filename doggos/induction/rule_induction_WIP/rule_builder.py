@@ -15,19 +15,21 @@ class RuleBuilder:
         self.clazzes = None
         self.rule_and_functions = None
         self.dataset = dataset
-        self.features = []
+        self.__features = []
         columns = list(dataset.columns)
         columns.remove('Decision')
         for feature in columns:
-            self.features.append(LinguisticVariable(str(feature), Domain(0, 1.001, 0.001)))
+            self.__features.append(LinguisticVariable(str(feature), Domain(0, 1.001, 0.001)))
         self.terms = {}
-
+        self.__clauses = []
 
     def induce_rules(self, fuzzy_sets):
         algebra = LukasiewiczAlgebra()
-        for feature in self.features:
+        for feature in self.__features:
             for key in fuzzy_sets:
-                self.terms[f"{feature.name}_{key}"] = Term(algebra, Clause(feature, key, fuzzy_sets[key]))
+                clause = Clause(feature, key, fuzzy_sets[key])
+                self.terms[f"{feature.name}_{key}"] = Term(algebra, clause)
+                self.__clauses.append(clause)
         differences = self.get_differences(self.dataset)
         classes = set(self.dataset['Decision'])
         clazz_to_records = dict([(clazz, []) for clazz in classes])
@@ -111,6 +113,15 @@ class RuleBuilder:
                     differences[i].append(difference)
         return differences
 
-    def map_rules_to_fuzzy_sets(self, rules: Dict[str, str], fuzzy_sets: Dict[str, Type1FuzzySet]):
-        for rule in rules:
-            pass
+    @property
+    def clauses(self):
+        return self.__clauses
+
+    @property
+    def features(self):
+        return self.__features
+
+    @features.setter
+    def features(self, features):
+        self.__features = features
+
