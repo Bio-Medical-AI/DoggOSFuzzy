@@ -59,10 +59,10 @@ small_T2 = IntervalType2FuzzySet(gausses_LMF[0], gausses_UMF[0])
 medium_T2 = IntervalType2FuzzySet(gausses_LMF[0], gausses_UMF[0])
 large_T2 = IntervalType2FuzzySet(gausses_LMF[0], gausses_UMF[0])
 
-#fuzzy_sets_T2 = {'small': small_T2, 'medium': medium_T2, 'large': large_T2}
+fuzzy_sets_T2 = {'small': small_T2, 'medium': medium_T2, 'large': large_T2}
 # induce rules
 rb = RuleBuilder(decision_table_with_reduct)
-antecedents = rb.induce_rules(fuzzy_sets)
+antecedents = rb.induce_rules(fuzzy_sets_T2)
 print(antecedents)
 
 decision = LinguisticVariable('Decision', Domain(0, 1, 0.001))
