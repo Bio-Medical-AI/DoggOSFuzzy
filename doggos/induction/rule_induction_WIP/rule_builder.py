@@ -1,26 +1,22 @@
-from typing import Dict
-
 import pandas as pd
 
-from doggos.algebras import LukasiewiczAlgebra, GodelAlgebra
-from doggos.fuzzy_sets import Type1FuzzySet
-from doggos.knowledge import Clause, LinguisticVariable, Domain, Term, Antecedent, Rule
+from doggos.algebras import GodelAlgebra
+from doggos.knowledge import Clause, LinguisticVariable, Domain, Term
 
 
 class RuleBuilder:
 
     def __init__(self, dataset: pd.DataFrame):
 
-        self.clazz_to_rules = {}
-        self.clazzes = None
-        self.rule_and_functions = None
-        self.dataset = dataset
+        self.__decision_rules = {}
+        self.__decisions = None
+        self.__dataset = dataset
         self.__features = []
         columns = list(dataset.columns)
         columns.remove('Decision')
         for feature in columns:
             self.__features.append(LinguisticVariable(str(feature), Domain(0, 1.001, 0.001)))
-        self.terms = {}
+        self.__terms = {}
         self.__clauses = []
 
     def induce_rules(self, fuzzy_sets):
@@ -28,22 +24,22 @@ class RuleBuilder:
         for feature in self.__features:
             for key in fuzzy_sets:
                 clause = Clause(feature, key, fuzzy_sets[key])
-                self.terms[f"{feature.name}_{key}"] = Term(algebra, clause)
+                self.__terms[f"{feature.name}_{key}"] = Term(algebra, clause)
                 self.__clauses.append(clause)
-        differences = self.get_differences(self.dataset)
-        classes = set(self.dataset['Decision'])
-        clazz_to_records = dict([(clazz, []) for clazz in classes])
-        for i, row in self.dataset.iterrows():
-            clazz_to_records[row['Decision']].append((row, i))
+        differences = self.get_differences(self.__dataset)
+        classes = set(self.__dataset['Decision'])
+        decision_records = dict([(clazz, []) for clazz in classes])
+        for i, row in self.__dataset.iterrows():
+            decision_records[row['Decision']].append((row, i))
 
-        self.clazzes = []
-        clazz_to_rules = {}
-        for clazz in clazz_to_records:
-            self.clazzes.append(clazz)
-            row = clazz_to_records[clazz]
-            clazz_to_rules[clazz] = self.build_rule(differences, row)
-        self.clazz_to_rules = clazz_to_rules
-        return self.clazz_to_rules
+        self.__decisions = []
+        decision_rules = {}
+        for clazz in decision_records:
+            self.__decisions.append(clazz)
+            row = decision_records[clazz]
+            decision_rules[clazz] = self.build_rule(differences, row)
+        self.__decision_rules = decision_rules
+        return self.__decision_rules
 
     def build_rule(self, differences, records):
         all_conjunction = []
@@ -56,24 +52,24 @@ class RuleBuilder:
         for con in all_conjunction:
             res_conjunction.append(sorted(con, key=lambda x: len(x)))
         if len(res_conjunction) == 0:
-            alternative = None
+            antecedent = None
         else:
-            alternative = ""
+            antecedent = ""
             for ai, a in enumerate(res_conjunction):
                 if ai != 0:
-                    alternative += " | "
-                alternative += "("
+                    antecedent += " | "
+                antecedent += "("
                 for bi, b in enumerate(a):
                     if bi != 0:
-                        alternative += " & "
-                    alternative += "("
+                        antecedent += " & "
+                    antecedent += "("
                     for ci, c in enumerate(b):
                         if ci != 0:
-                            alternative += " | "
-                        alternative += c
-                    alternative += ")"
-                alternative += ")"
-        return eval(alternative, self.terms)
+                            antecedent += " | "
+                        antecedent += c
+                    antecedent += ")"
+                antecedent += ")"
+        return eval(antecedent, self.__terms)
 
     def get_implicants(self, differences, record, index):
 
