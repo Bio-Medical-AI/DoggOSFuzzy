@@ -2,7 +2,7 @@ from typing import Dict
 
 import pandas as pd
 
-from doggos.algebras import LukasiewiczAlgebra
+from doggos.algebras import LukasiewiczAlgebra, GodelAlgebra
 from doggos.fuzzy_sets import Type1FuzzySet
 from doggos.knowledge import Clause, LinguisticVariable, Domain, Term, Antecedent, Rule
 
@@ -24,7 +24,7 @@ class RuleBuilder:
         self.__clauses = []
 
     def induce_rules(self, fuzzy_sets):
-        algebra = LukasiewiczAlgebra()
+        algebra = GodelAlgebra()
         for feature in self.__features:
             for key in fuzzy_sets:
                 clause = Clause(feature, key, fuzzy_sets[key])
@@ -70,7 +70,7 @@ class RuleBuilder:
                     for ci, c in enumerate(b):
                         if ci != 0:
                             alternative += " | "
-                        alternative += " " + c + " "
+                        alternative += c
                     alternative += ")"
                 alternative += ")"
         return eval(alternative, self.terms)
