@@ -51,7 +51,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
     def infer(self,
               defuzzification_method: Callable,
               features: Dict[Clause, List[MembershipDegree]],
-              measures: Dict[LinguisticVariable, List[float]]) -> dict[LinguisticVariable, list]:
+              measures: Dict[LinguisticVariable, List[float]]) -> Dict[LinguisticVariable, List[float]]:
         """
         Inferences output based on features of given object and measured values of them, using chosen method
 
@@ -89,6 +89,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
             for rule in self._rule_base:
                 outputs[rule.consequent.linguistic_variable].append(rule.consequent.output(single_measures))
                 firings[rule.consequent.linguistic_variable].append(rule.antecedent.fire(single_features))
+            print(f'{i} {firings[rule.consequent.linguistic_variable]}')
             for ling_var in consequent_linguistic_variables:
                 conclusions[ling_var].append(defuzzification_method(np.array(firings[ling_var]),
                                                                     np.array(outputs[ling_var])))
