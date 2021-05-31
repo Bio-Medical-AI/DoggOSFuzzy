@@ -105,7 +105,7 @@ def __find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
     return np.average(domain, weights=weights)
 
 
-def __find_k(c: float, domain: np.ndarray) -> float:
+def __find_k(c: float, domain: np.ndarray) -> int:
     """
     Finds index for weighted average in given domain
     :param c: weighted average of combined membership functions
