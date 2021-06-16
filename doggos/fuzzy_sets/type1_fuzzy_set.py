@@ -1,7 +1,8 @@
 from __future__ import annotations
-from typing import Callable, NoReturn, Iterable
+from typing import Callable, NoReturn, Iterable, Sequence, AnyStr, Tuple
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
@@ -74,3 +75,11 @@ class Type1FuzzySet(FuzzySet):
         if not callable(new_membership_function):
             raise ValueError('Membership function must be callable')
         self.__membership_function = new_membership_function
+
+    def __parse_anystr(self, item: AnyStr or Sequence[AnyStr]):
+        if isinstance(item, Sequence) and not isinstance(item, str):
+            label = item[0] if item else ""
+        else:
+            label = item
+        return label
+
