@@ -9,6 +9,7 @@ from doggos.utils.membership_functions import generate_equal_gausses,\
                                               generate_full_trapezoidals
 
 from typing import Sequence, List, Tuple
+from copy import deepcopy, copy
 
 
 def create_gausses_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
@@ -21,13 +22,23 @@ def create_gausses_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str
     return fuzzy_sets
 
 
-def create_triangular_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
-    fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max)
+def create_triangular_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'even'):
+    if mode == 'even':
+        fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max)
+    elif mode == 'full':
+        fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max)
+    else:
+        raise NotImplemented(f'Triangular fuzzy sets mode can be either even or full, not {mode}')
     return fuzzy_sets
 
 
-def create_trapezoidal_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
-    fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max)
+def create_trapezoidal_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'even'):
+    if mode == 'even':
+        fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max)
+    elif mode == 'full':
+        fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max)
+    else:
+        raise NotImplemented(f'Trapezoidal fuzzy sets mode can be either even or full, not {mode}')
     return fuzzy_sets
 
 
@@ -61,27 +72,34 @@ def create_set_of_variables(ling_var_names: Sequence[str],
     """
     ling_vars = []
     for var in ling_var_names:
-        ling_vars.append(LinguisticVariable(var, domain))
+        ling_vars.append(LinguisticVariable(var, deepcopy(domain)))
 
     fuzzy_sets = []
     if fuzzy_set_type == 't1':
         if mf_type == 'gaussian':
-            fuzzy_sets = create_gausses_t1(n_mfs=n_mfs)
+            membership_functions = create_gausses_t1(n_mfs=n_mfs)
         elif mf_type == 'triangular:':
-            fuzzy_sets = create_triangular_t1(n_mfs=n_mfs)
+            membership_functions = create_triangular_t1(n_mfs=n_mfs)
         elif mf_type == 'trapezoidal':
-            fuzzy_sets = create_trapezoidal_t1(n_mfs=n_mfs)
+            membership_functions = create_trapezoidal_t1(n_mfs=n_mfs)
         else:
             raise Exception(f"mf_type cannot be of type {mf_type}")
+        for mf in membership_functions:
+            fuzzy_sets.append(Type1FuzzySet(mf))
+        base_funcs = copy(fuzzy_sets)
+        for _ in range(len(ling_vars) - 1):
+            fuzzy_sets.extend(deepcopy(base_funcs))
     elif fuzzy_set_type == 'it2':
         if mf_type == 'gaussian':
-            fuzzy_sets = create_gausses_it2(n_mfs=n_mfs)
+            membership_functions = create_gausses_it2(n_mfs=n_mfs)
         elif mf_type == 'triangular:':
-            fuzzy_sets = create_triangular_it2(n_mfs=n_mfs)
+            membership_functions = create_triangular_it2(n_mfs=n_mfs)
         elif mf_type == 'trapezoidal':
-            fuzzy_sets = create_trapezoidal_it2(n_mfs=n_mfs)
+            membership_functions = create_trapezoidal_it2(n_mfs=n_mfs)
         else:
             raise Exception(f"mf_type cannot be of type {mf_type}")
+        for mfs in membership_functions:
+            fuzzy_sets.append(IntervalType2FuzzySet(mfs[0], mfs[1]))
     elif fuzzy_set_type == 't2':
         raise NotImplemented('Type 2 Fuzzy Sets are not yet implemented')
 
@@ -102,7 +120,7 @@ def create_set_of_variables(ling_var_names: Sequence[str],
 
     clauses = []
     for var in ling_vars:
-        for fuzzy_set, grad_adjs in zip(fuzzy_sets, grad_adjs):
-            clauses.append(Clause(var, grad_adjs, fuzzy_set))
+        for fuzzy_set, grad_adj in zip(fuzzy_sets, grad_adjs):
+            clauses.append(Clause(var, grad_adj, fuzzy_set))
 
     return ling_vars, fuzzy_sets, clauses
