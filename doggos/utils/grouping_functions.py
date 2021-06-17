@@ -13,7 +13,7 @@ from copy import deepcopy, copy
 
 
 def create_gausses_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
-    if mode == 'equal':
+    if mode == 'equal' or mode == 'default':
         fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max)
     elif mode == 'progressive':
         fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max)
@@ -23,7 +23,7 @@ def create_gausses_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str
 
 
 def create_triangular_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'even'):
-    if mode == 'even':
+    if mode == 'even' or mode == 'default':
         fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max)
     elif mode == 'full':
         fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max)
@@ -33,7 +33,7 @@ def create_triangular_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: 
 
 
 def create_trapezoidal_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'even'):
-    if mode == 'even':
+    if mode == 'even' or mode == 'default':
         fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max)
     elif mode == 'full':
         fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max)
@@ -58,11 +58,13 @@ def create_set_of_variables(ling_var_names: Sequence[str],
                             domain: Domain = Domain(0, 1.001, 0.001),
                             mf_type: str = 'gaussian',
                             n_mfs: int = 3,
-                            fuzzy_set_type: str = 't1') \
+                            fuzzy_set_type: str = 't1',
+                            mode: str = 'default') \
         -> Tuple[List[LinguisticVariable], List[FuzzySet], List[Clause]]:
     """
     Creates a list of Linguistic Variables with provided names and domain. For each Linguistic Variable creates a number
     of Fuzzy Sets equal to n_mfs of type fuzzy_set_type. For each Linguistic Variable and Fuzzy Set creates a Clause.
+    :param mode:
     :param fuzzy_set_type:
     :param domain:
     :param ling_var_names:
@@ -77,29 +79,36 @@ def create_set_of_variables(ling_var_names: Sequence[str],
     fuzzy_sets = []
     if fuzzy_set_type == 't1':
         if mf_type == 'gaussian':
-            membership_functions = create_gausses_t1(n_mfs=n_mfs)
-        elif mf_type == 'triangular:':
-            membership_functions = create_triangular_t1(n_mfs=n_mfs)
+            membership_functions = create_gausses_t1(n_mfs=n_mfs, domain=domain, mode=mode)
+        elif mf_type == 'triangular':
+            membership_functions = create_triangular_t1(n_mfs=n_mfs, domain=domain, mode=mode)
         elif mf_type == 'trapezoidal':
-            membership_functions = create_trapezoidal_t1(n_mfs=n_mfs)
+            membership_functions = create_trapezoidal_t1(n_mfs=n_mfs, domain=domain, mode=mode)
         else:
             raise Exception(f"mf_type cannot be of type {mf_type}")
+
         for mf in membership_functions:
             fuzzy_sets.append(Type1FuzzySet(mf))
         base_funcs = copy(fuzzy_sets)
         for _ in range(len(ling_vars) - 1):
             fuzzy_sets.extend(deepcopy(base_funcs))
+
     elif fuzzy_set_type == 'it2':
         if mf_type == 'gaussian':
-            membership_functions = create_gausses_it2(n_mfs=n_mfs)
+            membership_functions = create_gausses_it2(n_mfs=n_mfs, mode=mode)
         elif mf_type == 'triangular:':
-            membership_functions = create_triangular_it2(n_mfs=n_mfs)
+            membership_functions = create_triangular_it2(n_mfs=n_mfs, mode=mode)
         elif mf_type == 'trapezoidal':
-            membership_functions = create_trapezoidal_it2(n_mfs=n_mfs)
+            membership_functions = create_trapezoidal_it2(n_mfs=n_mfs, mode=mode)
         else:
             raise Exception(f"mf_type cannot be of type {mf_type}")
+
         for mfs in membership_functions:
             fuzzy_sets.append(IntervalType2FuzzySet(mfs[0], mfs[1]))
+        base_funcs = copy(fuzzy_sets)
+        for _ in range(len(ling_vars) - 1):
+            fuzzy_sets.extend(deepcopy(base_funcs))
+
     elif fuzzy_set_type == 't2':
         raise NotImplemented('Type 2 Fuzzy Sets are not yet implemented')
 

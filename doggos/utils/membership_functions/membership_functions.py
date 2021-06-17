@@ -214,14 +214,14 @@ def generate_even_triangulars(n_mfs: int, start: float, end: float):
 
 
 def generate_full_triangulars(n_mfs: int, start: float, end: float):
-    step = (end - start) / (n_mfs + 1)
+    step = (end - start) / (n_mfs - 1)
     fuzzy_sets = []
 
-    fuzzy_sets.append(triangular(start, start, start + step))
+    fuzzy_sets.append(triangular(start - 0.001, start, start + step))
     for _ in range(n_mfs - 2):
         fuzzy_sets.append(triangular(start, start + step, start + 2 * step))
         start += step
-    fuzzy_sets.append(triangular(end - step, end, end))
+    fuzzy_sets.append(triangular(end - step, end, end + 0.001))
 
     return fuzzy_sets
 
@@ -239,11 +239,11 @@ def generate_full_trapezoidals(n_mfs: int, start: float, end: float):
     step = (end - start) / (2 * n_mfs - 1)
     fuzzy_sets = []
 
-    fuzzy_sets.append(trapezoidal(start, start, start + step, start + 2 * step))
+    fuzzy_sets.append(trapezoidal(start - 0.001, start, start + step, start + 2 * step))
     start += step
     for _ in range(n_mfs - 2):
         fuzzy_sets.append(triangular(start, start + step, start + 2 * step))
         start += step
-    fuzzy_sets.append(trapezoidal(end - 2 * step, end - step, end, end))
+    fuzzy_sets.append(trapezoidal(end - 2 * step, end - step, end, end + 0.001))
 
     return fuzzy_sets
