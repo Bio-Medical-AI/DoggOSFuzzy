@@ -173,14 +173,14 @@ def linear(a: float, b: float, max_value: float = 1) -> Callable[[float], float]
     return output_mf
 
 
-def generate_equal_gausses(number_of_gausses: int, start: float, end: float):
+def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max_value: float = 1):
     result = [None] * number_of_gausses
     domain = end - start
     in_range_means = number_of_gausses - 2
     sigma = __get_sigma(0, domain / (in_range_means + 1))
     for i in range(number_of_gausses):
         mean = domain / (in_range_means + 1) * i
-        result[i] = gaussian(mean, sigma, 1)
+        result[i] = gaussian(mean, sigma, max_value)
         print(f"{mean}, {sigma}")
     return result
 
@@ -200,50 +200,50 @@ def __get_sigma(mean_1, mean_2):
     return np.float64(sigma_value)
 
 
-def generate_progressive_gausses(number_of_gausses: int, start: float, end: float):
+def generate_progressive_gausses(number_of_gausses: int, start: float, end: float, max_value: float = 1):
     raise NotImplemented('Progressive Gausses is not yet implemented')
 
 
-def generate_even_triangulars(n_mfs: int, start: float, end: float):
+def generate_even_triangulars(n_mfs: int, start: float, end: float, max_value: float = 1):
     step = (end - start) / (n_mfs + 1)
     fuzzy_sets = []
     for _ in range(n_mfs):
-        fuzzy_sets.append(triangular(start, start + step, start + 2 * step))
+        fuzzy_sets.append(triangular(start, start + step, start + 2 * step, max_value))
         start += step
     return fuzzy_sets
 
 
-def generate_full_triangulars(n_mfs: int, start: float, end: float):
+def generate_full_triangulars(n_mfs: int, start: float, end: float, max_value: float = 1):
     step = (end - start) / (n_mfs - 1)
     fuzzy_sets = []
 
-    fuzzy_sets.append(triangular(start - 0.001, start, start + step))
+    fuzzy_sets.append(triangular(start - 0.001, start, start + step, max_value))
     for _ in range(n_mfs - 2):
-        fuzzy_sets.append(triangular(start, start + step, start + 2 * step))
+        fuzzy_sets.append(triangular(start, start + step, start + 2 * step, max_value))
         start += step
-    fuzzy_sets.append(triangular(end - step, end, end + 0.001))
+    fuzzy_sets.append(triangular(end - step, end, end + 0.001, max_value))
 
     return fuzzy_sets
 
 
-def generate_even_trapezoidals(n_mfs: int, start: float, end: float):
+def generate_even_trapezoidals(n_mfs: int, start: float, end: float, max_value: float = 1):
     step = (end - start) / (2 * n_mfs + 1)
     fuzzy_sets = []
     for _ in range(n_mfs):
-        fuzzy_sets.append(trapezoidal(start, start + step, start + 2 * step, start + 3 * step))
+        fuzzy_sets.append(trapezoidal(start, start + step, start + 2 * step, start + 3 * step, max_value))
         start += 2 * step
     return fuzzy_sets
 
 
-def generate_full_trapezoidals(n_mfs: int, start: float, end: float):
+def generate_full_trapezoidals(n_mfs: int, start: float, end: float, max_value: float = 1):
     step = (end - start) / (2 * n_mfs - 1)
     fuzzy_sets = []
 
-    fuzzy_sets.append(trapezoidal(start - 0.001, start, start + step, start + 2 * step))
+    fuzzy_sets.append(trapezoidal(start - 0.001, start, start + step, start + 2 * step, max_value))
     start += step
     for _ in range(n_mfs - 2):
-        fuzzy_sets.append(triangular(start, start + step, start + 2 * step))
+        fuzzy_sets.append(triangular(start, start + step, start + 2 * step, max_value))
         start += step
-    fuzzy_sets.append(trapezoidal(end - 2 * step, end - step, end, end + 0.001))
+    fuzzy_sets.append(trapezoidal(end - 2 * step, end - step, end, end + 0.001, max_value))
 
     return fuzzy_sets

@@ -42,16 +42,40 @@ def create_trapezoidal_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode:
     return fuzzy_sets
 
 
-def create_gausses_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
-    raise NotImplemented('Generating it2 functions is not yet implemented')
+def create_gausses_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal', lower_scaling: float = 0.8):
+    if mode == 'equal' or mode == 'default':
+        upper_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max)
+        lower_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max, lower_scaling)
+    elif mode == 'progressive':
+        upper_fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max)
+        lower_fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max, lower_scaling)
+    else:
+        raise NotImplemented(f'Gaussian fuzzy sets mode can be either equal or progressive, not {mode}')
+    return zip(lower_fuzzy_sets, upper_fuzzy_sets)
 
 
-def create_triangular_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
-    raise NotImplemented('Generating it2 functions is not yet implemented')
+def create_triangular_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal', lower_scaling: float = 0.8):
+    if mode == 'even' or mode == 'default':
+        upper_fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max)
+        lower_fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max, lower_scaling)
+    elif mode == 'full':
+        upper_fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max)
+        lower_fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max, lower_scaling)
+    else:
+        raise NotImplemented(f'Triangular fuzzy sets mode can be either even or full, not {mode}')
+    return zip(lower_fuzzy_sets, upper_fuzzy_sets)
 
 
-def create_trapezoidal_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
-    raise NotImplemented('Generating it2 functions is not yet implemented')
+def create_trapezoidal_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal', lower_scaling: float = 0.8):
+    if mode == 'even' or mode == 'default':
+        upper_fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max)
+        lower_fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max, lower_scaling)
+    elif mode == 'full':
+        upper_fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max)
+        lower_fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max, lower_scaling)
+    else:
+        raise NotImplemented(f'Trapezoidal fuzzy sets mode can be either even or full, not {mode}')
+    return zip(lower_fuzzy_sets, upper_fuzzy_sets)
 
 
 def create_set_of_variables(ling_var_names: Sequence[str],
@@ -59,11 +83,13 @@ def create_set_of_variables(ling_var_names: Sequence[str],
                             mf_type: str = 'gaussian',
                             n_mfs: int = 3,
                             fuzzy_set_type: str = 't1',
-                            mode: str = 'default') \
+                            mode: str = 'default',
+                            lower_scaling: float = 0.8) \
         -> Tuple[List[LinguisticVariable], List[FuzzySet], List[Clause]]:
     """
     Creates a list of Linguistic Variables with provided names and domain. For each Linguistic Variable creates a number
     of Fuzzy Sets equal to n_mfs of type fuzzy_set_type. For each Linguistic Variable and Fuzzy Set creates a Clause.
+    :param lower_scaling:
     :param mode:
     :param fuzzy_set_type:
     :param domain:
@@ -96,15 +122,15 @@ def create_set_of_variables(ling_var_names: Sequence[str],
     elif fuzzy_set_type == 'it2':
         if mf_type == 'gaussian':
             membership_functions = create_gausses_it2(n_mfs=n_mfs, mode=mode)
-        elif mf_type == 'triangular:':
+        elif mf_type == 'triangular':
             membership_functions = create_triangular_it2(n_mfs=n_mfs, mode=mode)
         elif mf_type == 'trapezoidal':
             membership_functions = create_trapezoidal_it2(n_mfs=n_mfs, mode=mode)
         else:
             raise Exception(f"mf_type cannot be of type {mf_type}")
 
-        for mfs in membership_functions:
-            fuzzy_sets.append(IntervalType2FuzzySet(mfs[0], mfs[1]))
+        for lmf, umf in membership_functions:
+            fuzzy_sets.append(IntervalType2FuzzySet(lmf, umf))
         base_funcs = copy(fuzzy_sets)
         for _ in range(len(ling_vars) - 1):
             fuzzy_sets.extend(deepcopy(base_funcs))
