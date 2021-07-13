@@ -1,7 +1,6 @@
 import numpy as np
 import sympy as sy
 from sympy import symbols, Eq, solve
-import matplotlib.pyplot as p
 
 from typing import Callable
 
