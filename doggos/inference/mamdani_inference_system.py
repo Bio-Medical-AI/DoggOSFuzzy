@@ -74,7 +74,7 @@ class MamdaniInferenceSystem(InferenceSystem):
 
             if is_type1:
                 domain, membership_functions = self.__get_domain_and_consequents_membership_functions(single_features)
-                result[i] = defuzzification_method(domain, membership_functions)
+                result[:, i] = defuzzification_method(domain, membership_functions)
             else:
                 domain, lmfs, umfs = self.__get_domain_and_consequents_memberships_for_it2(single_features)
                 result[:, i] = defuzzification_method(lmfs, umfs, domain)
