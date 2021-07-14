@@ -68,11 +68,6 @@ def karnik_mendel(lmfs: List[np.ndarray], umfs: List[np.ndarray], domain: np.nda
     thetas = (lower_cut + upper_cut) / 2 + 1e-10
     y_l = __find_y(partial(__find_c_minute, under_k_mf=upper_cut, over_k_mf=lower_cut), domain, thetas)
     y_r = __find_y(partial(__find_c_minute, under_k_mf=lower_cut, over_k_mf=upper_cut), domain, thetas)
-    # plt.plot(domain, lower_cut)
-    # plt.plot(domain, upper_cut)
-    # plt.plot(domain, thetas)
-    # plt.grid()
-    # plt.show()
     return (y_l + y_r) / 2
 
 
@@ -106,11 +101,6 @@ def __find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
     weights = np.zeros(shape=domain.size)
     weights[:(k + 1)] = under_k_mf[:(k + 1)]
     weights[(k + 1):] = over_k_mf[(k + 1):]
-
-    # plt.plot(domain, weights)
-    # plt.grid()
-    # plt.show()
-
     weights += 1e-10
     return np.average(domain, weights=weights)
 
