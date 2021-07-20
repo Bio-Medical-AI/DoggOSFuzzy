@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 import collections.abc as abc
 from typing import Iterable
 
