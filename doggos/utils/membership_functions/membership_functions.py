@@ -183,7 +183,7 @@ def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max
     :param max_value: maximum value of gaussian functions, height
     :return: list of callable gaussian functions
     """
-    result = [0] * number_of_gausses
+    result = np.zeros(number_of_gausses)
     domain = end - start
     expected_values_in_domain_range = number_of_gausses - 2
     cross_points = expected_values_in_domain_range + max_value
@@ -194,18 +194,18 @@ def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max
     expected_value = 0.
     result[0] = gaussian(expected_value, std_deviation, max_value)
     for i in range(1, number_of_gausses):
-        expected_value = domain / cross_points * i
+        expected_value = (domain / cross_points) * i
         result[i] = gaussian(expected_value, std_deviation, max_value)
-        print(f"{expected_value}, {std_deviation}")
+
     return result
 
 
 def calculate_sigma(first_mean: float, second_mean: float, max_value: float = 1.) -> float:
     """
     Calculates standard deviation using cross point between gaussian functions with given expected values.
-    :param first_mean:
-    :param second_mean:
-    :return:
+    :param first_mean: expected value of the first gaussian function
+    :param second_mean: expected value of the second gaussian function
+    :return: standard deviation for the gausses to cross at max_value / 2
     """
     sigma_value = 0
     shift = max_value / 2
