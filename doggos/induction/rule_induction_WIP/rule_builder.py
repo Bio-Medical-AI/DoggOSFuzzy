@@ -22,8 +22,8 @@ class RuleBuilder:
     def induce_rules(self, fuzzy_sets):
         algebra = GodelAlgebra()
         for feature in self.__features:
-            for key in fuzzy_sets:
-                clause = Clause(feature, key, fuzzy_sets[key])
+            for key in fuzzy_sets[feature.name]:
+                clause = Clause(feature, key, fuzzy_sets[feature.name][key])
                 self.__terms[f"{feature.name}_{key}"] = Term(algebra, clause)
                 self.__clauses.append(clause)
         differences = self.get_differences(self.__dataset)
@@ -34,12 +34,13 @@ class RuleBuilder:
 
         self.__decisions = []
         decision_rules = {}
+        string_antecedents = {}
         for clazz in decision_records:
             self.__decisions.append(clazz)
             row = decision_records[clazz]
-            decision_rules[clazz] = self.build_rule(differences, row)
+            decision_rules[clazz], string_antecedents[clazz] = self.build_rule(differences, row)
         self.__decision_rules = decision_rules
-        return self.__decision_rules
+        return self.__decision_rules, string_antecedents
 
     def build_rule(self, differences, records):
         all_conjunction = []
@@ -66,10 +67,12 @@ class RuleBuilder:
                     for ci, c in enumerate(b):
                         if ci != 0:
                             antecedent += " | "
+                        if c == 'F0_F0':
+                            print(c)
                         antecedent += c
                     antecedent += ")"
                 antecedent += ")"
-        return eval(antecedent, self.__terms)
+        return eval(antecedent, self.__terms), antecedent
 
     def get_implicants(self, differences, record, index):
 
