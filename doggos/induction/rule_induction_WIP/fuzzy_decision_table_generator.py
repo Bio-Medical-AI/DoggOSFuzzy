@@ -35,15 +35,30 @@ class FuzzyDecisionTableGenerator:
     __features_clauses: Dict[str, List[Clause]]
 
     def __init__(self, fuzzy_sets: Dict[str, Dict], X: pd.DataFrame, y: pd.Series):
+        """
+        Create FuzzyDecisionTableGenerator with given fuzzy sets, data and target values\n
+        :param fuzzy_sets: fuzzy sets that are describing columns of given dataset
+        :param X: data representing objects
+        :param y: target values for corresponding objects
+        """
         self.__fuzzy_sets = fuzzy_sets
         self.__dataset = X
         self.__dataset['Decision'] = y
-        self.__features = [LinguisticVariable(str(feature), Domain(0, 1.001, 0.001))
-                           for feature in self.__dataset.columns]
-        self.__features_clauses = {col: [] for col in list(self.__dataset.columns)}
+        for column in self.__dataset.columns:
+            self.__dataset.rename({column: str(column)})
+
+        self.__features = [LinguisticVariable(feature_name, Domain(0, 1.001, 0.001))
+                           for feature_name in self.__dataset.columns]
+        self.__features_clauses = {feature_name: [] for feature_name in self.__dataset.columns}
 
     def get_highest_membership(self, feature: str, input: float) -> str:
-        max_feature = None
+        """
+        Determines a name of a fuzzy set with the highest membership value for a given feature
+        :param feature: a name of a feature for which to determine a name of the highest membership set
+        :param input: a crisp value of the feature
+        :return: a name of a fuzzy set with the highest member value for a given feature
+        """
+        max_feature = ''
         max_value = 0
         for clause in self.__features_clauses[feature]:
             if clause.get_value(input) > max_value:
@@ -51,25 +66,28 @@ class FuzzyDecisionTableGenerator:
                 max_value = clause.get_value(input)
         return max_feature
 
-    def fuzzify(self):
+    def fuzzify(self) -> pd.DataFrame:
+        """
+        Performs fuzzification on given dataset and returns fuzzified decision table\n
+        :return: dataset with crisp values replaced by names of highest membership fuzzy sets
+        """
         for feature in self.__features:
-            if feature.name == 'Decision':
-                continue
-            self.__features_clauses[feature.name] = []
-            for key in self.__fuzzy_sets:
-                self.__features_clauses[feature.name].append(Clause(feature, key, self.__fuzzy_sets[feature.name][key]))
+            if feature.name is not 'Decision':
+                self.__features_clauses[feature.name] = []
+                for key in self.__fuzzy_sets.keys():
+                    self.__features_clauses[feature.name].append(Clause(feature,
+                                                                        key,
+                                                                        self.__fuzzy_sets[feature.name][key]))
 
-        fuzzy_dataset = pd.DataFrame(list([self.__dataset.columns]), dtype="string")
-        fuzzy_dataset.columns = self.__dataset.columns
-        fuzzy_dataset.astype('str')
-        fuzzy_dataset["Decision"] = pd.to_numeric(fuzzy_dataset["Decision"], errors='ignore')
-        for i, row in self.__dataset.iterrows():
-            for f in self.__dataset:
-                if f == 'Decision':
-                    var = self.__dataset.at[i, f]
-                    fuzzy_dataset.at[i, f] = var
+        fuzzy_dataset = pd.DataFrame(columns=self.__dataset.columns, dtype='string')
+        fuzzy_dataset['Decision'] = pd.to_numeric(fuzzy_dataset['Decision'], errors='ignore')
+
+        for row, _ in self.__dataset.iterrows():
+            for column in self.__dataset.columns:
+                if column is 'Decision':
+                    fuzzy_dataset.at[row, column] = self.__dataset.at[row, column]
                 else:
-                    fuzzy_dataset.at[i, f] = self.get_highest_membership(f, self.__dataset.at[i, f])
+                    fuzzy_dataset.at[row, column] = self.get_highest_membership(column, self.__dataset.at[row, column])
 
         fuzzy_dataset.drop(index=fuzzy_dataset[fuzzy_dataset['Decision'] == 'Decision'].index, inplace=True)
         return fuzzy_dataset
