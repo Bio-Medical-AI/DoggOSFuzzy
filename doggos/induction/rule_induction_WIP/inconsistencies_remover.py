@@ -1,59 +1,61 @@
 import pandas as pd
+import numpy as np
+from typing import Optional, List
 
 
 class InconsistenciesRemover(object):
 
-    def __init__(self, features_table, feature_labels):
-        self.features_table = features_table
+    def __init__(self, decision_table: pd.DataFrame, feature_labels: List[str]):
+        self.decision_table = decision_table
         self.feature_labels = feature_labels
         self.changed_decisions = 0
+        self.samples = None
 
-    def getOccurenceOfRows(self, df, remove_columns):
-        if remove_columns:
-            df = df.drop(remove_columns, axis=1, inplace=False)
+    def __get_occurrence_of_rows(self, df: pd.DataFrame,
+                                 columns_to_remove: List[str] or Optional[str] = None) -> pd.DataFrame:
+        """
+        Calculates number of occurrences of identical rows in dataframe, then puts it into Occurrence column
+        :param df: dataframe containing same rows to count
+        :param columns_to_remove: columns to be removed from returned dataframe
+        :return: dataframe grouped by identical rows with 'Occurrence' column which describes count of identical rows
+        """
+        if columns_to_remove is not None:
+            df = df.drop(columns_to_remove, axis=1)
 
-        df = df.groupby(
-            df.columns.tolist(),
-            as_index=False).size().reset_index()
-
-        df.rename(columns={'size': 'Occurence'}, inplace=True)
-
-        return df
-
-    def getOccurenceOfRowsWithoutRemove(self, df):
-        df = df.groupby(
-            df.columns.tolist(),
-            as_index=False).size().reset_index()
-
-        df.rename(columns={'size': 'Occurence'}, inplace=True)
+        df = df.groupby(df.columns.tolist(), as_index=False).size().reset_index()
+        df.rename(columns={'size': 'Occurrence'}, inplace=True)
 
         return df
 
-    def getCertainDecisionRows(self, features_occurence, features_decisions_occurence):
-        features_decision_numbers_ones = features_occurence.loc[
-            features_occurence['Occurence'] == 1.].copy()
+    def __get_certain_decision_rows(self, features_occurrence: pd.DataFrame,
+                                    features_decisions_occurrence: pd.DataFrame):
+        feature_sets_single_occurrences = \
+            features_occurrence.loc[features_occurrence['Occurrence'] == 1.].copy()
 
-        for index, row in features_decision_numbers_ones.iterrows():
-            for idx, row_with_decision in features_decisions_occurence.iterrows():
-                if (row[self.feature_labels].values ==
-                    row_with_decision[self.feature_labels].values).all():
-                    features_decision_numbers_ones.at[
-                        index, 'Decision'] = features_decisions_occurence.loc[
-                        idx, 'Decision']
+        feature_decision_single_occurrences = \
+            features_decisions_occurrence.loc[features_decisions_occurrence['Occurrence'] == 1].copy()
 
-        return features_decision_numbers_ones.drop(['Occurence'],
-                                                   axis=1,
-                                                   inplace=False)
+        decision_indices = []
 
-    def getNumberOfClearDecision(self, features_occurence, features_decisions_occurence):
-        features_certain_decision = self.getCertainDecisionRows(
-            features_occurence, features_decisions_occurence)
+        for _, row in feature_sets_single_occurrences.iterrows():
+            left = feature_decision_single_occurrences[self.feature_labels].values
+            right = row[self.feature_labels].values
+            decision_indices.append(np.where((left == right).all(-1))[0].item())
 
-        if features_certain_decision.empty: return 0
+        decisions = [features_decisions_occurrence['Decision'].values[idx] for idx in decision_indices]
+        feature_sets_single_occurrences['Decision'] = decisions
+
+        return feature_sets_single_occurrences.drop(['Occurrence', 'index'], axis=1)
+
+    def __get_number_of_clear_decision(self, features_occurence, features_decisions_occurence):
+        features_certain_decision = self.__get_certain_decision_rows(features_occurence, features_decisions_occurence)
+
+        if features_certain_decision.empty:
+            return 0
+
         tmp_table = pd.merge(
             features_decisions_occurence,
             features_certain_decision,
-            how='inner',
             on=self.feature_labels)
 
         if 'Decision_y' in tmp_table.columns:
@@ -61,17 +63,17 @@ class InconsistenciesRemover(object):
                 index=str,
                 columns={
                     "Decision_x": "Decision",
-                    "Occurence_x": "Occurence"
+                    "Occurrence_x": "Occurrence"
                 })
 
         number_of_clear_decision = pd.DataFrame(
             tmp_table.groupby(['Decision'],
-                              as_index=False)['Occurence'].agg('sum'))
+                              as_index=False)['Occurrence'].agg('sum'))
 
         return number_of_clear_decision
 
-    def solveConflicts(self, number_of_conflicts_decision, problems_to_solve,
-                       features_decisions_occurence, number_of_clear_decision, general_features_occurence):
+    def solve_conflicts(self, number_of_conflicts_decision, problems_to_solve,
+                        features_decisions_occurence, number_of_clear_decision, general_features_occurence):
 
         for _, row in number_of_conflicts_decision.iterrows():
             new_df = pd.DataFrame(columns={"Decision", "Probability"})
@@ -86,7 +88,7 @@ class InconsistenciesRemover(object):
                     except:
                         occurence = 0
 
-                    probability = occurence / len(self.features_table)
+                    probability = occurence / len(self.decision_table)
                     new_df = new_df.append({
                         'Decision': row_2[['Decision']].values,
                         'Probability': probability
@@ -111,40 +113,31 @@ class InconsistenciesRemover(object):
 
         return features_decisions_occurence
 
-    def inconsistenciesRemoving(self):
-        features_decisions_occurence = self.getOccurenceOfRows(
-            self.features_table, None)
+    def inconsistencies_removing(self):
+        features_decisions_occurrence = self.__get_occurrence_of_rows(self.decision_table, None)
+        features_decisions_occurrence = features_decisions_occurrence.drop(['index'], axis=1)
 
-        features_decisions_occurence = features_decisions_occurence.drop(['index'], axis=1)
+        general_features_occurence = features_decisions_occurrence.copy()
+        self.samples = sum(features_decisions_occurrence['Occurrence'])
+        feature_sets_occurrence = self.__get_occurrence_of_rows(self.decision_table, ['Decision'])
 
-        general_features_occurence = features_decisions_occurence.copy()
-        self.samples = features_decisions_occurence.Occurence.sum()
-        old_size = len(self.features_table)
+        nums_of_conflicting_decisions = feature_sets_occurrence[feature_sets_occurrence['Occurrence'] > 1]
 
-        features_occurence = self.getOccurenceOfRows(self.features_table,
-                                                     None)
-
-        features_occurence = self.getOccurenceOfRows(self.features_table, ['Decision'])
-
-        number_of_conflicts_decision = features_occurence[
-            features_occurence.Occurence > 1]
-
-        number_of_clear_decision = self.getNumberOfClearDecision(
-            features_occurence, features_decisions_occurence)
+        num_of_clear_decision = self.__get_number_of_clear_decision(feature_sets_occurrence,
+                                                                    features_decisions_occurrence)
 
         problems_to_solve = pd.merge(
-            features_decisions_occurence,
-            number_of_conflicts_decision,
+            features_decisions_occurrence,
+            nums_of_conflicting_decisions,
             how='inner',
-            on=self.feature_labels).drop(['Occurence_x', "Occurence_y"], axis=1)
+            on=self.feature_labels).drop(['Occurrence_x', "Occurrence_y"], axis=1)
 
-        features_decisions_occurence = self.solveConflicts(
-            number_of_conflicts_decision, problems_to_solve,
-            features_decisions_occurence, number_of_clear_decision, general_features_occurence)
-        decision_table = features_decisions_occurence.drop(['Occurence'],
+        features_decisions_occurence = self.solve_conflicts(
+            nums_of_conflicting_decisions, problems_to_solve,
+            features_decisions_occurrence, num_of_clear_decision, general_features_occurence)
+        decision_table = features_decisions_occurence.drop(['Occurrence'],
                                                            axis=1).drop_duplicates(
             keep='first',
             inplace=False)
-        # self.changed_decisions = old_size - len(features_decisions_occurence)
 
         return decision_table, self.changed_decisions

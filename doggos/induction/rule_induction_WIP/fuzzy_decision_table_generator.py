@@ -6,6 +6,7 @@ from doggos.knowledge import Clause, LinguisticVariable, Domain
 class FuzzyDecisionTableGenerator:
     """
     Class used to fuzzify dataset of crisp values into fuzzy decision table for rule induction system
+    https://www.mdpi.com/2076-3417/11/8/3484 - 2.2.3. Rule Induction with Information Systems
 
     Attributes
     --------------------------------------------
@@ -91,11 +92,11 @@ class FuzzyDecisionTableGenerator:
         for feature in self.__features:
             if feature.name is not 'Decision':
                 self.__features_clauses[feature.name] = []
-                for key in self.__fuzzy_sets.keys():
+                for key in self.__fuzzy_sets[feature.name].keys():
                     self.__features_clauses[feature.name].append(Clause(feature,
                                                                         key,
                                                                         self.__fuzzy_sets[feature.name][key]))
 
         fuzzy_dataset = self.__fuzzify_dataset()
-        fuzzy_dataset.drop(index=fuzzy_dataset[fuzzy_dataset['Decision'] == 'Decision'].index, inplace=True)
+        #fuzzy_dataset.drop(index=fuzzy_dataset[fuzzy_dataset['Decision'] == 'Decision'].index, inplace=True)
         return fuzzy_dataset
