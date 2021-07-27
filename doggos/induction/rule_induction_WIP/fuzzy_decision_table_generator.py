@@ -98,5 +98,4 @@ class FuzzyDecisionTableGenerator:
                                                                         self.__fuzzy_sets[feature.name][key]))
 
         fuzzy_dataset = self.__fuzzify_dataset()
-        #fuzzy_dataset.drop(index=fuzzy_dataset[fuzzy_dataset['Decision'] == 'Decision'].index, inplace=True)
         return fuzzy_dataset

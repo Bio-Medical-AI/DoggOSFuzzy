@@ -28,7 +28,14 @@ class InconsistenciesRemover(object):
         return df
 
     def __get_certain_decision_rows(self, features_occurrence: pd.DataFrame,
-                                    features_decisions_occurrence: pd.DataFrame):
+                                    features_decisions_occurrence: pd.DataFrame) -> pd.DataFrame:
+        """
+        Selects sets of attributes that led to the same decision\n
+        :param features_occurrence: dataframe with sets of features and their occurrence count in a dataset
+        :param features_decisions_occurrence: dataframe with sets of features, decisions for them and their
+                                              occurrence count in a dataset
+        :return: Objects with unique set of attributes that leads to the same decision
+        """
         feature_sets_single_occurrences = \
             features_occurrence.loc[features_occurrence['Occurrence'] == 1.].copy()
 
@@ -40,6 +47,8 @@ class InconsistenciesRemover(object):
         for _, row in feature_sets_single_occurrences.iterrows():
             left = feature_decision_single_occurrences[self.feature_labels].values
             right = row[self.feature_labels].values
+            # Creates truth matrix that matches condition, then flattens it to 1-D by performing logical AND operation
+            # on rows. Numpy.where returns 2-elem tuple with second element being empty, thus 0-th is taken.
             decision_indices.append(np.where((left == right).all(-1))[0].item())
 
         decisions = [features_decisions_occurrence['Decision'].values[idx] for idx in decision_indices]
@@ -47,28 +56,31 @@ class InconsistenciesRemover(object):
 
         return feature_sets_single_occurrences.drop(['Occurrence', 'index'], axis=1)
 
-    def __get_number_of_clear_decision(self, features_occurence, features_decisions_occurence):
-        features_certain_decision = self.__get_certain_decision_rows(features_occurence, features_decisions_occurence)
+    def __get_number_of_clear_decision(self, features_occurrence: pd.DataFrame,
+                                       features_decisions_occurrence: pd.DataFrame) -> pd.DataFrame:
+        """
+        Calculates number of sets of attributes that did not lead to conflicting decisions for each class\n
+        :param features_occurrence: dataframe with sets of features and their occurrence count in a dataset
+        :param features_decisions_occurrence: dataframe with sets of features, decisions for them and their
+                                              occurrence count in a dataset
+        :return: number of clear decisions for each class
+        """
+        target_label = 'Decision'
+        features_certain_decision = self.__get_certain_decision_rows(features_occurrence, features_decisions_occurrence)
 
-        if features_certain_decision.empty:
-            return 0
+        decisions = features_certain_decision[target_label]
+        features_certain_decision = features_certain_decision.drop(columns=target_label)
+        features_decisions_occurrence = features_decisions_occurrence.drop(columns=target_label)
 
-        tmp_table = pd.merge(
-            features_decisions_occurence,
+        merged_decisions = pd.merge(
+            features_decisions_occurrence,
             features_certain_decision,
-            on=self.feature_labels)
-
-        if 'Decision_y' in tmp_table.columns:
-            tmp_table = tmp_table.drop(['Decision_y'], axis=1).rename(
-                index=str,
-                columns={
-                    "Decision_x": "Decision",
-                    "Occurrence_x": "Occurrence"
-                })
+            on=self.feature_labels,
+            suffixes=[])
+        merged_decisions[target_label] = decisions
 
         number_of_clear_decision = pd.DataFrame(
-            tmp_table.groupby(['Decision'],
-                              as_index=False)['Occurrence'].agg('sum'))
+            merged_decisions.groupby([target_label], as_index=False)['Occurrence'].agg(np.sum))
 
         return number_of_clear_decision
 
