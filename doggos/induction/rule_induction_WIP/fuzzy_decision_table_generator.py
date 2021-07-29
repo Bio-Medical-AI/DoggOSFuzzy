@@ -26,10 +26,7 @@ class FuzzyDecisionTableGenerator:
 
     Methods
     --------------------------------------------
-    get_highest_membership(self, feature: str, input: float) -> str:
-        returns highest membership for given feature's input value
-
-    fuzzify(self):
+    fuzzify(self) -> pd.DataFrame:
         performs fuzzification on given dataset and returns fuzzified decision table
     """
     __fuzzy_sets: Dict[str, Dict]
@@ -56,7 +53,7 @@ class FuzzyDecisionTableGenerator:
 
     def __get_highest_membership(self, feature: str, crisp: float) -> str:
         """
-        Determines a name of a fuzzy set with the highest membership value for a given feature
+        Determines a name of a fuzzy set with the highest membership value for a given feature\n
         :param feature: a name of a feature for which to determine a name of the highest membership set
         :param crisp: a crisp value of the feature
         :return: a name of a fuzzy set with the highest member value for a given feature

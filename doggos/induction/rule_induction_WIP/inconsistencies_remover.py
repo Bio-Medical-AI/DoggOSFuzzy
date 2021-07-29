@@ -1,20 +1,43 @@
 import pandas as pd
 import numpy as np
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 
 class InconsistenciesRemover(object):
+    """
+    Class for removing inconsistencies from a decision table for rule induction:
+    https://www.mdpi.com/2076-3417/11/8/3484 - 2.2.3. Rule Induction with Information Systems: Inconsistency Elimination
+
+    Attributes
+    --------------------------------------------
+    __decision_table: pd.DataFrame
+        fuzzy sets that are describing columns of given dataset
+
+    __feature_labels: List[str]
+        dataset to fuzzify - target column should be named 'Decision'
+
+    __changed_decisions: int
+        linguistic variables (columns) from given dataset
+
+    Methods
+    --------------------------------------------
+    remove_inconsistencies(self) -> Tuple[pd.DataFrame, int]:
+        removes inconsistencies from given dataset by applying lower approximation precision analysis\n
+    """
+
+    __decision_table: pd.DataFrame
+    __feature_labels: List[str]
+    __changed_decisions: int
 
     def __init__(self, decision_table: pd.DataFrame, feature_labels: List[str]):
-        self.decision_table = decision_table
-        self.feature_labels = feature_labels
-        self.changed_decisions = 0
-        self.samples = None
+        self.__decision_table = decision_table
+        self.__feature_labels = feature_labels
+        self.__changed_decisions = 0
 
     def __get_occurrence_of_rows(self, df: pd.DataFrame,
                                  columns_to_remove: List[str] or Optional[str] = None) -> pd.DataFrame:
         """
-        Calculates number of occurrences of identical rows in dataframe, then puts it into Occurrence column
+        Calculates number of occurrences of identical rows in dataframe, then puts it into Occurrence column\n
         :param df: dataframe containing same rows to count
         :param columns_to_remove: columns to be removed from returned dataframe
         :return: dataframe grouped by identical rows with 'Occurrence' column which describes count of identical rows
@@ -45,8 +68,8 @@ class InconsistenciesRemover(object):
         decision_indices = []
 
         for _, row in feature_sets_single_occurrences.iterrows():
-            left = feature_decision_single_occurrences[self.feature_labels].values
-            right = row[self.feature_labels].values
+            left = feature_decision_single_occurrences[self.__feature_labels].values
+            right = row[self.__feature_labels].values
             # Creates truth matrix that matches condition, then flattens it to 1-D by performing logical AND operation
             # on rows. Numpy.where returns 2-elem tuple with second element being empty, thus 0-th is taken.
             decision_indices.append(np.where((left == right).all(-1))[0].item())
@@ -71,7 +94,7 @@ class InconsistenciesRemover(object):
         merged_decisions = pd.merge(
             features_decisions_occurrence,
             features_certain_decision,
-            on=self.feature_labels,
+            on=self.__feature_labels,
             )
 
         merged_decisions = merged_decisions.drop(['Decision_y'], axis=1).rename(
@@ -103,7 +126,7 @@ class InconsistenciesRemover(object):
             proba_df = pd.DataFrame(columns=proba_columns)
 
             for _, row_2 in problems_to_solve.iterrows():
-                is_same_row = (row[self.feature_labels].values == row_2[self.feature_labels]).all()
+                is_same_row = (row[self.__feature_labels].values == row_2[self.__feature_labels]).all()
                 if is_same_row:
                     if row_2['Decision'] in num_of_clear_decisions['Decision'].values:
                         occurrence = num_of_clear_decisions.loc[
@@ -112,7 +135,7 @@ class InconsistenciesRemover(object):
                     else:
                         occurrence = 0
 
-                    probability = occurrence / len(self.decision_table)
+                    probability = occurrence / len(self.__decision_table)
                     proba_df = proba_df.append({
                         'Decision': row_2['Decision'],
                         'Probability': probability
@@ -123,19 +146,22 @@ class InconsistenciesRemover(object):
             ]['Decision'].item()
 
             for idx, row_decision_table in features_decisions_occurrence.iterrows():
-                if (row[self.feature_labels].values == row_decision_table[self.feature_labels]).all():
+                if (row[self.__feature_labels].values == row_decision_table[self.__feature_labels]).all():
                     if row_decision_table['Decision'] != new_value:
                         features_decisions_occurrence.loc[idx, 'Decision'] = new_value
-                        self.changed_decisions = self.changed_decisions + 1
+                        self.__changed_decisions = self.__changed_decisions + 1
 
         return features_decisions_occurrence
 
-    def inconsistencies_removing(self):
-        features_decisions_occurrence = self.__get_occurrence_of_rows(self.decision_table, None)
+    def remove_inconsistencies(self) -> Tuple[pd.DataFrame, int]:
+        """
+        Removes inconsistencies from given dataset by applying lower approximation precision analysis\n
+        :return: decision table without inconsistencies and count of changed decisions
+        """
+        features_decisions_occurrence = self.__get_occurrence_of_rows(self.__decision_table, None)
         features_decisions_occurrence = features_decisions_occurrence.drop(['index'], axis=1)
 
-        self.samples = sum(features_decisions_occurrence['Occurrence'])
-        feature_sets_occurrence = self.__get_occurrence_of_rows(self.decision_table, ['Decision'])
+        feature_sets_occurrence = self.__get_occurrence_of_rows(self.__decision_table, ['Decision'])
 
         nums_of_conflicting_decisions = feature_sets_occurrence[feature_sets_occurrence['Occurrence'] > 1]
         num_of_clear_decisions = self.__get_number_of_clear_decisions(feature_sets_occurrence,
@@ -144,14 +170,12 @@ class InconsistenciesRemover(object):
             features_decisions_occurrence,
             nums_of_conflicting_decisions,
             how='inner',
-            on=self.feature_labels).drop(['Occurrence_x', "Occurrence_y"], axis=1)
+            on=self.__feature_labels).drop(['Occurrence_x', "Occurrence_y"], axis=1)
 
         features_decisions_occurrence = self.__solve_conflicts(
             nums_of_conflicting_decisions, problems_to_solve,
             features_decisions_occurrence, num_of_clear_decisions)
-        decision_table = features_decisions_occurrence.drop(['Occurrence'],
-                                                            axis=1).drop_duplicates(
-            keep='first',
-            inplace=False)
 
-        return decision_table, self.changed_decisions
+        decision_table = features_decisions_occurrence.drop(['Occurrence'], axis=1).drop_duplicates()
+
+        return decision_table, self.__changed_decisions
