@@ -1,11 +1,9 @@
+import math
+import numpy as np
+
+from typing import List
 from collections.abc import Iterable
 from functools import partial
-from typing import List
-import math
-import matplotlib.pyplot as plt
-
-import numpy as np
-from scipy.stats.mstats_basic import trim
 
 
 def center_of_gravity(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
@@ -188,7 +186,7 @@ def __find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
     return np.average(domain, weights=weights)
 
 
-def __find_k(c: float, domain: np.ndarray) -> float:
+def __find_k(c: float, domain: np.ndarray) -> int:
     """
     Finds index for weighted average in given domain
     :param c: weighted average of combined membership functions
@@ -213,7 +211,7 @@ def weighted_average(firings: np.ndarray,
 
 def takagi_sugeno_karnik_mendel(firings: np.ndarray,
                                 outputs: np.ndarray,
-                                step: float = 0.01) -> float:
+                                step: float = 0.001) -> float:
     """
     Method of calculating output of Takagi-Sugeno inference system using Karnik-Mendel algorithm.
     Used for fuzzy sets of type 2.

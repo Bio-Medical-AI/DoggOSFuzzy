@@ -1,7 +1,8 @@
 import numpy as np
 import sympy as sy
-from typing import Callable
+
 from sympy import symbols, Eq, solve
+from typing import Callable, List
 
 
 def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float], float]:
@@ -171,28 +172,49 @@ def linear(a: float, b: float, max_value: float = 1) -> Callable[[float], float]
 
     return output_mf
 
-def generate_equal_gausses(number_of_gausses: int, start: float, end: float):
-    result = [None] * number_of_gausses
+def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max_value: float = 1.) -> List[Callable]:
+    """
+    Generates specified number of gaussian functions with equal
+    standard deviation distributed evenly across given domain.\n
+    :param number_of_gausses: number of gaussian functions to generate
+    :param start: start of domain
+    :param end: end of domain
+    :param max_value: maximum value of gaussian functions, height
+    :return: list of callable gaussian functions
+    """
+    result = np.zeros(number_of_gausses)
     domain = end - start
-    in_range_means = number_of_gausses - 2
-    sigma = get_sigma(0, domain / (in_range_means + 1))
-    for i in range(number_of_gausses):
-        mean = domain / (in_range_means + 1) * i
-        result[i] = gaussian(mean, sigma, 1)
-        print(f"{mean}, {sigma}")
+    expected_values_in_domain_range = number_of_gausses - 2
+    cross_points = expected_values_in_domain_range + 1
+    expected_value_of_first_gaussian = 0
+    expected_value_of_second_gaussian = domain / cross_points
+    std_deviation = calculate_sigma(expected_value_of_first_gaussian, expected_value_of_second_gaussian, max_value)
+
+    expected_value = 0.
+    result[0] = gaussian(expected_value, std_deviation, max_value)
+    for i in range(1, number_of_gausses):
+        expected_value = (domain / cross_points) * i
+        result[i] = gaussian(expected_value, std_deviation, max_value)
+
     return result
 
 
-def get_sigma(mean_1, mean_2):
-    sigma_value = 0
+def calculate_sigma(first_mean: float, second_mean: float, max_value: float = 1.) -> float:
+    """
+    Calculates standard deviation using cross point between gaussian functions with given expected values.
+    :param first_mean: expected value of the first gaussian function
+    :param second_mean: expected value of the second gaussian function
+    :param max_value: maximum value of gaussian functions, height
+    :return: standard deviation for the gausses to cross at max_value / 2
+    """
+    shift = max_value / 2
     x, sigma = symbols('x sigma')
-    eq1 = Eq(sy.exp(-((x - mean_1) ** 2.) / (2 * sigma ** 2.)) - 0.5, 0)
-    eq2 = Eq(sy.exp(-((x - mean_2) ** 2.) / (2 * sigma ** 2.)) - 0.5, 0)
+    # The equations read like this:
+    # calculate x and sigma based on cross point between gaussian functions with given expected values
+    eq1 = Eq(sy.exp(-((x - first_mean) ** 2.) / (2 * sigma ** 2.)) - shift, 0)
+    eq2 = Eq(sy.exp(-((x - second_mean) ** 2.) / (2 * sigma ** 2.)) - shift, 0)
 
-    res = solve((eq1, eq2), (x, sigma))
-    for x in res:
-        if x[1] >= 0:
-            sigma_value = x[1]
-            break
+    solutions = solve((eq1, eq2), (x, sigma), dict=True)
+    sigma_value = [solution[sigma] for solution in solutions if solution[sigma] >= 0][0]
 
     return np.float64(sigma_value)
