@@ -25,7 +25,7 @@ class InconsistenciesRemover:
     Methods
     --------------------------------------------
     remove_inconsistencies(self) -> pd.DataFrame:
-        removes inconsistencies from given dataset by applying lower approximation precision analysis\n
+        removes inconsistencies from given dataset by applying lower approximation precision analysis
     """
     __dataset: pd.DataFrame
     __feature_labels: List[str]
@@ -64,7 +64,7 @@ class InconsistenciesRemover:
                 conflicts.append(sample)
         return conflicts
 
-    def _find_lower_approx(self, conflicts) -> NoReturn:
+    def _find_lower_approx(self, conflicts: pd.DataFrame) -> NoReturn:
         """
         Calculates lower approximation of sets consisting of samples with corresponding decision\n
         :param conflicts: samples that are causing conflicts in dataset
@@ -85,7 +85,7 @@ class InconsistenciesRemover:
             self.__lower_approx_for_decisions[decision] = self.__clean_decisions.loc[
                 self.__clean_decisions['Decision'] == decision].values.shape[0]
 
-    def _solve_conflicts(self, conflicts) -> NoReturn:
+    def _solve_conflicts(self, conflicts: pd.DataFrame) -> NoReturn:
         """
         Changes decisions for conflicting rows to those occurring more often\n
         :param conflicts: sets of features that cause conflicts
