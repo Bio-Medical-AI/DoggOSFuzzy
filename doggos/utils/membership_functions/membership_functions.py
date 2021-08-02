@@ -182,7 +182,7 @@ def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max
     :param max_value: maximum value of gaussian functions, height
     :return: list of callable gaussian functions
     """
-    result = np.zeros(number_of_gausses)
+    result = np.zeros(number_of_gausses, dtype=type(gaussian))
     domain = end - start
     expected_values_in_domain_range = number_of_gausses - 2
     cross_points = expected_values_in_domain_range + 1
