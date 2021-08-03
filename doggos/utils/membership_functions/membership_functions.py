@@ -6,26 +6,17 @@ from typing import Callable, List
 
 
 def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float], float]:
-    """Gaussian membership function
+    """
+    Gaussian membership function.\n
+    Defines membership function of gaussian distribution shape.\n
+    Used to determine membership degree of crisp value to fuzzy set defined by this function.
 
-    Defines membership function of gaussian distribution shape
-    To be used to determine membership value of crisp number
-    to fuzzy set defined by this function.
+    :param mean: center of gaussian function, expected value
+    :param sigma: standard deviation of gaussian function
+    :param max_value: maximum value of membership function, height
+    :return: callable which calculates membership values for given input
 
-    Args:
-      mean:
-        Center of gaussian function, expected value.
-      sigma:
-        Standard deviation of gaussian function
-      max_value:
-        Maximum value of membership function, height.
-
-    Returns:
-      Callable[[float], float]
-      Callable which calculates membership values for given input.
-
-
-    Example usage:
+    Example:
       >>> gaussian_mf = gaussian(0.4, 0.15, 1)
       >>> membership_value = gaussian_mf(0.5)
     """
@@ -37,26 +28,17 @@ def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float
 
 
 def sigmoid(offset: float, magnitude: float) -> Callable[[float], float]:
-    """Sigmoid membership function
+    """
+    Sigmoid membership function.\n
+    Defines membership function of sigmoid shape.\n
+    Used to determine membership degree of crisp value to fuzzy set defined by this function.
 
-    Defines membership function of sigmoid shape
-    To be used to determine membership value of crisp number
-    to fuzzy set defined by this function.
+    :param offset: point on x-axis at which function has value equal to 0.5. Determines 'lean' of function
+    :param magnitude: defines width of sigmoidal region around offset. Sign of the value determines which side
+        of the function is open
+    :return: callable which calculates membership values for given input
 
-    Args:
-      offset:
-        Offset, bias is the center value of the sigmoid, where it has value of 0.5.
-        Determines 'lean' of function.
-      magnitude:
-        Defines width of sigmoidal region around offset. Sign of the value determines which side
-        of the function is open.
-
-    Returns:
-      Callable[[float], float]
-      Callable which calculates membership values for given input.
-
-
-    Example usage:
+    Example:
       >>> sigmoid_mf = sigmoid(0.5, -15)
       >>> membership_value = sigmoid_mf(0.2)
     """
@@ -68,28 +50,18 @@ def sigmoid(offset: float, magnitude: float) -> Callable[[float], float]:
 
 
 def triangular(l_end: float, center: float, r_end: float, max_value: float = 1) -> Callable[[float], float]:
-    """Triangular membership function
+    """
+    Triangular membership function.\n
+    Defines membership function of triangular shape.\n
+    Used to determine membership degree of crisp value to fuzzy set defined by this function.
 
-    Defines membership function of triangular shape
-    To be used to determine membership value of crisp number
-    to fuzzy set defined by this function.
+    :param l_end: left end, vertex of triangle, where value of function is equal to 0
+    :param center: top vertex of triangle, where value of function is equal to 1
+    :param r_end: right end, vertex of triangle, where value of function is equal to 0
+    :param max_value: maximum value of membership function, height
+    :return: callable which calculates membership values for given input
 
-    Args:
-      l_end:
-        Left end, vertex of triangle, where value of function is equal to 0.
-      center:
-        Top vertex of triangle, where value of function is equal to 1.
-      r_end:
-        Right end, vertex of triangle, where value of function is equal to 0.
-      max_value:
-        Maximum value of membership function, height.
-
-    Returns:
-      Callable[[float], float]
-      Callable which calculates membership values for given input.
-
-
-    Example usage:
+    Example:
       >>> triangle_mf = triangular(0.2, 0.3, 0.7)
       >>> membership_value - triangle_mf(0.6)
     """
@@ -103,32 +75,21 @@ def triangular(l_end: float, center: float, r_end: float, max_value: float = 1) 
     return output_mf
 
 
-def trapezoidal(l_end: float, l_center: float, r_center: float, r_end: float, max_value: float = 1) -> Callable[[float],
-                                                                                                                float]:
-    """Triangular membership function
+def trapezoidal(l_end: float, l_center: float, r_center: float, r_end: float, max_value: float = 1) \
+        -> Callable[[float], float]:
+    """
+    Trapezoidal membership function.\n
+    Defines membership function of trapezoidal shape.\n
+    Used to determine membership degree of crisp value to fuzzy set defined by this function.
 
-    Defines membership function of trapezoidal shape
-    To be used to determine membership value of crisp number
-    to fuzzy set defined by this function.
+    :param l_end: left end, vertex of trapezoid, where value of function is equal to 0
+    :param l_center: top left vertex of trapezoid, where value of function is equal to 1
+    :param r_center: top right vertex of trapezoid, where value of function is equal to 1
+    :param r_end: right end, vertex of trapezoid, where value of function is equal to 0
+    :param max_value: maximum value of membership function, height
+    :return: callable which calculates membership values for given input
 
-    Args:
-      l_end:
-        Left end, vertex of trapezoid, where value of function is equal to 0.
-      l_center:
-        Top left vertex of trapezoid, where value of function is equal to 1.
-      r_center:
-        Top right vertex of triangle, where value of function is equal to 1.
-      r_end:
-        Right end, vertex of trapezoid, where value of function is equal to 0.
-      max_value:
-        Maximum value of membership function, height.
-
-    Returns:
-      Callable[[float], float]
-      Callable which calculates membership values for given input.
-
-
-    Example usage:
+    Example:
       >>> trapezoid_mf = trapezoidal(0.2, 0.3, 0.6, 0.7)
       >>> membership_value = trapezoid_mf(0.4)
     """
@@ -143,26 +104,17 @@ def trapezoidal(l_end: float, l_center: float, r_center: float, r_end: float, ma
 
 
 def linear(a: float, b: float, max_value: float = 1) -> Callable[[float], float]:
-    """Linear membership function
+    """
+    Linear membership function.\n
+    Defines linear membership function.\n
+    Used to determine membership degree of crisp value to fuzzy set defined by this function.
 
-    Defines linear membership function.
-    To be used to determine membership value of crisp number
-    to fuzzy set defined by this function.
+    :param a: a factor in: y = ax + b
+    :param b: b factor in: y = ax + b
+    :param max_value: maximum value of membership function, height
+    :return: callable which calculates membership values for given input
 
-    Args:
-      a:
-        a factor in: y=ax + b
-      b:
-        b factor in: y=ax + b
-      max_value:
-        Maximum value of membership function, height.
-
-    Returns:
-      Callable[[float], float]
-      Callable which calculates membership values for given input.
-
-
-    Example usage:
+    Example:
       >>> linear_mf = linear(4, -1)
       >>> membership_value - linear_mf(0.6)
     """
@@ -176,7 +128,8 @@ def linear(a: float, b: float, max_value: float = 1) -> Callable[[float], float]
 def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max_value: float = 1.) -> List[Callable]:
     """
     Generates specified number of gaussian functions with equal
-    standard deviation distributed evenly across given domain.\n
+    standard deviation distributed evenly across given domain.
+
     :param number_of_gausses: number of gaussian functions to generate
     :param start: start of domain
     :param end: end of domain
@@ -203,6 +156,7 @@ def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max
 def calculate_sigma(first_mean: float, second_mean: float, max_value: float = 1.) -> float:
     """
     Calculates standard deviation using cross point between gaussian functions with given expected values.
+
     :param first_mean: expected value of the first gaussian function
     :param second_mean: expected value of the second gaussian function
     :param max_value: maximum value of gaussian functions, height

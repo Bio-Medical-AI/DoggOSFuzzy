@@ -15,7 +15,6 @@ from doggos.fuzzy_sets.type1_fuzzy_set import Type1FuzzySet
 class MamdaniInferenceSystem(InferenceSystem):
     """
     Class used to represent a mamdani inference system:
-
     https://www.mathworks.com/help/fuzzy/types-of-fuzzy-inference-systems.html
 
     Attributes
@@ -43,8 +42,9 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __init__(self, rule_base: Iterable[Rule]):
         """
-        Create mamdani inference system with given rule base
-        All rules should have the same consequent type and consequents should be defined on the same domain
+        Create mamdani inference system with given rule base.
+        All rules should have the same consequent type and consequents should be defined on the same domain.
+
         :param rule_base: fuzzy knowledge base used for inference
         """
         super().__init__(rule_base)
@@ -53,7 +53,8 @@ class MamdaniInferenceSystem(InferenceSystem):
     def infer(self, defuzzification_method: Callable, features: Dict[Clause, List[MembershipDegree]]) \
             -> Sequence[float] or float:
         """
-        Inferences output based on features of given object using chosen method
+        Inferences output based on features of given object using chosen method.
+
         :param defuzzification_method: 'KM', 'COG', 'LOM', 'MOM', 'SOM', 'MeOM', 'COS'
         :param features: dictionary of linguistic variables and their values
         :return: decision value
@@ -99,7 +100,8 @@ class MamdaniInferenceSystem(InferenceSystem):
     def __get_domain_and_consequents_memberships_for_it2(self, features: Dict[Clause, List[MembershipDegree]]) \
             -> Tuple[np.ndarray, List[np.ndarray], List[np.ndarray]]:
         """
-        Extracts domain and membership functions from rule base
+        Extracts domain and membership functions from rule base.
+
         :param features: dictionary of linguistic variables and their values
         :return: domain, lower membership functions and upper membership functions extracted from rule base
         """
@@ -116,7 +118,8 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __get_consequents_membership_functions(self, features: Dict[Clause, List[MembershipDegree]]) -> np.ndarray:
         """
-        Extracts rule outputs from rule base
+        Extracts rule outputs from rule base.
+
         :param features: dictionary of linguistic variables and their values
         :return: cut membership functions from rule base
         """
