@@ -46,7 +46,8 @@ class Domain:
 
     def __call__(self) -> Sequence[float]:
         """
-        Creates a sequence matching given range and precision
+        Creates a sequence matching given range and precision.
+
         :return: the domain as sequence of floats
         """
         return np.arange(self.min, self.max, self.precision)
@@ -87,7 +88,7 @@ class LinguisticVariable:
 
     def __init__(self, name: str, domain: Domain):
         """
-        Creates linguistic variable with given name and domain
+        Creates linguistic variable with given name and domain.
 
         :param name: name of the linguistic variable
         :param domain: domain 
@@ -100,7 +101,7 @@ class LinguisticVariable:
     @property
     def domain(self) -> Domain:
         """
-        Returns the domain
+        Returns the domain.
 
         :return: the domain of the linguistic variable
         """
@@ -109,7 +110,7 @@ class LinguisticVariable:
     @property
     def name(self) -> str:
         """
-        Returns the name
+        Returns the name.
 
         :return: the name of the linguistic variable
         """

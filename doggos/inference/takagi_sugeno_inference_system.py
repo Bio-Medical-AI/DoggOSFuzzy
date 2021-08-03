@@ -11,7 +11,6 @@ from doggos.knowledge.clause import Clause
 class TakagiSugenoInferenceSystem(InferenceSystem):
     """
     Class used to represent a takagi-sugeno inference system:
-
     https://www.mathworks.com/help/fuzzy/types-of-fuzzy-inference-systems.html
 
     Attributes
@@ -53,15 +52,15 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
               features: Dict[Clause, List[MembershipDegree]],
               measures: Dict[LinguisticVariable, List[float]]) -> Dict[LinguisticVariable, List[float]]:
         """
-        Inferences output based on features of given object and measured values of them, using chosen method
+        Inferences output based on features of given object and measured values of them, using chosen method.
 
         :param defuzzification_method: method of calculating inference system output.
-        Must match to the type of fuzzy sets used in rules and be callable, and takes two ndarrays as parameters.
-        Those arrays represent firing values of antecedents of all rules in _rule_base and outputs of their consequents
-        :param features: a dictionary of clauses and list of their membership values calculated for measures
-        :param measures: a dictionary of measures consisting of Linguistic variables, and list of measured float values
-        for them
-        :return: dictionary of linguistic variables and lists of floats that is output of whole inference system
+            Must match to the type of fuzzy sets used in rules and be callable, and takes two ndarrays as parameters.
+            Those arrays represent firing values of antecedents of all rules in _rule_base and outputs of their
+            consequents
+        :param features: a dictionary of clauses and membership values of measures
+        :param measures: a dictionary of linguistic variables and values measured for them
+        :return: dictionary of linguistic variables and corresponding outputs of inference system
         """
         if not isinstance(features, Dict):
             raise ValueError("Features must be dictionary")
