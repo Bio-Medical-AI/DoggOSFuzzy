@@ -34,14 +34,13 @@ class FuzzyDecisionTableGenerator:
     __features: List[LinguisticVariable]
     __features_clauses: Dict[str, List[Clause]]
 
-    def __init__(self, fuzzy_sets: Dict[str, Dict], X: pd.DataFrame, y: pd.Series):
+    def __init__(self, X: pd.DataFrame, y: pd.Series):
         """
         Create FuzzyDecisionTableGenerator with given fuzzy sets, data and target values\n
-        :param fuzzy_sets: fuzzy sets that are describing columns of given dataset
         :param X: data representing objects
         :param y: target values for corresponding objects
         """
-        self.__fuzzy_sets = fuzzy_sets
+        self.__fuzzy_sets = None
         self.__dataset = X
         for column in self.__dataset.columns:
             self.__dataset.rename({column: str(column)})
@@ -56,7 +55,7 @@ class FuzzyDecisionTableGenerator:
         Determines a name of a fuzzy set with the highest membership value for a given feature\n
         :param feature: a name of a feature for which to determine a name of the highest membership set
         :param crisp: a crisp value of the feature
-        :return: a name of a fuzzy set with the highest member value for a given feature
+        :return: a name of a fuzzy set with the highest membership value for a given feature
         """
         max_feature = ''
         max_value = -sys.maxsize
@@ -77,18 +76,20 @@ class FuzzyDecisionTableGenerator:
 
         for row, _ in self.__dataset.iterrows():
             for column in self.__dataset.columns:
-                if column is 'Decision':
+                if column == 'Decision':
                     fuzzy_dataset.at[row, column] = self.__dataset.at[row, column]
                 else:
                     fuzzy_dataset.at[row, column] = self.__get_highest_membership(column, self.__dataset.at[row, column])
 
         return fuzzy_dataset
 
-    def fuzzify(self) -> pd.DataFrame:
+    def fuzzify(self, fuzzy_sets: Dict[str, Dict]) -> pd.DataFrame:
         """
         Performs fuzzification on given dataset and returns fuzzified decision table\n
+        :param fuzzy_sets: fuzzy sets that are describing columns of given dataset
         :return: dataset with crisp values replaced by names of highest membership fuzzy sets
         """
+        self.__fuzzy_sets = fuzzy_sets
         for feature in self.__features:
             if feature.name != 'Decision':
                 self.__features_clauses[feature.name] = []

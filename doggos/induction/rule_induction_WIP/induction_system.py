@@ -19,13 +19,8 @@ class InductionSystem:
     def induce_rules(self, fuzzy_sets):
         self.decision_table_generator = FuzzyDecisionTableGenerator(fuzzy_sets, self.X, self.y)
         decision_table = self.decision_table_generator.fuzzify()
-        print('Decision table: \n', decision_table)
         self.inconsistencies_remover = InconsistenciesRemover(decision_table, self.feature_labels)
         consistent_decision_table, _ = self.inconsistencies_remover.remove_inconsistencies()
-        print('\nConsistent decision table: \n', consistent_decision_table)
         self.rule_builder = RuleBuilder(consistent_decision_table)
         rules, antecedents = self.rule_builder.induce_rules(fuzzy_sets)
-        for term_key in rules.keys():
-            print('Term ' + str(term_key) + ": \n" + rules[term_key].name)
-            print('Antecedent: \n', antecedents[term_key])
         return rules, antecedents
