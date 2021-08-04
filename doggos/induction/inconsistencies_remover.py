@@ -14,7 +14,10 @@ class InconsistenciesRemover:
         dataset containing possible inconsistencies
 
     __feature_labels: List[str]
-        labels of feature to consider for calculating identity
+        labels of feature to consider for calculating samples identity
+
+    __target_label: str
+        label of the target prediction value
 
     __clean_decisions: pd.DataFrame
         subset of dataset that is consistent
@@ -29,6 +32,7 @@ class InconsistenciesRemover:
     """
     __dataset: pd.DataFrame
     __feature_labels: List[str]
+    __target_label: str
     __clean_decisions: pd.DataFrame
     __lower_approx_for_decisions: Dict[int, int]
 
@@ -37,7 +41,8 @@ class InconsistenciesRemover:
         Creates InconsistenciesRemover for removing inconsistent samples from given dataset.
 
         :param dataset: dataset containing possible inconsistencies
-        :param feature_labels: labels of features to consider for calculating identity
+        :param feature_labels: labels of features to consider for calculating samples identity
+        :param target_label: label of the target prediction value
         """
         self.__dataset = dataset
         self.__feature_labels = feature_labels

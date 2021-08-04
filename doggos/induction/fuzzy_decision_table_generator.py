@@ -26,6 +26,9 @@ class FuzzyDecisionTableGenerator:
     __features_clauses: Dict[str, List[Clause]]
         combination of all possible clauses from given fuzzy sets and linguistic variables
 
+    __target_label: str
+        label of the target prediction value
+
     Methods
     --------------------------------------------
     fuzzify(self) -> pd.DataFrame:
@@ -35,6 +38,7 @@ class FuzzyDecisionTableGenerator:
     __dataset: pd.DataFrame
     __features: List[LinguisticVariable]
     __features_clauses: Dict[str, List[Clause]]
+    __target_label: str
 
     def __init__(self, X: pd.DataFrame, y: pd.Series, domain: Domain, target_label: str = 'Decision'):
         """
@@ -43,6 +47,7 @@ class FuzzyDecisionTableGenerator:
         :param X: data representing objects
         :param y: target values for corresponding objects
         :param domain: domain of dataset features
+        :param target_label: label of the target prediction value
         """
         self.__fuzzy_sets = None
         self.__dataset = X

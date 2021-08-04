@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple, Any
 
 import pandas as pd
 
@@ -6,25 +6,76 @@ from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.induction import FuzzyDecisionTableGenerator
 from doggos.induction.inconsistencies_remover import InconsistenciesRemover
 from doggos.induction.rule_builder import RuleBuilder
-from doggos.knowledge import Domain
+from doggos.knowledge import Domain, Term
 
 
 class InformationSystem:
+    """
+    Class for inducing rule antecedents from a dataset:
+    https://www.mdpi.com/2076-3417/11/8/3484 - 2.2.3. Rule Induction with Information Systems
+
+    Attributes
+    --------------------------------------------
+    __X: pd.DataFrame
+        data representing objects
+
+    __y: pd.Series
+        target values for corresponding objects
+
+    __feature_labels: List[str]
+        labels of features to consider for calculating samples identity
+
+    __decision_table_generator: FuzzyDecisionTableGenerator
+        class used to fuzzify dataset of crisp values into fuzzy decision table for rule induction system
+
+    __inconsistencies_remover: InconsistenciesRemover
+        class for removing inconsistencies from a decision table for rule induction
+
+    __rule_builder: RuleBuilder
+        class for constructing rules from a decision table
+
+    Methods
+    --------------------------------------------
+    induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]], domain: Domain):
+        performs rule induction from dataset using given fuzzy sets on given domain
+    """
+    __X: pd.DataFrame
+    __y: pd.Series
+    __feature_labels: List[str]
+    __decision_table_generator: FuzzyDecisionTableGenerator
+    __inconsistencies_remover: InconsistenciesRemover
+    __rule_builder: RuleBuilder
+
     def __init__(self, X: pd.DataFrame, y: pd.Series, feature_labels: List[str]):
-        self.X = X
-        self.y = y
-        self.feature_labels = feature_labels
-        self.decision_table_generator = None
-        self.inconsistencies_remover = None
-        self.rule_builder = None
+        """
+        Creates information system for rule induction.
 
-    def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]], domain: Domain):
-        self.decision_table_generator = FuzzyDecisionTableGenerator(self.X, self.y, domain)
-        decision_table = self.decision_table_generator.fuzzify(fuzzy_sets)
+        :param X: data representing objects
+        :param y: target values for corresponding objects
+        :param feature_labels: labels of features to consider for calculating samples identity
+        """
+        self.__X = X
+        self.__y = y
+        self.__feature_labels = feature_labels
+        self.__decision_table_generator = None
+        self.__inconsistencies_remover = None
+        self.__rule_builder = None
 
-        self.inconsistencies_remover = InconsistenciesRemover(decision_table, self.feature_labels)
-        consistent_decision_table = self.inconsistencies_remover.remove_inconsistencies()
+    def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]], domain: Domain) \
+            -> Tuple[Dict[Any, Term], Dict[Any, str]]:
+        """
+        Performs rule induction from dataset using given fuzzy sets on given domain.
 
-        self.rule_builder = RuleBuilder(consistent_decision_table)
-        rules, antecedents = self.rule_builder.induce_rules(fuzzy_sets)
-        return rules, antecedents
+        :param fuzzy_sets: dict of structure -> feature_names: fuzzy_set.name: FuzzySet
+        :param domain: domain on which features are defined
+        :return: terms for corresponding decisions and antecedents in string form
+        """
+        self.__decision_table_generator = FuzzyDecisionTableGenerator(self.__X, self.__y, domain)
+        decision_table = self.__decision_table_generator.fuzzify(fuzzy_sets)
+
+        self.__inconsistencies_remover = InconsistenciesRemover(decision_table, self.__feature_labels)
+        consistent_decision_table = self.__inconsistencies_remover.remove_inconsistencies()
+
+        self.__rule_builder = RuleBuilder(consistent_decision_table, domain)
+        terms, antecedents = self.__rule_builder.induce_rules(fuzzy_sets)
+        return terms, antecedents

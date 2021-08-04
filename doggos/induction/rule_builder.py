@@ -34,6 +34,9 @@ class RuleBuilder:
     __boolean_algebra: boolean.BooleanAlgebra
         standard boolean algebra for simplifying implicants
 
+    __target_label: str
+        label of the target prediction value
+
     Methods
     --------------------------------------------
     induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]]) -> Tuple[Dict[Any, Term], Dict[Any, str]]:
@@ -45,12 +48,15 @@ class RuleBuilder:
     __clauses: List[Clause]
     __terms: Dict[str, Term]
     __boolean_algebra: boolean.BooleanAlgebra
+    __target_label: str
 
     def __init__(self, dataset: pd.DataFrame, domain: Domain, target_label: str = 'Decision'):
         """
         Creates RuleBuilder for final step of rules induction from given dataset.
 
         :param dataset: dataset to induce rules from
+        :param domain: domain of dataset features
+        :param target_label: label of the target prediction value
         """
         self.__target_label = target_label
         self.__decision_rules = {}
