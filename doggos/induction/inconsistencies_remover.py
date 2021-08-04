@@ -16,7 +16,7 @@ class InconsistenciesRemover:
     __feature_labels: List[str]
         labels of feature to consider for calculating identity
 
-    __clean_decisions: int
+    __clean_decisions: pd.DataFrame
         subset of dataset that is consistent
 
     __lower_approx_for_decisions: Dict[int, int]
@@ -32,28 +32,29 @@ class InconsistenciesRemover:
     __clean_decisions: pd.DataFrame
     __lower_approx_for_decisions: Dict[int, int]
 
-    def __init__(self, dataset: pd.DataFrame, feature_labels: List[str]):
+    def __init__(self, dataset: pd.DataFrame, feature_labels: List[str], target_label: str = 'Decision'):
         """
-        Creates InconsistenciesRemover for removing inconsistent samples from given dataset\n
+        Creates InconsistenciesRemover for removing inconsistent samples from given dataset.
+
         :param dataset: dataset containing possible inconsistencies
-        :param feature_labels: labels of feature to consider for calculating identity
+        :param feature_labels: labels of features to consider for calculating identity
         """
         self.__dataset = dataset
         self.__feature_labels = feature_labels
+        self.__target_label = target_label
         self.__clean_decisions = None
         self.__lower_approx_for_decisions = {}
 
     def _find_conflicts(self) -> List[pd.Series]:
         """
-        Finds samples that are causing conflicts in dataset\n
+        Finds samples that are causing conflicts in dataset.
+
         :return: samples that are causing conflicts in dataset
         """
-        samples = self.__dataset.copy()
         columns = self.__feature_labels.copy()
-        columns.append('Decision')
-        samples_with_decisions = samples.groupby(columns, as_index=False).size().reset_index()
-        samples = self.__dataset.copy()
-        samples = samples.drop(columns='Decision')
+        columns.append(self.__target_label)
+        samples_with_decisions = self.__dataset.groupby(columns, as_index=False).size().reset_index()
+        samples = self.__dataset.drop(columns=self.__target_label)
         samples = samples.groupby(self.__feature_labels, as_index=False).size().reset_index()
         conflicts = []
         for _, sample in samples.iterrows():
@@ -64,9 +65,10 @@ class InconsistenciesRemover:
                 conflicts.append(sample)
         return conflicts
 
-    def _find_lower_approx(self, conflicts: pd.DataFrame) -> NoReturn:
+    def _find_lower_approx(self, conflicts: List[pd.Series]) -> NoReturn:
         """
-        Calculates lower approximation of sets consisting of samples with corresponding decision\n
+        Calculates lower approximation of sets consisting of samples with corresponding decision.
+
         :param conflicts: samples that are causing conflicts in dataset
         :return: NoReturn
         """
@@ -80,14 +82,15 @@ class InconsistenciesRemover:
         for index in indices_to_remove:
             self.__clean_decisions = self.__clean_decisions.drop(index=index, axis=0)
 
-        decisions = np.unique(self.__dataset['Decision'].values)
+        decisions = np.unique(self.__dataset[self.__target_label].values)
         for decision in decisions:
             self.__lower_approx_for_decisions[decision] = self.__clean_decisions.loc[
-                self.__clean_decisions['Decision'] == decision].values.shape[0]
+                self.__clean_decisions[self.__target_label] == decision].values.shape[0]
 
-    def _solve_conflicts(self, conflicts: pd.DataFrame) -> NoReturn:
+    def _solve_conflicts(self, conflicts: List[pd.Series]) -> NoReturn:
         """
-        Changes decisions for conflicting rows to those occurring more often\n
+        Changes decisions for conflicting rows to those occurring more often.
+
         :param conflicts: sets of features that cause conflicts
         :return: NoReturn
         """
@@ -105,21 +108,22 @@ class InconsistenciesRemover:
 
         for rows_to_solve in conflicting_rows:
             rows_to_solve = rows_to_solve.reset_index()
-            decisions = np.unique(rows_to_solve['Decision'])
+            decisions = np.unique(rows_to_solve[self.__target_label])
             highest_quality = None
             most_occurrences = -1
             for decision in decisions:
                 if self.__lower_approx_for_decisions[decision] > most_occurrences:
                     most_occurrences = self.__lower_approx_for_decisions[decision]
                     highest_quality = decision
-            idx_to_preserve = np.where(rows_to_solve['Decision'] == highest_quality)[0]
+            idx_to_preserve = np.where(rows_to_solve[self.__target_label] == highest_quality)[0]
             rows_to_solve = rows_to_solve.loc[idx_to_preserve, rows_to_solve.columns]
             self.__clean_decisions = self.__clean_decisions.append(rows_to_solve)
             self.__clean_decisions = self.__clean_decisions.reset_index().drop(columns=['level_0', 'index'])
 
     def remove_inconsistencies(self) -> pd.DataFrame:
         """
-        Removes inconsistencies from given dataset by applying lower approximation precision analysis\n
+        Removes inconsistencies from given dataset by applying lower approximation precision analysis.
+
         :return: decision table without inconsistencies and count of changed decisions
         """
         conflicts = self._find_conflicts()

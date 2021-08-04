@@ -2,6 +2,8 @@ import sys
 
 import pandas as pd
 from typing import Dict, List
+
+from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge import Clause, LinguisticVariable, Domain
 
 
@@ -34,7 +36,7 @@ class FuzzyDecisionTableGenerator:
     __features: List[LinguisticVariable]
     __features_clauses: Dict[str, List[Clause]]
 
-    def __init__(self, X: pd.DataFrame, y: pd.Series, domain: Domain):
+    def __init__(self, X: pd.DataFrame, y: pd.Series, domain: Domain, target_label: str = 'Decision'):
         """
         Create FuzzyDecisionTableGenerator with given fuzzy sets, data and target values.
 
@@ -50,7 +52,8 @@ class FuzzyDecisionTableGenerator:
         self.__features = [LinguisticVariable(feature_name, domain)
                            for feature_name in self.__dataset.columns]
         self.__features_clauses = {feature_name: [] for feature_name in self.__dataset.columns}
-        self.__dataset['Decision'] = y
+        self.__target_label = target_label
+        self.__dataset[target_label] = y
 
     def __get_highest_membership(self, feature: str, crisp: float) -> str:
         """
@@ -76,18 +79,18 @@ class FuzzyDecisionTableGenerator:
         :return: dataset with crisp values replaced by names of highest membership fuzzy sets
         """
         fuzzy_dataset = pd.DataFrame(columns=self.__dataset.columns, dtype='string')
-        fuzzy_dataset['Decision'] = pd.to_numeric(fuzzy_dataset['Decision'], errors='ignore')
+        fuzzy_dataset[self.__target_label] = pd.to_numeric(fuzzy_dataset[self.__target_label], errors='ignore')
 
         for row, _ in self.__dataset.iterrows():
             for column in self.__dataset.columns:
-                if column == 'Decision':
+                if column == self.__target_label:
                     fuzzy_dataset.at[row, column] = self.__dataset.at[row, column]
                 else:
                     fuzzy_dataset.at[row, column] = self.__get_highest_membership(column, self.__dataset.at[row, column])
 
         return fuzzy_dataset
 
-    def fuzzify(self, fuzzy_sets: Dict[str, Dict]) -> pd.DataFrame:
+    def fuzzify(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]]) -> pd.DataFrame:
         """
         Performs fuzzification on given dataset and returns fuzzified decision table.
 
@@ -96,7 +99,7 @@ class FuzzyDecisionTableGenerator:
         """
         self.__fuzzy_sets = fuzzy_sets
         for feature in self.__features:
-            if feature.name != 'Decision':
+            if feature.name != self.__target_label:
                 self.__features_clauses[feature.name] = []
                 for key in self.__fuzzy_sets[feature.name].keys():
                     self.__features_clauses[feature.name].append(Clause(feature,
