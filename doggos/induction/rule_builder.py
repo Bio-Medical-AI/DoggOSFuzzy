@@ -42,29 +42,34 @@ class RuleBuilder:
     __decision_rules: Dict[Any, Term]
     __dataset: pd.DataFrame
     __features: List[LinguisticVariable]
-    __terms: Dict[str, Term]
     __clauses: List[Clause]
+    __terms: Dict[str, Term]
     __boolean_algebra: boolean.BooleanAlgebra
 
-    def __init__(self, dataset: pd.DataFrame):
+    def __init__(self, dataset: pd.DataFrame, domain: Domain, target_label: str = 'Decision'):
         """
-        Creates RuleBuilder for final step of rules induction from given dataset\n
+        Creates RuleBuilder for final step of rules induction from given dataset.
+
         :param dataset: dataset to induce rules from
         """
+        self.__target_label = target_label
         self.__decision_rules = {}
         self.__dataset = dataset.reset_index().drop(columns=['index'])
+        for column in self.__dataset.columns:
+            self.__dataset.rename({column: str(column)})
         self.__features = []
         columns = list(dataset.columns)
-        columns.remove('Decision')
+        columns.remove(target_label)
         for feature in columns:
-            self.__features.append(LinguisticVariable(str(feature), Domain(0, 1.001, 0.001)))
+            self.__features.append(LinguisticVariable(feature, domain))
         self.__terms = {}
         self.__clauses = []
         self.__boolean_algebra = boolean.BooleanAlgebra()
 
     def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]]) -> Tuple[Dict[Any, Term], Dict[Any, str]]:
         """
-        Induces rules from dataset with given fuzzy sets\n
+        Induces rules from dataset with given fuzzy sets.
+
         :param fuzzy_sets: dictionary of fuzzy sets for dataset features
         :return: rules as aggregated terms and as strings
         """
@@ -76,10 +81,10 @@ class RuleBuilder:
                 self.__clauses.append(clause)
         differences = self.__get_differences(self.__dataset)
 
-        decisions = np.unique(self.__dataset['Decision'])
+        decisions = np.unique(self.__dataset[self.__target_label])
         rows_with_decisions = {}
         for decision in decisions:
-            indices = np.where(self.__dataset['Decision'].values == decision)[0]
+            indices = np.where(self.__dataset[self.__target_label].values == decision)[0]
             idx_rows = [(index, self.__dataset.loc[index, self.__dataset.columns]) for index in indices]
             rows_with_decisions[decision] = idx_rows
 
@@ -93,7 +98,8 @@ class RuleBuilder:
 
     def __build_rules(self, differences: np.ndarray, idx_rows: List[Tuple[int, pd.Series]]) -> Tuple[Term, str]:
         """
-        Builds rule from given samples and discernibility matrix\n
+        Builds rule from given samples and discernibility matrix.
+
         :param differences: discernibility matrix for given dataset
         :param idx_rows: samples with corresponding indices for which to induce rule
         :return: term with aggregated firing function and string form of antecedent
@@ -135,7 +141,8 @@ class RuleBuilder:
 
     def __get_implicants(self, differences: np.ndarray, row: pd.Series, index: int) -> List[List[str]]:
         """
-        Produces all possible sets of alternatives or given sample from dataset\n
+        Produces all possible sets of alternatives or given sample from dataset.
+
         :param differences: discernibility matrix for given dataset
         :param row: sample from dataset for which to produce implicants
         :param index: index of the sample in dataset
@@ -167,7 +174,8 @@ class RuleBuilder:
 
     def __get_differences(self, dataset: pd.DataFrame) -> np.ndarray:
         """
-        Creates discernibility matrix for given dataset\n
+        Creates discernibility matrix for given dataset.
+
         :param dataset: dataset of NxD shape
         :return: discernibility matrix of NxN shape and dtype=set
         """
@@ -177,10 +185,11 @@ class RuleBuilder:
             for j, j_row in dataset.iterrows():
                 if i != j:
                     attributes = dataset.columns
-                    if i_row['Decision'] == j_row['Decision']:
+                    if i_row[self.__target_label] == j_row[self.__target_label]:
                         differences[i][j] = {}
                     else:
-                        difference = {attr for attr in attributes if attr != 'Decision' and i_row[attr] != j_row[attr]}
+                        difference = {attr for attr in attributes
+                                      if attr != self.__target_label and i_row[attr] != j_row[attr]}
                         differences[i][j] = difference
                 else:
                     differences[i][j] = {}
@@ -198,4 +207,3 @@ class RuleBuilder:
     @features.setter
     def features(self, features):
         self.__features = features
-
