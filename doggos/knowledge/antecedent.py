@@ -10,12 +10,10 @@ class Antecedent(ABC):
     """
     Base class for representing an antecedent:
     https://en.wikipedia.org/wiki/Fuzzy_set
-    
     """
-
     def __init__(self, algebra: Algebra):
         if not isinstance(algebra, Algebra):
-            raise TypeError('algebra must be an Algebra type')
+            raise TypeError('Algebra must be of Algebra type')
         self.__algebra = algebra
 
     @property
@@ -26,7 +24,8 @@ class Antecedent(ABC):
     @property
     def algebra(self) -> Algebra:
         """
-        Getter of the algebra
+        Getter of the algebra.
+
         :return: algebra
         """
         return self.__algebra

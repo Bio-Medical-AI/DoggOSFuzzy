@@ -57,7 +57,8 @@ def center_of_sums(domain: np.ndarray, membership_functions: List[np.ndarray]) -
 
 def karnik_mendel(lmfs: List[np.ndarray], umfs: List[np.ndarray], domain: np.ndarray) -> float:
     """
-    Karnik-Mendel algorithm for interval type II fuzzy sets
+    Karnik-Mendel algorithm for interval type II fuzzy sets.
+
     :param lmfs: lower membership functions
     :param umfs: upper membership functions
     :param domain: universe on which rule consequents are defined
@@ -154,11 +155,12 @@ def trim_intervals(intervals):
 
 def __find_y(partial_find_c_minute: partial, domain: np.ndarray, thetas: np.ndarray) -> float:
     """
-    Finds decision factor for specified part of algorithm
+    Finds decision factor for specified part of algorithm.
+
     :param partial_find_c_minute: _find_c_minute function with filled under_k_mf and over_k_mf arguments
     :param domain: universe on which rule consequents are defined
     :param thetas: weights for weighted average: (lmf + umf) / 2
-    :return: Decision factor for specified part of algorithm
+    :return: decision factor for specified part of algorithm
     """
     c_prim = np.average(domain, weights=thetas)
     c_minute = partial_find_c_minute(c=c_prim, domain=domain)
@@ -171,7 +173,8 @@ def __find_y(partial_find_c_minute: partial, domain: np.ndarray, thetas: np.ndar
 def __find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
                     domain: np.ndarray) -> float:
     """
-    Finds weights and average for combined membership functions
+    Finds weights and average for combined membership functions.
+
     :param c: weighted average of domain values with previously defined thetas as weights
     :param under_k_mf: takes elements of under_k_mf with indices <= k as weights
     :param over_k_mf: takes elements of over_k_mf with indices >= k+1 as weights
@@ -188,7 +191,8 @@ def __find_c_minute(c: float, under_k_mf: np.ndarray, over_k_mf: np.ndarray,
 
 def __find_k(c: float, domain: np.ndarray) -> int:
     """
-    Finds index for weighted average in given domain
+    Finds index for weighted average in given domain.
+
     :param c: weighted average of combined membership functions
     :param domain: universe on which rule consequents are defined
     :return: index for weighted average in given domain
@@ -199,12 +203,11 @@ def __find_k(c: float, domain: np.ndarray) -> int:
 def weighted_average(firings: np.ndarray,
                      outputs: np.ndarray) -> float:
     """
-    Method of calculating output of Takagi-Sugeno inference system for fuzzy sets of type 1
-    Used for fuzzy sets of type 1.
+    Calculates output of Takagi-Sugeno inference system for type 1 fuzzy sets.
 
     :param firings: firings of rules
     :param outputs: outputs of rules
-    :return: float that is weighted average of all outputs with firings as their weights
+    :return: weighted average of all outputs with firings as their weights
     """
     return np.average(outputs, weights=firings + 1e-10)
 
@@ -213,14 +216,13 @@ def takagi_sugeno_karnik_mendel(firings: np.ndarray,
                                 outputs: np.ndarray,
                                 step: float = 0.001) -> float:
     """
-    Method of calculating output of Takagi-Sugeno inference system using Karnik-Mendel algorithm.
-    Used for fuzzy sets of type 2.
-
+    Calculates output of Takagi-Sugeno inference system using Karnik-Mendel algorithm.
+    Used for interval type 2 fuzzy sets.
 
     :param firings: firings of rules
     :param outputs: outputs of rules
-    :param step: size of step used in Karnik-Mendel algorithm
-    :return: float that is output of whole inference system
+    :param step: step used in Karnik-Mendel algorithm
+    :return: output of inference system
     """
     outputs = outputs.reshape((-1, 1))
     outputs_of_rules = np.concatenate((outputs, firings), axis=1)
@@ -261,12 +263,13 @@ def calculate_membership(x: float,
                          outputs_of_rules: np.ndarray) -> float:
     """
     Calculates values of lower membership function and upper membership function for given element of domain,
-    basing on outputs of the rules
+    based on outputs of rules.
 
-    :param x: value from domain for which values are calculated
-    :param outputs_of_rules: ndarray with shape nx2, where n is number of records, where first column contains elements
-    of domain sorted ascending and second one contains elements from their codomain. All elements are floats.
-    :return: returns value of both lower membership function and upper membership function for given x
+    :param x: element of domain for which values are calculated
+    :param outputs_of_rules: ndarray of Nx2 shape, dtype = float, where N is number of records. First column contains
+        elements of domain sorted in ascending order and second contains elements from their codomain.
+
+    :return: lower and upper membership values for given x
     """
     if len(outputs_of_rules) == 1:
         if x == outputs_of_rules[0][0]:
@@ -285,7 +288,8 @@ def calculate_membership(x: float,
 
 def __membership_func_union(mfs: List[np.ndarray]) -> np.ndarray:
     """
-    Performs merge of given membership functions by choosing maximum of respective values
+    Performs merge of given membership functions by choosing maximum of respective values.
+
     :param mfs: membership functions to unify
     :return: unified membership functions
     """
