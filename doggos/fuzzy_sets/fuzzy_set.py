@@ -8,12 +8,12 @@ from matplotlib import colors
 
 MembershipDegree = NewType('MembershipDegree', np.ndarray)
 """
-MembershipDegree is a type hint for membership degree of some value to a certain fuzzy set. Membership degree type
-varies depending on type of fuzzy set used. Therefore we use one type hint for all types for fuzzy sets, so treat it
-only as a hint, its not a type.
-E.g.:
-For type one fuzzy set membership degree is a float.
-For type two fuzzy set membership degree is a Tuple[float, float]
+MembershipDegree is a type hint for membership degree of some crisp value to a certain fuzzy set.\n 
+Membership degree type varies depending on type of fuzzy set used.\n
+Therefore we use one type hint for all types for fuzzy sets, so treat it only as a hint, its not a type.\n
+E.g.:\n
+For type one fuzzy set membership degree is a float.\n
+For type two fuzzy set membership degree is a Tuple[float, float]\n
 For other types of fuzzy sets is a membership degree defined by user.
 """
 

@@ -11,37 +11,50 @@ class Term(Antecedent):
     """
     Class representing an antecedent with recursive firing value computation:
     https://en.wikipedia.org/wiki/Fuzzy_set
+
     Attributes
     --------------------------------------------
-    __clause : Clause
-        clause which is stored in antecedent
     __algebra : Algebra
         algebra provides t-norm and s-norm
+
     Methods
     --------------------------------------------
     def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]
         returns a firing value of the antecedent
+
     Examples
     --------------------------------------------
     TODO
     """
 
-    def __init__(self, algebra: Algebra, clause: Clause = None):
+    def __init__(self, algebra: Algebra, clause: Clause = None, name: str = None):
         """
         Creates Term object with given algebra and clause.
+
         :param algebra: algebra provides t-norm and s-norm
         :param clause: provides a linguistic variable with corresponding fuzzy set
+        :param name: name of the term
         """
         super().__init__(algebra)
+
         if not clause:
             self.__fire = None
+            if name is None:
+                self.name = ''
+            else:
+                self.name = name
         else:
+            if name is None:
+                self.name = clause.linguistic_variable.name + '_' + clause.gradation_adjective
+            else:
+                self.name = name
             self.__fire = lambda dict_: dict_[clause]
 
     @property
     def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
         """
-        Returns the firing function
+        Returns the firing function.
+
         :return: firing function
         """
         return self.__fire
@@ -49,27 +62,30 @@ class Term(Antecedent):
     @fire.setter
     def fire(self, fire: Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]):
         """
-        Sets new firing function to the antecedent
+        Sets new firing function to the antecedent.
+
         :param fire: firing function
         """
         self.__fire = fire
 
-    def __and__(self, term: Term) -> Term:
+    def __and__(self, other: Term) -> Term:
         """
         Creates new antecedent object and sets new firing function which uses t-norm.
-        :param term: other term
+
+        :param other: other term
         :return: term
         """
-        new_term = self.__class__(self.algebra)
-        new_term.fire = lambda dict_: self.algebra.t_norm(self.fire(dict_), term.fire(dict_))
+        new_term = self.__class__(self.algebra, name=self.name + ' & ' + other.name)
+        new_term.fire = lambda dict_: self.algebra.t_norm(self.fire(dict_), other.fire(dict_))
         return new_term
 
-    def __or__(self, term: Term) -> Term:
+    def __or__(self, other: Term) -> Term:
         """
         Creates new antecedent object and sets new firing function which uses s-norm.
-        :param term: other term
+
+        :param other: other term
         :return: term
         """
-        new_term = self.__class__(self.algebra)
-        new_term.fire = lambda dict_: self.algebra.s_norm(self.fire(dict_), term.fire(dict_))
+        new_term = self.__class__(self.algebra, name=self.name + ' | ' + other.name)
+        new_term.fire = lambda dict_: self.algebra.s_norm(self.fire(dict_), other.fire(dict_))
         return new_term

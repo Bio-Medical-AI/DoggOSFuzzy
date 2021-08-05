@@ -1,1 +1,2 @@
 from doggos.induction.information_system import InformationSystem
+from doggos.induction.fuzzy_decision_table_generator import FuzzyDecisionTableGenerator

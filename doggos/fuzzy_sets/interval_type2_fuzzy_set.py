@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Callable, Iterable, NoReturn, Sequence, AnyStr, Tuple
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 
@@ -48,12 +47,13 @@ class IntervalType2FuzzySet(FuzzySet):
                  lower_membership_function: Callable[[float], float],
                  upper_membership_function: Callable[[float], float]):
         """
-        Create interval type II fuzzy set with given lower membership function and upper membership function.
-        Both functions should return values from range [0, 1].
-        IMPORTANT:
-        Lower membership function should return lower respective values.
+        Create interval type II fuzzy set with given lower membership function and upper membership function.\n
+        Both functions should return values from range [0, 1].\n
+        IMPORTANT:\n
+        Lower membership function should always return lower respective values than upper membership function.\n
         This is not validated in constructor, but it will raise an exception if you try to call a fuzzy set with
         incorrect functions.
+
         :param upper_membership_function: upper membership function of a set
         :param lower_membership_function: lower membership function of a set
         """
@@ -64,8 +64,8 @@ class IntervalType2FuzzySet(FuzzySet):
 
     def __call__(self, x: float or Iterable[float]) -> np.ndarray:
         """
-        Calculate the degree of belonging (lower_membership, upper_membership),
-        raises an exception if lower_membership > upper_membership
+        Calculate a membership degree (lower_membership, upper_membership),
+        raises an exception if lower_membership > upper_membership.
 
         :param x: element of domain
         :return: membership degree of an element as tuple (lmf(x), umf(x))
@@ -78,7 +78,8 @@ class IntervalType2FuzzySet(FuzzySet):
     @property
     def upper_membership_function(self) -> Callable[[float], float]:
         """
-        Getter of the upper membership function
+        Getter of the upper membership function.
+
         :return: upper membership function
         """
         return self.__upper_membership_function
@@ -86,7 +87,8 @@ class IntervalType2FuzzySet(FuzzySet):
     @upper_membership_function.setter
     def upper_membership_function(self, new_upper_membership_function: Callable[[float], float]) -> NoReturn:
         """
-        Setter of the upper membership function
+        Setter of the upper membership function.
+
         :param new_upper_membership_function: new upper membership function, must be callable
         :return: NoReturn
         """
@@ -97,7 +99,8 @@ class IntervalType2FuzzySet(FuzzySet):
     @property
     def lower_membership_function(self) -> Callable[[float], float]:
         """
-        Getter of the lower membership function
+        Getter of the lower membership function.
+
         :return: lower membership function
         """
         return self.__lower_membership_function
@@ -105,7 +108,8 @@ class IntervalType2FuzzySet(FuzzySet):
     @lower_membership_function.setter
     def lower_membership_function(self, new_lower_membership_function: Callable[[float], float]) -> NoReturn:
         """
-        Setter of the lower membership function
+        Setter of the lower membership function.
+
         :param new_lower_membership_function: new lower membership function, must be callable
         :return: NoReturn
         """

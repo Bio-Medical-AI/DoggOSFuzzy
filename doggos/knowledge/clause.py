@@ -17,8 +17,10 @@ class Clause:
     __linguistic_variable : LinguisticVariable
         linguistic variable, provides a name for a feature
         and determines the domain of a fuzzy set
+
     __gradation_adjective : str
         gradation adjective, string representation of belonging level
+
     __fuzzy_set : FuzzySet
         fuzzy set provides its membership function
         
@@ -35,7 +37,6 @@ class Clause:
     >>> clause = Clause(ling_var, 'Medium', f_set)
     >>> clause.get_value(2)
     0.1
-    
     """
 
     __linguistic_variable: LinguisticVariable
@@ -43,7 +44,7 @@ class Clause:
     __fuzzy_set: FuzzySet
 
     def __init__(self, linguistic_variable: LinguisticVariable, gradation_adjective: str,
-                 fuzzy_set: FuzzySet) -> object:
+                 fuzzy_set: FuzzySet):
         """
         Creates clause with given linguistic variable, gradation adjective and fuzzy set.
 
@@ -64,25 +65,28 @@ class Clause:
 
     def get_value(self, x: Iterable[float] or float) -> MembershipDegree or Iterable[MembershipDegree]:
         """
-        returns a value representing membership degree
-        :param x: degree of belonging
+        Returns a value representing membership degree.
+
+        :param x: element of domain
+        :return: membership degree
         """
         index = self._find_index(x)
         return np.take(self.__values, index, axis=-1)
 
     def _calculate_values(self) -> Iterable[MembershipDegree]:
         """
-        Calculates values for every element in the domain
+        Calculates values for every element in the domain.
+
         :return: array of membership degrees
         """
         return self.__fuzzy_set(self.linguistic_variable.domain())
 
     def _find_index(self, x: Iterable[float] or float) -> int or Iterable[int]:
         """
-        Returns the index of given x in the values table 
+        Returns the index of given x in the values table.
         
-        :param x: value in the domain
-        :return: index
+        :param x: element of domain
+        :return: index of the element
         """
         if np.any(x > self.linguistic_variable.domain.max) or np.any(x < self.linguistic_variable.domain.min):
             raise ValueError('There is no such value in the domain')
@@ -155,7 +159,8 @@ class Clause:
     def values(self) -> Iterable[MembershipDegree]:
         """
         Getter of values of fuzzy set calculated on domain of provided LinguisticVariable.
-        :return: values of membership function on linguistic_variable's domain
+
+        :return: values of membership function on linguistic variable's domain
         """
         return self.__values
 
@@ -164,8 +169,9 @@ class Clause:
         """
         Sets new list of values. Should only be used by a Consequent which needs to cut fuzzy set of provided Clause
         or in similar case.
+
         :param values: values of membership function on linguistic_variable's domain
-        :return:
+        :return: NoReturn
         """
         if not isinstance(values, Iterable):
             raise TypeError("Values must be Iterable")

@@ -36,8 +36,9 @@ def validate_input(function):
 
 def expand_negation_argument(negation):
     """
-    Expand argument dimensions for negation.
+    Expand argument dimensions for negation.\n
     For example passing: [0.1, 0.2] allows to calculate negation and returns an array of size 2.
+
     :param negation: negation function, takes one argument
     :return: decorated function
     """
@@ -52,9 +53,10 @@ def expand_negation_argument(negation):
 
 class Algebra(ABC):
     """
-    Class that represents algebra for specific fuzzy logic.
-    For example: Lukasiewicz algebra, Gödel algebra.
+    Class that represents algebra for specific fuzzy logic.\n
+    For example: Lukasiewicz algebra, Gödel algebra.\n
     Each algebra contains following operations:
+
     - T-norm: generalized AND
     - S-norm: generalized OR
     - Negation

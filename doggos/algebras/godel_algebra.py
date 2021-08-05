@@ -10,7 +10,8 @@ class GodelAlgebra(Algebra):
     @validate_input
     def implication(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
-        Calculate the Gödel implication
+        Calculate the Gödel implication.
+
         :param a: first value
         :param b: second value
         :return: max(1 - a, b)
@@ -21,7 +22,8 @@ class GodelAlgebra(Algebra):
     @expand_negation_argument
     def negation(a: MembershipDegree) -> MembershipDegree:
         """
-        Calculate the Gödel negation
+        Calculate the Gödel negation.
+
         :param a: value
         :return: 1 - a
         """
@@ -31,7 +33,8 @@ class GodelAlgebra(Algebra):
     @validate_input
     def s_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
-        Calculate the Gödel S-norm
+        Calculate the Gödel S-norm.
+
         :param a: first value
         :param b: second value
         :return: max(a, b)
@@ -42,7 +45,8 @@ class GodelAlgebra(Algebra):
     @validate_input
     def t_norm(a: MembershipDegree, b: MembershipDegree) -> MembershipDegree:
         """
-        Calculate the Gödel T-norm
+        Calculate the Gödel T-norm.
+
         :param a: first value
         :param b: second value
         :return: min(a, b)
