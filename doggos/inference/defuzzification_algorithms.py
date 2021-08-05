@@ -1,9 +1,10 @@
+import math
+import numpy as np
+
+from typing import List
 from collections.abc import Iterable
 from functools import partial
-from typing import List
-import math
 
-import numpy as np
 
 def center_of_gravity(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
     cut = __membership_func_union(membership_functions)
@@ -69,6 +70,87 @@ def karnik_mendel(lmfs: List[np.ndarray], umfs: List[np.ndarray], domain: np.nda
     y_l = __find_y(partial(__find_c_minute, under_k_mf=upper_cut, over_k_mf=lower_cut), domain, thetas)
     y_r = __find_y(partial(__find_c_minute, under_k_mf=lower_cut, over_k_mf=upper_cut), domain, thetas)
     return (y_l + y_r) / 2
+
+
+def EIASC(intervals: np.ndarray):
+    """
+    EIASC algorithm
+
+    Parameters
+    ----------
+
+    intervals:
+        numpy (n, 4) array
+
+        Y = intervals[:, 0:2]
+
+        F = intervals[:, 2:4]
+
+
+    Returns
+    -------
+    Centroid of interval: float
+    """
+
+    # Left calculations
+    intervals = intervals[intervals[:, 0].argsort()]
+    intervals = trim_intervals(intervals)
+
+    if intervals is False:
+        return 0, 0
+
+    N = len(intervals)
+    b = np.sum(intervals[:, 2])
+
+    a_l = np.sum(intervals[:, 0] * intervals[:, 2])
+    b_l = b
+    L = 0
+    rows, cols = intervals.shape
+    if rows < 2:
+        return intervals[0, 0]
+
+    while True:
+        d = intervals[L, 3] - intervals[L, 2]
+        a_l += intervals[L, 0] * d
+        b_l += d
+        y_l = a_l / b_l
+        L += 1
+        if (y_l <= intervals[L, 0]) or math.isclose(y_l, intervals[L, 0]):
+            break
+            # Right calculations
+    intervals = intervals[intervals[:, 1].argsort()]
+    a_r = np.sum(intervals[:, 1] * intervals[:, 2])
+    b_r = b
+    R = N - 1
+    while True:
+        d = intervals[R, 3] - intervals[R, 2]
+        a_r += intervals[R, 1] * d
+        b_r += d
+        y_r = a_r / b_r
+        R -= 1
+        if (y_r >= intervals[R, 1]) or math.isclose(y_r, intervals[R, 1]):
+            break
+    return (y_l + y_r)/2
+
+
+def trim_intervals(intervals):
+    v = intervals[:, 3]
+    i, = np.where(v > 0)
+    if i.size == 0:
+        return False
+    else:
+        min1 = i[0]
+        max1 = i[-1] + 1
+
+        v = intervals[:, 2]
+        i, = np.where(v > 0)
+        if i.size == 0:
+            min2 = min1
+            max2 = max1
+        else:
+            min2 = i[0]
+            max2 = i[-1] + 1
+        return intervals[min(min1, min2):max(max1, max2), :]
 
 
 def __find_y(partial_find_c_minute: partial, domain: np.ndarray, thetas: np.ndarray) -> float:
@@ -156,7 +238,25 @@ def takagi_sugeno_karnik_mendel(firings: np.ndarray,
                                       np.concatenate((outputs_of_rules[:, 0].reshape(-1, 1),
                                                       outputs_of_rules[:, 2].reshape(-1, 1)),
                                                      axis=1))
+
     return karnik_mendel(lmf, umf, domain)
+
+
+def takagi_sugeno_EIASC(firings: np.ndarray,
+                                outputs: np.ndarray) -> float:
+    """
+        Method of calculating output of Takagi-Sugeno inference system using EIASC algorithm.
+        Used for fuzzy sets of type 2.
+
+
+        :param firings: firings of rules
+        :param outputs: outputs of rules
+        :return: float that is output of whole inference system
+        """
+    outputs = outputs.reshape((-1, 1))
+
+    intervals = np.hstack([outputs, outputs, np.array(firings)])
+    return EIASC(intervals)
 
 
 def calculate_membership(x: float,

@@ -27,17 +27,27 @@ class Term(Antecedent):
     TODO
     """
 
-    def __init__(self, algebra: Algebra, clause: Clause = None):
+    def __init__(self, algebra: Algebra, clause: Clause = None, name: str = None):
         """
         Creates Term object with given algebra and clause.
 
         :param algebra: algebra provides t-norm and s-norm
         :param clause: provides a linguistic variable with corresponding fuzzy set
+        :param name: name of the term
         """
         super().__init__(algebra)
+
         if not clause:
             self.__fire = None
+            if name is None:
+                self.name = ''
+            else:
+                self.name = name
         else:
+            if name is None:
+                self.name = clause.linguistic_variable.name + '_' + clause.gradation_adjective
+            else:
+                self.name = name
             self.__fire = lambda dict_: dict_[clause]
 
     @property
@@ -65,7 +75,7 @@ class Term(Antecedent):
         :param other: other term
         :return: term
         """
-        new_term = self.__class__(self.algebra)
+        new_term = self.__class__(self.algebra, name=self.name + ' & ' + other.name)
         new_term.fire = lambda dict_: self.algebra.t_norm(self.fire(dict_), other.fire(dict_))
         return new_term
 
@@ -76,6 +86,6 @@ class Term(Antecedent):
         :param other: other term
         :return: term
         """
-        new_term = self.__class__(self.algebra)
+        new_term = self.__class__(self.algebra, name=self.name + ' | ' + other.name)
         new_term.fire = lambda dict_: self.algebra.s_norm(self.fire(dict_), other.fire(dict_))
         return new_term
