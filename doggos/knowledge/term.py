@@ -27,7 +27,7 @@ class Term(Antecedent):
     TODO
     """
 
-    def __init__(self, algebra: Algebra, clause: Clause = None, name: str = 'term'):
+    def __init__(self, algebra: Algebra, clause: Clause = None, name: str = None):
         """
         Creates Term object with given algebra and clause.
 
@@ -39,9 +39,15 @@ class Term(Antecedent):
 
         if not clause:
             self.__fire = None
-            self.name = name
+            if name is None:
+                self.name = ''
+            else:
+                self.name = name
         else:
-            self.name = clause.linguistic_variable.name + '_' + clause.gradation_adjective
+            if name is None:
+                self.name = clause.linguistic_variable.name + '_' + clause.gradation_adjective
+            else:
+                self.name = name
             self.__fire = lambda dict_: dict_[clause]
 
     @property
