@@ -8,7 +8,7 @@ from doggos.utils.membership_functions import generate_equal_gausses,\
                                               generate_even_trapezoidals,\
                                               generate_full_trapezoidals
 
-from typing import Sequence, List, Tuple
+from typing import Sequence, List, Tuple, Iterable
 from copy import deepcopy, copy
 
 
@@ -78,7 +78,7 @@ def create_trapezoidal_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode
     return zip(lower_fuzzy_sets, upper_fuzzy_sets)
 
 
-def create_set_of_variables(ling_var_names: Sequence[str],
+def create_set_of_variables(ling_var_names: Iterable[str],
                             domain: Domain = Domain(0, 1.001, 0.001),
                             mf_type: str = 'gaussian',
                             n_mfs: int = 3,
@@ -89,6 +89,7 @@ def create_set_of_variables(ling_var_names: Sequence[str],
     """
     Creates a list of Linguistic Variables with provided names and domain. For each Linguistic Variable creates a number
     of Fuzzy Sets equal to n_mfs of type fuzzy_set_type. For each Linguistic Variable and Fuzzy Set creates a Clause.
+
     :param lower_scaling:
     :param mode:
     :param fuzzy_set_type:
