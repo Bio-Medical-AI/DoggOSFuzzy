@@ -1,6 +1,7 @@
 from doggos.fuzzy_sets import Type1FuzzySet
 from doggos.induction.inconsistencies_remover import InconsistenciesRemover
 from doggos.induction.rule_builder import RuleBuilder
+from doggos.knowledge import Domain
 from doggos.utils.membership_functions.membership_functions import generate_equal_gausses
 
 import numpy as np
@@ -104,8 +105,9 @@ print('Consistent decision table: \n', consistent_decision_table)
 # final_result['Decision'] = consistent_decision_table['Decision']
 # print('Final result: ', final_result)
 
-rule_builder = RuleBuilder(consistent_decision_table)
+rule_builder = RuleBuilder(consistent_decision_table, Domain(0, 1.001, 0.001))
 terms, antecedents = rule_builder.induce_rules(fuzzy_sets)
 print('Antecedents')
 for key in antecedents.keys():
+    print(terms[key].name)
     print(antecedents[key])

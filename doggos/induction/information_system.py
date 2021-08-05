@@ -3,7 +3,7 @@ from typing import List, Dict, Tuple, Any
 import pandas as pd
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
-from doggos.induction import FuzzyDecisionTableGenerator
+from doggos.induction.fuzzy_decision_table_generator import FuzzyDecisionTableGenerator
 from doggos.induction.inconsistencies_remover import InconsistenciesRemover
 from doggos.induction.rule_builder import RuleBuilder
 from doggos.knowledge import Domain, Term
@@ -11,16 +11,16 @@ from doggos.knowledge import Domain, Term
 
 class InformationSystem:
     """
-    Class for inducing rule antecedents from a dataset:
+    Class for inducing rules antecedents from a dataset:
     https://www.mdpi.com/2076-3417/11/8/3484 - 2.2.3. Rule Induction with Information Systems
 
     Attributes
     --------------------------------------------
     __X: pd.DataFrame
-        data representing objects
+        data representing samples
 
     __y: pd.Series
-        target values for corresponding objects
+        target values for corresponding samples
 
     __feature_labels: List[str]
         labels of features to consider for calculating samples identity
@@ -50,8 +50,8 @@ class InformationSystem:
         """
         Creates information system for rule induction.
 
-        :param X: data representing objects
-        :param y: target values for corresponding objects
+        :param X: data representing samples
+        :param y: target values for corresponding samples
         :param feature_labels: labels of features to consider for calculating samples identity
         """
         self.__X = X

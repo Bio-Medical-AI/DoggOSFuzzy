@@ -31,12 +31,15 @@ class Term(Antecedent):
         Creates Term object with given algebra and clause.
         :param algebra: algebra provides t-norm and s-norm
         :param clause: provides a linguistic variable with corresponding fuzzy set
+        :param name: name of the term
         """
         super().__init__(algebra)
-        self.name = name
+
         if not clause:
             self.__fire = None
+            self.name = name
         else:
+            self.name = clause.linguistic_variable.name + '_' + clause.gradation_adjective
             self.__fire = lambda dict_: dict_[clause]
 
     @property

@@ -11,10 +11,10 @@ class InconsistenciesRemover:
     Attributes
     --------------------------------------------
     __dataset: pd.DataFrame
-        dataset containing possible inconsistencies
+        fuzzified dataset containing possible inconsistencies
 
     __feature_labels: List[str]
-        labels of feature to consider for calculating samples identity
+        labels of features to consider for calculating samples identity
 
     __target_label: str
         label of the target prediction value
@@ -40,7 +40,7 @@ class InconsistenciesRemover:
         """
         Creates InconsistenciesRemover for removing inconsistent samples from given dataset.
 
-        :param dataset: dataset containing possible inconsistencies
+        :param dataset: fuzzified dataset containing possible inconsistencies
         :param feature_labels: labels of features to consider for calculating samples identity
         :param target_label: label of the target prediction value
         """
@@ -84,9 +84,7 @@ class InconsistenciesRemover:
                                 ).values.all(-1))[0]
             indices_to_remove.extend(indices)
 
-        for index in indices_to_remove:
-            self.__clean_decisions = self.__clean_decisions.drop(index=index, axis=0)
-
+        self.__clean_decisions = self.__clean_decisions.drop(index=indices_to_remove, axis=0)
         decisions = np.unique(self.__dataset[self.__target_label].values)
         for decision in decisions:
             self.__lower_approx_for_decisions[decision] = self.__clean_decisions.loc[

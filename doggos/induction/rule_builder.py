@@ -5,6 +5,7 @@ import numpy as np
 import boolean
 
 from doggos.algebras import GodelAlgebra
+from doggos.algebras.algebra import Algebra
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge import Clause, LinguisticVariable, Domain, Term
 
@@ -26,7 +27,7 @@ class RuleBuilder:
         columns of the dataset as LinguisticVariables
 
     __clauses: List[Clause]
-        clauses from feature names and corresponding datasets
+        clauses from features names and corresponding datasets
 
     __terms: Dict[str, Term]
         terms made from __clauses
@@ -72,14 +73,15 @@ class RuleBuilder:
         self.__clauses = []
         self.__boolean_algebra = boolean.BooleanAlgebra()
 
-    def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]]) -> Tuple[Dict[Any, Term], Dict[Any, str]]:
+    def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]],
+                     algebra: Algebra = GodelAlgebra()) -> Tuple[Dict[Any, Term], Dict[Any, str]]:
         """
         Induces rules from dataset with given fuzzy sets.
 
         :param fuzzy_sets: dictionary of fuzzy sets for dataset features
+        :param algebra: represents algebra for specific fuzzy logic
         :return: rules as aggregated terms and as strings
         """
-        algebra = GodelAlgebra()
         for feature in self.__features:
             for key in fuzzy_sets[feature.name]:
                 clause = Clause(feature, key, fuzzy_sets[feature.name][key])
@@ -88,17 +90,13 @@ class RuleBuilder:
         differences = self.__get_differences(self.__dataset)
 
         decisions = np.unique(self.__dataset[self.__target_label])
-        rows_with_decisions = {}
-        for decision in decisions:
-            indices = np.where(self.__dataset[self.__target_label].values == decision)[0]
-            idx_rows = [(index, self.__dataset.loc[index, self.__dataset.columns]) for index in indices]
-            rows_with_decisions[decision] = idx_rows
-
         decision_rules = {}
         string_antecedents = {}
         for decision in decisions:
-            idx_rows = rows_with_decisions[decision]
+            indices = np.where(self.__dataset[self.__target_label].values == decision)[0]
+            idx_rows = [(index, self.__dataset.loc[index, self.__dataset.columns]) for index in indices]
             decision_rules[decision], string_antecedents[decision] = self.__build_rules(differences, idx_rows)
+
         self.__decision_rules = decision_rules
         return self.__decision_rules, string_antecedents
 
