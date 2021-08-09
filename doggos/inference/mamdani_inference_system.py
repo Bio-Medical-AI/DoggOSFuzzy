@@ -87,7 +87,7 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __get_degrees(self, features: Dict[Clause, List[MembershipDegree]]) -> List[MembershipDegree]:
         values = np.array(list(features.values()))
-        return values[0].shape[1]
+        return values[0].shape[0]
 
     def __validate_consequents(self) -> NoReturn:
         for rule in self._rule_base:

@@ -79,3 +79,7 @@ class InformationSystem:
         self.__rule_builder = RuleBuilder(consistent_decision_table, domain)
         terms, antecedents = self.__rule_builder.induce_rules(fuzzy_sets)
         return terms, antecedents
+
+    @property
+    def rule_builder(self):
+        return self.__rule_builder

@@ -1,7 +1,8 @@
 import sys
 
 import pandas as pd
-from typing import Dict, List
+import numpy as np
+from typing import Dict, List, Iterable
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.knowledge import Clause, LinguisticVariable, Domain
@@ -71,10 +72,10 @@ class FuzzyDecisionTableGenerator:
         max_feature = ''
         max_value = -sys.maxsize
         for clause in self.__features_clauses[feature]:
-            if clause.get_value(crisp) > max_value:
+            clause_value = np.mean(clause.get_value(crisp))
+            if clause_value > max_value:
                 max_feature = clause.gradation_adjective
-                max_value = clause.get_value(crisp)
-
+                max_value = clause_value
         return max_feature
 
     def __fuzzify_dataset(self) -> pd.DataFrame:
@@ -91,7 +92,8 @@ class FuzzyDecisionTableGenerator:
                 if column == self.__target_label:
                     fuzzy_dataset.at[row, column] = self.__dataset.at[row, column]
                 else:
-                    fuzzy_dataset.at[row, column] = self.__get_highest_membership(column, self.__dataset.at[row, column])
+                    fuzzy_dataset.at[row, column] = self.__get_highest_membership(column,
+                                                                                  self.__dataset.at[row, column])
 
         return fuzzy_dataset
 
