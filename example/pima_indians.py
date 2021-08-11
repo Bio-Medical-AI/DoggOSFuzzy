@@ -1,13 +1,18 @@
 from typing import Dict, List
 
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.feature_selection import SelectKBest, SelectFpr, SelectFdr, SelectFwe, GenericUnivariateSelect, RFE, \
+    SelectFromModel, RFECV, SequentialFeatureSelector
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, NeighborhoodComponentsAnalysis
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
+from sklearn.decomposition import KernelPCA, FactorAnalysis, FastICA, NMF, PCA
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.svm import SVC
 
 from doggos.fuzzy_sets import Type1FuzzySet
@@ -66,28 +71,59 @@ class DataLoader:
         self.y_test_frame = pd.Series(self.y_test)
 
 
+class FeatureSelector:
+    def __init__(self, selector, **kwargs):
+        self.__selector_class = selector
+        self.__selector = selector(kwargs)
+
+    def fit_transform(self, X, y=None):
+        return self.__selector.fit_transform(X, y)
+
+    def set_params(self, **kwargs):
+        self.__selector = self.__selector_class(**kwargs)
+
+    def search(self, linear_params, linear_params_count, X, y=None):
+        transformations = []
+        for i in range(linear_params_count):
+            params = {}
+            for key in linear_params.keys():
+                params[key] = linear_params[key][i]
+            self.set_params(**params)
+            transformations.append(self.fit_transform(X, y))
+        return transformations
+
+
 class Evaluator:
-    def __init__(self):
-        self.feature_labels = []
+    def __init__(self, model, feature_labels: List[str], fuzzy_sets: Dict[str, Dict[str, FuzzySet]],
+                 consequents: List[Consequent], inference_system, defuzz_method,
+                 domain: Domain = Domain(0, 1.001, 0.001)):
+        self.model = model
+        self.feature_labels = feature_labels
+        self.fuzzy_sets = fuzzy_sets
+        self.consequents = consequents
+        self.inference_system = inference_system
+        self.defuzz_method = defuzz_method
+        self.domain = domain
         self.rules = []
         self.clauses = []
         self.antecedents = None
 
-    def fit(self, X: pd.DataFrame, y, feature_labels, fuzzy_sets: Dict[str, Dict[str, FuzzySet]],
-            domain: Domain = Domain(0, 1.001, 0.001)):
-        information_system = InformationSystem(X, y, feature_labels)
-        self.antecedents, str_antecedents = information_system.induce_rules(fuzzy_sets, domain)
+    def get_params(self, deep=True):
+        return self.__dict__
+
+    def fit(self, X: pd.DataFrame, y):
+        information_system = InformationSystem(X, y, self.feature_labels)
+        self.antecedents, str_antecedents = information_system.induce_rules(self.fuzzy_sets, self.domain)
         self.clauses = information_system.rule_builder.clauses
 
-    def construct_rules(self, consequents):
-        self.rules = [Rule(self.antecedents[decision], consequents[str(decision)])
+    def construct_rules(self):
+        self.rules = [Rule(self.antecedents[decision], self.consequents[str(decision)])
                       for decision in self.antecedents.keys()]
 
-    def predict(self, X: pd.DataFrame, inference_system: InferenceSystem.__class__,
-                defuzzification_method):
+    def predict(self, X: pd.DataFrame):
         fuzzified_dataset = fuzzify(X, self.clauses)
-        inference_system = inference_system(self.rules)
-        return inference_system.infer(defuzzification_method, fuzzified_dataset)
+        inference_system = self.inference_system(self.rules)
+        return inference_system.infer(self.defuzz_method, fuzzified_dataset)
 
 
 full_dataset = pd.read_csv("../data/diabetes.csv")
@@ -102,12 +138,66 @@ dataloader.prepare_data(transforms, test_size=0.2)
 
 mf_types = ['gaussian', 'triangular', 'trapezoidal']
 n_mfs = [3, 5, 7, 9, 11]
-fuzzy_set_types = ['it2']
+fuzzy_set_types = ['t1']
 con_labels = np.unique(dataloader.y)
 con_labels = [str(label) for label in con_labels]
 con_n_mfs = [2]
 con_mf_types = ['gaussian', 'triangular', 'trapezoidal']
 
+models = [LinearDiscriminantAnalysis, PCA, KernelPCA, NeighborhoodComponentsAnalysis, SelectKBest, SelectFpr, SelectFdr,
+          SelectFwe, GenericUnivariateSelect, RFECV, RFE, SelectFromModel, SequentialFeatureSelector, FactorAnalysis,
+          FastICA, NMF, SequentialFeatureSelector]
+
+models_demo = [LinearDiscriminantAnalysis, PCA, KernelPCA]
+
+linear_params = [
+    {}
+]
+
+feature_selector = FeatureSelector()
+
+model = RandomForestClassifier()
+consequents = None
+inference_system = MamdaniInferenceSystem
+defuzz_method = center_of_gravity
+kernels = ['linear', 'poly', 'rbf', 'cosine']
+algorithms = ['parallel', 'deflation']
+funcs = ['logcosh', 'exp', 'cube']
+inits = ['random', 'nndsvda', 'nndsvdar']
+losses = ['frobenius', 'kullback-leibler', 'itakura-saito']
+n_jobs = -1
+decomposer = NMF
+pcs = []
+for i, feature in enumerate(feature_labels):
+    pcs.append(str(i))
+
+# plt.scatter(dataloader.X_transformed[:, 0], dataloader.X_transformed[:, 1], c=dataloader.y)
+# plt.show()
+
+print(feature_labels)
+dataloader.X_transformed += 1e-07
+# for kernel in kernels:
+# for algorithm in algorithms:
+for init in inits:
+    for loss in losses:
+        #    for func in funcs:
+        # model = decomposer(n_components=2, kernel=kernel, n_jobs=n_jobs)
+        # model = decomposer(n_components=2, algorithm=algorithm, fun=func)
+        # model = decomposer(n_components=2)
+        model = decomposer(n_components=2, solver='mu', init=init, beta_loss=loss, max_iter=1000)
+        # print(kernel)
+
+        transformed = model.fit_transform(dataloader.X_transformed, dataloader.y)
+        # print(normalize(model.lambdas_.reshape(-1, 1)))
+        # print('Covariance', model.get_covariance())
+        # print('Components', model.components_)
+        # print('Noise', model.noise_variance_)
+        # plt.bar(pcs, model.lambdas_)
+        # plt.show()
+        plt.scatter(transformed[:, 0], transformed[:, 1], c=dataloader.y)
+        plt.show()
+
+"""
 for fuzzy_set_type in fuzzy_set_types:
     for n_mf in n_mfs:
         for mf_type in mf_types:
@@ -121,9 +211,8 @@ for fuzzy_set_type in fuzzy_set_types:
             elif fuzzy_set_type == 'it2':
                 defuzz_func = karnik_mendel
 
-            evaluator = Evaluator()
-            evaluator.fit(dataloader.X_train_frame, dataloader.y_train_frame,
-                          feature_labels, fuzzy_sets)
+            evaluator = Evaluator(model, feature_labels, fuzzy_sets, consequents, inference_system, defuzz_method)
+            evaluator.fit(dataloader.X_train_frame, dataloader.y_train_frame)
 
             for con_mf_type in con_mf_types:
                 for con_n_mf in con_n_mfs:
@@ -136,18 +225,21 @@ for fuzzy_set_type in fuzzy_set_types:
                     for clause in con_clauses:
                         target = clause.linguistic_variable.name
                         consequents[target] = MamdaniConsequent(clause)
+                    evaluator.consequents = consequents
+                    evaluator.construct_rules()
+                    values_train = evaluator.predict(dataloader.X_train_frame)
+                    values_test = evaluator.predict(dataloader.X_test_frame)
+                    plt.scatter(values_train, values_train, c=dataloader.y_train)
+                    plt.show()
 
-                    evaluator.construct_rules(consequents)
-                    values_train = evaluator.predict(dataloader.X_train_frame, MamdaniInferenceSystem,
-                                                     defuzz_func)
-                    values_test = evaluator.predict(dataloader.X_test_frame, MamdaniInferenceSystem,
-                                                    defuzz_func)
+                    plt.scatter(values_test, values_test, c=dataloader.y_test)
+                    plt.show()
+
                     values_train = values_train.reshape(-1, 1)
                     values_test = values_test.reshape(-1, 1)
 
-                    model = RandomForestClassifier()
-                    model.fit(values_train, dataloader.y_train)
-                    y_pred = model.predict(values_test)
+                    evaluator.model.fit(values_train, dataloader.y_train)
+                    y_pred = evaluator.model.predict(values_test)
 
                     acc = accuracy_score(dataloader.y_test, y_pred)
                     f1 = f1_score(dataloader.y_test, y_pred)
@@ -162,3 +254,4 @@ for fuzzy_set_type in fuzzy_set_types:
 
                     print('\nAccuracy: ', acc)
                     print('F1 Score: ', f1)
+"""
