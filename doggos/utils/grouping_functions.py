@@ -169,10 +169,11 @@ def create_set_of_variables(ling_var_names: Iterable[str],
     elif fuzzy_set_type == 't2':
         raise NotImplemented('Type 2 Fuzzy Sets are not yet implemented')
 
-    clauses = []
+    clauses = {}
     for var in ling_vars:
+        clauses[var.name] = {}
         for adj in fuzzy_sets[var.name].keys():
             fuzzy_set = fuzzy_sets[var.name][adj]
-            clauses.append(Clause(var, adj, fuzzy_set))
+            clauses[var.name][adj] = Clause(var, adj, fuzzy_set)
 
     return ling_vars, fuzzy_sets, clauses

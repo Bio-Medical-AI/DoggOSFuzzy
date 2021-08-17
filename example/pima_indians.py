@@ -1,19 +1,22 @@
-from typing import Dict, List
+from collections import defaultdict
+from typing import Dict, List, Any, Callable
 
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.feature_selection import SelectKBest, SelectFpr, SelectFdr, SelectFwe, GenericUnivariateSelect, RFE, \
+from sklearn.base import BaseEstimator
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis, QuadraticDiscriminantAnalysis
+from sklearn.feature_selection import GenericUnivariateSelect, RFE, \
     SelectFromModel, RFECV, SequentialFeatureSelector
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier, NeighborhoodComponentsAnalysis
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_validate, StratifiedKFold
+from sklearn.neighbors import NeighborhoodComponentsAnalysis, KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.decomposition import KernelPCA, FactorAnalysis, FastICA, NMF, PCA
 
+from pprint import pprint
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 from doggos.fuzzy_sets import Type1FuzzySet
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
@@ -82,9 +85,10 @@ class FeatureSelector:
     def set_params(self, **kwargs):
         self.__selector = self.__selector_class(**kwargs)
 
-    def search(self, linear_params, linear_params_count, X, y=None):
+    def search(self, linear_params, X, y=None):
         transformations = []
-        for i in range(linear_params_count):
+        params_count = len(list(linear_params.values())[0])
+        for i in range(params_count):
             params = {}
             for key in linear_params.keys():
                 params[key] = linear_params[key][i]
@@ -94,36 +98,124 @@ class FeatureSelector:
 
 
 class Evaluator:
-    def __init__(self, model, feature_labels: List[str], fuzzy_sets: Dict[str, Dict[str, FuzzySet]],
-                 consequents: List[Consequent], inference_system, defuzz_method,
-                 domain: Domain = Domain(0, 1.001, 0.001)):
+    def __init__(self,
+                 model: BaseEstimator = None,
+                 feature_labels: List[str] = None,
+                 consequent_labels: List[str] = None,
+                 fuzzy_sets: Dict[str, Dict[str, FuzzySet]] = None,
+                 clauses: Any = None,
+                 consequents: Any = None,
+                 inference_system: InferenceSystem.__class__ = None,
+                 defuzz_method: Callable = None,
+                 domain: Domain = Domain(0, 1.001, 0.001),
+                 fuzzy_set_type: str = None,
+                 n_mf: int = None,
+                 mf_type: str = None,
+                 con_mf_type: str = None,
+                 con_n_mf: int = None):
         self.model = model
         self.feature_labels = feature_labels
+        self.consequent_labels = consequent_labels
         self.fuzzy_sets = fuzzy_sets
-        self.consequents = consequents
         self.inference_system = inference_system
         self.defuzz_method = defuzz_method
         self.domain = domain
+        self.fuzzy_set_type = fuzzy_set_type
+        self.n_mf = n_mf
+        self.mf_type = mf_type
+        self.con_mf_type = con_mf_type
+        self.con_n_mf = con_n_mf
+        self.consequents = consequents
         self.rules = []
-        self.clauses = []
+        self.clauses = clauses
         self.antecedents = None
+        if fuzzy_sets is None and feature_labels is not None:
+            self.__create_fuzzy_variables(True, True)
 
     def get_params(self, deep=True):
-        return self.__dict__
+        param_names = ['model', 'feature_labels', 'consequent_labels', 'consequents', 'fuzzy_sets', 'clauses',
+                       'inference_system', 'defuzz_method', 'domain', 'fuzzy_set_type', 'n_mf', 'mf_type',
+                       'con_mf_type', 'con_n_mf']
+        out = dict()
+        for key in param_names:
+            value = getattr(self, key)
+            if deep and hasattr(value, 'get_params'):
+                deep_items = value.get_params().items()
+                out.update((key + '__' + k, val) for k, val in deep_items)
+            out[key] = value
+        return out
 
-    def fit(self, X: pd.DataFrame, y):
+    def set_params(self, **params):
+        if not params:
+            return self
+        valid_params = self.get_params(deep=True)
+
+        nested_params = defaultdict(dict)
+        for key, value in params.items():
+            key, delim, sub_key = key.partition('__')
+            if key not in valid_params:
+                raise ValueError('Invalid parameter %s for estimator %s. '
+                                 'Check the list of available parameters '
+                                 'with `estimator.get_params().keys()`.' %
+                                 (key, self))
+
+            if delim:
+                nested_params[key][sub_key] = value
+            else:
+                setattr(self, key, value)
+                valid_params[key] = value
+
+        for key, sub_params in nested_params.items():
+            valid_params[key].set_params(**sub_params)
+
+        if self.clauses is None:
+            self.__create_fuzzy_variables(True, True)
+        return self
+
+    def __create_fuzzy_variables(self, create_antecedent_features: bool, create_consequents: bool):
+        if create_antecedent_features:
+            _, fuzzy_sets_, clauses = create_set_of_variables(self.feature_labels,
+                                                              mf_type=self.mf_type,
+                                                              n_mfs=self.n_mf,
+                                                              fuzzy_set_type=self.fuzzy_set_type)
+            self.fuzzy_sets = fuzzy_sets_
+            self.clauses = clauses
+        if create_consequents:
+            _, _, con_clauses = create_set_of_variables(self.consequent_labels,
+                                                        mf_type=self.con_mf_type,
+                                                        n_mfs=self.con_n_mf,
+                                                        fuzzy_set_type=self.fuzzy_set_type)
+            self.consequents = {}
+            for label in self.consequent_labels:
+                clause = list(con_clauses[label].values())[0]
+                self.consequents[label] = MamdaniConsequent(clause)
+
+    def fit(self, X: pd.DataFrame, y: pd.Series):
         information_system = InformationSystem(X, y, self.feature_labels)
-        self.antecedents, str_antecedents = information_system.induce_rules(self.fuzzy_sets, self.domain)
-        self.clauses = information_system.rule_builder.clauses
-
-    def construct_rules(self):
+        self.antecedents, str_antecedents = information_system.induce_rules(self.fuzzy_sets, self.clauses)
         self.rules = [Rule(self.antecedents[decision], self.consequents[str(decision)])
                       for decision in self.antecedents.keys()]
+        fuzzified_dataset = fuzzify(X, self.clauses)
+        inference_system = self.inference_system(self.rules)
+        inference = inference_system.infer(self.defuzz_method, fuzzified_dataset)
+        self.model.fit(inference.reshape(-1, 1), y)
 
     def predict(self, X: pd.DataFrame):
         fuzzified_dataset = fuzzify(X, self.clauses)
         inference_system = self.inference_system(self.rules)
-        return inference_system.infer(self.defuzz_method, fuzzified_dataset)
+        inference = inference_system.infer(self.defuzz_method, fuzzified_dataset)
+        y_pred = self.model.predict(inference.reshape(-1, 1))
+        return y_pred
+
+
+def find_best_selector(models, linear_params, dataloader):
+    for model, params in zip(models, linear_params):
+        feature_selector = FeatureSelector(model)
+        X_projected = feature_selector.search(params, dataloader.X_transformed, dataloader.y)
+        for projected in X_projected:
+            plt.scatter(projected[:, 0], projected[:, 1], c=dataloader.y)
+            plt.title(str(model))
+            plt.show()
 
 
 full_dataset = pd.read_csv("../data/diabetes.csv")
@@ -135,123 +227,98 @@ y = full_dataset.values[:, -1]
 transforms = [normalize]
 dataloader = DataLoader(X, y, feature_labels, target_label)
 dataloader.prepare_data(transforms, test_size=0.2)
-
-mf_types = ['gaussian', 'triangular', 'trapezoidal']
-n_mfs = [3, 5, 7, 9, 11]
-fuzzy_set_types = ['t1']
-con_labels = np.unique(dataloader.y)
-con_labels = [str(label) for label in con_labels]
-con_n_mfs = [2]
-con_mf_types = ['gaussian', 'triangular', 'trapezoidal']
-
-models = [LinearDiscriminantAnalysis, PCA, KernelPCA, NeighborhoodComponentsAnalysis, SelectKBest, SelectFpr, SelectFdr,
-          SelectFwe, GenericUnivariateSelect, RFECV, RFE, SelectFromModel, SequentialFeatureSelector, FactorAnalysis,
-          FastICA, NMF, SequentialFeatureSelector]
-
-models_demo = [LinearDiscriminantAnalysis, PCA, KernelPCA]
+"""
+models = [PCA, KernelPCA, NeighborhoodComponentsAnalysis, GenericUnivariateSelect, RFECV, RFE, SelectFromModel,
+          SequentialFeatureSelector, FactorAnalysis]
 
 linear_params = [
-    {}
+    # PCA
+    {
+        'n_components': [2, 2, 2],
+        'svd_solver': ['full', 'arpack', 'randomized']
+    },
+    # KernelPCA
+    {
+        'kernel': ['linear', 'poly', 'rbf', 'cosine'],
+        'n_components': [2, 2, 2, 2]
+    },
+    # NCA
+    {
+        'init': ['pca', 'identity', 'random'],
+        'n_components': [2, 2, 2]
+    },
+    # GenericUnivariateSelect
+    {
+      'mode': ['k_best', 'fpr', 'fdr', 'fwe'],
+      'param': [2, 5e-2, 5e-2, 5e-2]
+    },
+    # RFECV
+    {
+        'estimator': [RandomForestClassifier(), ExtraTreesClassifier()],
+        'min_features_to_select': [2, 2],
+        'n_jobs': [-1, -1]
+    },
+    # RFE
+    {
+        'estimator': [RandomForestClassifier(), ExtraTreesClassifier()],
+        'n_features_to_select': [2, 2]
+    },
+    # SelectFromModel
+    {
+        'estimator': [RandomForestClassifier(), ExtraTreesClassifier()],
+        'threshold': [-np.inf, -np.inf],
+        'max_features': [2, 2]
+    },
+    # SequentialFeatureSelector
+    {
+        'estimator': [RandomForestClassifier(),  RandomForestClassifier(),
+                      ExtraTreesClassifier(), ExtraTreesClassifier()],
+        'n_features_to_select': [2, 2, 2, 2],
+        'direction': ['forward', 'backward', 'forward', 'backward'],
+        'n_jobs': [-1, -1, -1, -1]
+    },
+    # FactorAnalysis
+    {
+        'n_components': [2, 2, 2, 2],
+        'svd_method': ['lapack', 'randomized', 'lapack', 'randomized'],
+        'rotation': ['varimax', 'quartimax', 'quartimax', 'varimax']
+    }
 ]
 
-feature_selector = FeatureSelector()
+find_best_selector(models, linear_params, dataloader)
 
-model = RandomForestClassifier()
-consequents = None
-inference_system = MamdaniInferenceSystem
-defuzz_method = center_of_gravity
-kernels = ['linear', 'poly', 'rbf', 'cosine']
-algorithms = ['parallel', 'deflation']
-funcs = ['logcosh', 'exp', 'cube']
-inits = ['random', 'nndsvda', 'nndsvdar']
-losses = ['frobenius', 'kullback-leibler', 'itakura-saito']
-n_jobs = -1
-decomposer = NMF
-pcs = []
-for i, feature in enumerate(feature_labels):
-    pcs.append(str(i))
-
-# plt.scatter(dataloader.X_transformed[:, 0], dataloader.X_transformed[:, 1], c=dataloader.y)
-# plt.show()
-
-print(feature_labels)
-dataloader.X_transformed += 1e-07
-# for kernel in kernels:
-# for algorithm in algorithms:
-for init in inits:
-    for loss in losses:
-        #    for func in funcs:
-        # model = decomposer(n_components=2, kernel=kernel, n_jobs=n_jobs)
-        # model = decomposer(n_components=2, algorithm=algorithm, fun=func)
-        # model = decomposer(n_components=2)
-        model = decomposer(n_components=2, solver='mu', init=init, beta_loss=loss, max_iter=1000)
-        # print(kernel)
-
-        transformed = model.fit_transform(dataloader.X_transformed, dataloader.y)
-        # print(normalize(model.lambdas_.reshape(-1, 1)))
-        # print('Covariance', model.get_covariance())
-        # print('Components', model.components_)
-        # print('Noise', model.noise_variance_)
-        # plt.bar(pcs, model.lambdas_)
-        # plt.show()
-        plt.scatter(transformed[:, 0], transformed[:, 1], c=dataloader.y)
-        plt.show()
-
+# Probably Best Selectors for Pima Indians:
+# RFE, NCA
 """
-for fuzzy_set_type in fuzzy_set_types:
-    for n_mf in n_mfs:
-        for mf_type in mf_types:
-            features, fuzzy_sets, clauses = create_set_of_variables(feature_labels,
-                                                                    mf_type=mf_type,
-                                                                    n_mfs=n_mf,
-                                                                    fuzzy_set_type=fuzzy_set_type)
-            defuzz_func = None
-            if fuzzy_set_type == 't1':
-                defuzz_func = center_of_gravity
-            elif fuzzy_set_type == 'it2':
-                defuzz_func = karnik_mendel
+con_labels = np.unique(dataloader.y)
+con_labels = [str(label) for label in con_labels]
 
-            evaluator = Evaluator(model, feature_labels, fuzzy_sets, consequents, inference_system, defuzz_method)
-            evaluator.fit(dataloader.X_train_frame, dataloader.y_train_frame)
+grid_params = {
+    'model': [RandomForestClassifier(), KNeighborsClassifier(), DecisionTreeClassifier()],
+    'feature_labels': [feature_labels],
+    'consequent_labels': [con_labels],
+    'inference_system': [MamdaniInferenceSystem],
+    'defuzz_method': [center_of_gravity],
+    'domain': [Domain(0, 1.001, 0.001)],
+    'fuzzy_set_type': ['t1'],
+    'n_mf': [3, 5, 7, 9, 11],
+    'mf_type': ['gaussian', 'triangular', 'trapezoidal'],
+    'con_n_mf': [2],
+    'con_mf_type': ['gaussian', 'triangular', 'trapezoidal']
+}
 
-            for con_mf_type in con_mf_types:
-                for con_n_mf in con_n_mfs:
-                    con_features, con_fuzzy_sets, con_clauses = create_set_of_variables(con_labels,
-                                                                                        mf_type=con_mf_type,
-                                                                                        n_mfs=con_n_mf,
-                                                                                        fuzzy_set_type=fuzzy_set_type)
+evaluator = Evaluator()
+random_search = RandomizedSearchCV(evaluator, grid_params, n_iter=2, n_jobs=5,
+                                   cv=StratifiedKFold(n_splits=5, shuffle=True), verbose=5, random_state=42,
+                                   scoring='f1', error_score=1)
+random_search.fit(dataloader.X_train_frame, dataloader.y_train_frame)
+y_pred = random_search.predict(dataloader.X_test_frame)
 
-                    consequents = {}
-                    for clause in con_clauses:
-                        target = clause.linguistic_variable.name
-                        consequents[target] = MamdaniConsequent(clause)
-                    evaluator.consequents = consequents
-                    evaluator.construct_rules()
-                    values_train = evaluator.predict(dataloader.X_train_frame)
-                    values_test = evaluator.predict(dataloader.X_test_frame)
-                    plt.scatter(values_train, values_train, c=dataloader.y_train)
-                    plt.show()
+acc = accuracy_score(dataloader.y_test, y_pred)
+f1 = f1_score(dataloader.y_test, y_pred)
 
-                    plt.scatter(values_test, values_test, c=dataloader.y_test)
-                    plt.show()
+print('\nAccuracy: ', acc)
+print('F1 Score: ', f1)
 
-                    values_train = values_train.reshape(-1, 1)
-                    values_test = values_test.reshape(-1, 1)
-
-                    evaluator.model.fit(values_train, dataloader.y_train)
-                    y_pred = evaluator.model.predict(values_test)
-
-                    acc = accuracy_score(dataloader.y_test, y_pred)
-                    f1 = f1_score(dataloader.y_test, y_pred)
-
-                    print('\n', mf_type, n_mf, fuzzy_set_type, con_mf_type)
-                    print('Accuracy: ', acc)
-                    print('F1 Score: ', f1)
-
-                    preds = classify(values_test)
-                    acc = accuracy_score(dataloader.y_test, preds)
-                    f1 = f1_score(dataloader.y_test, preds)
-
-                    print('\nAccuracy: ', acc)
-                    print('F1 Score: ', f1)
-"""
+cv_results = pd.DataFrame(random_search.cv_results_)
+print(cv_results['f1'])

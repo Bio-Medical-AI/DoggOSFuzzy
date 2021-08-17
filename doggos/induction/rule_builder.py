@@ -51,7 +51,7 @@ class RuleBuilder:
     __boolean_algebra: boolean.BooleanAlgebra
     __target_label: str
 
-    def __init__(self, dataset: pd.DataFrame, domain: Domain, target_label: str = 'Decision'):
+    def __init__(self, dataset: pd.DataFrame, clauses, target_label: str = 'Decision'):
         """
         Creates RuleBuilder for final step of rules induction from given dataset.
 
@@ -60,17 +60,13 @@ class RuleBuilder:
         :param target_label: label of the target prediction value
         """
         self.__target_label = target_label
+        self.__clauses = clauses
         self.__decision_rules = {}
         self.__dataset = dataset.reset_index().drop(columns=['index'])
-        for column in self.__dataset.columns:
-            self.__dataset.rename({column: str(column)})
         self.__features = []
         columns = list(dataset.columns)
         columns.remove(target_label)
-        for feature in columns:
-            self.__features.append(LinguisticVariable(feature, domain))
         self.__terms = {}
-        self.__clauses = []
         self.__boolean_algebra = boolean.BooleanAlgebra()
 
     def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]],
@@ -82,11 +78,11 @@ class RuleBuilder:
         :param algebra: represents algebra for specific fuzzy logic
         :return: rules as aggregated terms and as strings
         """
-        for feature in self.__features:
-            for key in fuzzy_sets[feature.name]:
-                clause = Clause(feature, key, fuzzy_sets[feature.name][key])
-                self.__terms[f"{feature.name}_{key}"] = Term(algebra, clause)
-                self.__clauses.append(clause)
+        columns = list(self.__dataset.columns)
+        columns.remove(self.__target_label)
+        for feature in columns:
+            for key in fuzzy_sets[feature]:
+                self.__terms[f"{feature}_{key}"] = Term(algebra, self.__clauses[feature][key])
         differences = self.__get_differences(self.__dataset)
 
         decisions = np.unique(self.__dataset[self.__target_label])

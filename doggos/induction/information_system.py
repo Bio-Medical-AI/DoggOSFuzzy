@@ -61,7 +61,7 @@ class InformationSystem:
         self.__inconsistencies_remover = None
         self.__rule_builder = None
 
-    def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]], domain: Domain) \
+    def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]], clauses) \
             -> Tuple[Dict[Any, Term], Dict[Any, str]]:
         """
         Performs rule induction from dataset using given fuzzy sets on given domain.
@@ -70,13 +70,13 @@ class InformationSystem:
         :param domain: domain on which features are defined
         :return: terms for corresponding decisions and antecedents in string form
         """
-        self.__decision_table_generator = FuzzyDecisionTableGenerator(self.__X, self.__y, domain)
-        decision_table = self.__decision_table_generator.fuzzify(fuzzy_sets)
+        self.__decision_table_generator = FuzzyDecisionTableGenerator(self.__X, self.__y, fuzzy_sets, clauses)
+        decision_table = self.__decision_table_generator.fuzzify()
 
         self.__inconsistencies_remover = InconsistenciesRemover(decision_table, self.__feature_labels)
         consistent_decision_table = self.__inconsistencies_remover.remove_inconsistencies()
 
-        self.__rule_builder = RuleBuilder(consistent_decision_table, domain)
+        self.__rule_builder = RuleBuilder(consistent_decision_table, clauses)
         terms, antecedents = self.__rule_builder.induce_rules(fuzzy_sets)
         return terms, antecedents
 

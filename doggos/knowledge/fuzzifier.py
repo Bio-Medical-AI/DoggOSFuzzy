@@ -32,8 +32,8 @@ def fuzzify(dataset: pd.DataFrame, clauses: Iterable[Clause]) -> Dict[Clause, np
     :return: membership degrees of features of the dataset for each clause
     """
     fuzzified_dataset = dict()
-    for clause in clauses:
-        category = clause.linguistic_variable.name
-        data = dataset[category].values
-        fuzzified_dataset[clause] = clause.get_value(data)
+    for category in clauses.keys():
+        for adj in clauses[category].keys():
+            data = dataset[category].values
+            fuzzified_dataset[clauses[category][adj]] = clauses[category][adj].get_value(data)
     return fuzzified_dataset
