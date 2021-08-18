@@ -14,9 +14,9 @@ from copy import deepcopy, copy
 
 def create_gausses_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
     if mode == 'equal' or mode == 'default':
-        fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max)
+        fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision)
     elif mode == 'progressive':
-        fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max)
+        fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max - domain.precision)
     else:
         raise NotImplemented(f'Gaussian fuzzy sets mode can be either equal or progressive, not {mode}')
     return fuzzy_sets
@@ -24,9 +24,9 @@ def create_gausses_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str
 
 def create_triangular_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'even'):
     if mode == 'even' or mode == 'default':
-        fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max)
+        fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max - domain.precision)
     elif mode == 'full':
-        fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max)
+        fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max - domain.precision)
     else:
         raise NotImplemented(f'Triangular fuzzy sets mode can be either even or full, not {mode}')
     return fuzzy_sets
@@ -34,9 +34,9 @@ def create_triangular_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: 
 
 def create_trapezoidal_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'even'):
     if mode == 'even' or mode == 'default':
-        fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max)
+        fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max - domain.precision)
     elif mode == 'full':
-        fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max)
+        fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max - domain.precision)
     else:
         raise NotImplemented(f'Trapezoidal fuzzy sets mode can be either even or full, not {mode}')
     return fuzzy_sets
@@ -45,11 +45,11 @@ def create_trapezoidal_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode:
 def create_gausses_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal',
                        lower_scaling: float = 0.8):
     if mode == 'equal' or mode == 'default':
-        upper_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max)
-        lower_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max, lower_scaling)
+        upper_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision)
+        lower_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
     elif mode == 'progressive':
-        upper_fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max)
-        lower_fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max, lower_scaling)
+        upper_fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max - domain.precision)
+        lower_fuzzy_sets = generate_progressive_gausses(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
     else:
         raise NotImplemented(f'Gaussian fuzzy sets mode can be either equal or progressive, not {mode}')
     functions = []
@@ -61,11 +61,11 @@ def create_gausses_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: st
 def create_triangular_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal',
                           lower_scaling: float = 0.8):
     if mode == 'even' or mode == 'default':
-        upper_fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max)
-        lower_fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max, lower_scaling)
+        upper_fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max - domain.precision)
+        lower_fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
     elif mode == 'full':
-        upper_fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max)
-        lower_fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max, lower_scaling)
+        upper_fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max - domain.precision)
+        lower_fuzzy_sets = generate_full_triangulars(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
     else:
         raise NotImplemented(f'Triangular fuzzy sets mode can be either even or full, not {mode}')
     functions = []
@@ -77,11 +77,11 @@ def create_triangular_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode:
 def create_trapezoidal_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal',
                            lower_scaling: float = 0.8):
     if mode == 'even' or mode == 'default':
-        upper_fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max)
-        lower_fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max, lower_scaling)
+        upper_fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max - domain.precision)
+        lower_fuzzy_sets = generate_even_trapezoidals(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
     elif mode == 'full':
-        upper_fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max)
-        lower_fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max, lower_scaling)
+        upper_fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max - domain.precision)
+        lower_fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
     else:
         raise NotImplemented(f'Trapezoidal fuzzy sets mode can be either even or full, not {mode}')
     functions = []
@@ -97,7 +97,7 @@ def create_set_of_variables(ling_var_names: Iterable[str],
                             fuzzy_set_type: str = 't1',
                             mode: str = 'default',
                             lower_scaling: float = 0.8) \
-        -> Tuple[List[LinguisticVariable], Dict[str, Dict[str, FuzzySet]], List[Clause]]:
+        -> Tuple[List[LinguisticVariable], Dict[str, Dict[str, FuzzySet]], Dict[str, Dict[str, Clause]]]:
     """
     Creates a list of Linguistic Variables with provided names and domain. For each Linguistic Variable creates a number
     of Fuzzy Sets equal to n_mfs of type fuzzy_set_type. For each Linguistic Variable and Fuzzy Set creates a Clause.
@@ -122,7 +122,7 @@ def create_set_of_variables(ling_var_names: Iterable[str],
     elif n_mfs == 3:
         grad_adjs = ['Low', 'Medium', 'High']
     elif n_mfs == 5:
-        grad_adjs = ['Low', 'Medium_Low' 'Medium', 'Medium_High', 'High']
+        grad_adjs = ['Low', 'Medium_Low', 'Medium', 'Medium_High', 'High']
     elif n_mfs == 7:
         grad_adjs = ['Low', 'Medium_Low_Minus', 'Medium_Low', 'Medium', 'Medium_High', 'Medium_High_Plus', 'High']
     elif n_mfs == 9:

@@ -1,9 +1,11 @@
-from typing import Dict, List, Callable
+from typing import Dict, List, Callable, Iterable
 
 import numpy as np
+import pandas as pd
 
 from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.inference.inference_system import InferenceSystem
+from doggos.knowledge import Rule
 from doggos.knowledge.linguistic_variable import LinguisticVariable
 from doggos.knowledge.clause import Clause
 

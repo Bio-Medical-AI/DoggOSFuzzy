@@ -136,8 +136,11 @@ class RuleBuilder:
                 subexpression += str(inner_subexpression)
                 subexpression += ")"
                 antecedent += subexpression
-        antecedent = str(self.__boolean_algebra.parse(antecedent).simplify())
-        return eval(str(antecedent), self.__terms), antecedent
+        if antecedent is None:
+            raise Exception("Inconsistencies remover removed one class. Dataset is too inconsistent to resolve.")
+        else:
+            antecedent = str(self.__boolean_algebra.parse(antecedent).simplify())
+            return eval(str(antecedent), self.__terms), antecedent
 
     def __get_implicants(self, differences: np.ndarray, row: pd.Series, index: int) -> List[List[str]]:
         """
