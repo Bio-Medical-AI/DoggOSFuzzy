@@ -91,7 +91,7 @@ class RuleBuilder:
         for decision in decisions:
             indices = np.where(self.__dataset[self.__target_label].values == decision)[0]
             idx_rows = [(index, self.__dataset.loc[index, self.__dataset.columns]) for index in indices]
-            decision_rules[decision], string_antecedents[decision] = self.__build_rules(differences, idx_rows)
+            decision_rules[str(decision)], string_antecedents[str(decision)] = self.__build_rules(differences, idx_rows)
 
         self.__decision_rules = decision_rules
         return self.__decision_rules, string_antecedents
@@ -137,7 +137,7 @@ class RuleBuilder:
                 subexpression += ")"
                 antecedent += subexpression
         if antecedent is None:
-            raise Exception("Inconsistencies remover removed one class. Dataset is too inconsistent to resolve.")
+            raise Exception("Dataset is too inconsistent to resolve.")
         else:
             antecedent = str(self.__boolean_algebra.parse(antecedent).simplify())
             return eval(str(antecedent), self.__terms), antecedent

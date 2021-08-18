@@ -50,3 +50,9 @@ class Rule:
         :return: consequent
         """
         return self.__consequent
+
+    def __str__(self):
+        return 'IF ' + str(self.antecedent) + ' THEN ' + str(self.consequent)
+
+    def __repr__(self):
+        return self.__str__()

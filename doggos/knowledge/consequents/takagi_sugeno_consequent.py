@@ -125,3 +125,9 @@ class TakagiSugenoConsequent(Consequent):
             return self.__consequent_output
         except KeyError:
             raise KeyError("Function parameters contain value for input {0} which was not provided!".format(key.name))
+
+    def __str__(self):
+        return "TakagiSugenoConsequent_" + self.linguistic_variable.name + '_' + str(self.bias)
+
+    def __repr__(self):
+        return self.__str__()

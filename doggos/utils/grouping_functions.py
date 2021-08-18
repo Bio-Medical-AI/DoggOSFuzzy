@@ -6,7 +6,7 @@ from doggos.utils.membership_functions import generate_equal_gausses, \
     generate_even_triangulars, \
     generate_full_triangulars, \
     generate_even_trapezoidals, \
-    generate_full_trapezoidals
+    generate_full_trapezoidals, sigmoid
 
 from typing import Sequence, List, Tuple, Iterable, Dict
 from copy import deepcopy, copy
@@ -20,6 +20,12 @@ def create_gausses_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str
     else:
         raise NotImplemented(f'Gaussian fuzzy sets mode can be either equal or progressive, not {mode}')
     return fuzzy_sets
+
+
+def create_sigmoids_t1(offset=0.5, magnitude=5):
+    fst_func = sigmoid(offset, -magnitude)
+    snd_func = sigmoid(offset, magnitude)
+    return fst_func, snd_func
 
 
 def create_triangular_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'even'):
@@ -60,7 +66,7 @@ def create_gausses_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: st
 
 def create_triangular_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal',
                           lower_scaling: float = 0.8):
-    if mode == 'even' or mode == 'default':
+    if mode == 'equal' or mode == 'default':
         upper_fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max - domain.precision)
         lower_fuzzy_sets = generate_even_triangulars(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
     elif mode == 'full':
@@ -84,6 +90,15 @@ def create_trapezoidal_it2(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode
         lower_fuzzy_sets = generate_full_trapezoidals(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
     else:
         raise NotImplemented(f'Trapezoidal fuzzy sets mode can be either even or full, not {mode}')
+    functions = []
+    for lmf, umf in zip(lower_fuzzy_sets, upper_fuzzy_sets):
+        functions.append((lmf, umf))
+    return functions
+
+
+def create_sigmoids_it2(offset=0.5, magnitude=5, lower_scaling: float = 0.8):
+    upper_fuzzy_sets = [sigmoid(offset, -magnitude), sigmoid(offset, magnitude)]
+    lower_fuzzy_sets = [sigmoid(offset, -magnitude, lower_scaling), sigmoid(offset, magnitude, lower_scaling)]
     functions = []
     for lmf, umf in zip(lower_fuzzy_sets, upper_fuzzy_sets):
         functions.append((lmf, umf))
@@ -141,6 +156,8 @@ def create_set_of_variables(ling_var_names: Iterable[str],
             membership_functions = create_triangular_t1(n_mfs=n_mfs, domain=domain, mode=mode)
         elif mf_type == 'trapezoidal':
             membership_functions = create_trapezoidal_t1(n_mfs=n_mfs, domain=domain, mode=mode)
+        elif mf_type == 'sigmoid':
+            membership_functions = create_sigmoids_t1()
         else:
             raise NotImplemented(f"mf_type of type {mf_type} is not yet implemented.")
 
@@ -158,6 +175,8 @@ def create_set_of_variables(ling_var_names: Iterable[str],
         elif mf_type == 'trapezoidal':
             membership_functions = create_trapezoidal_it2(n_mfs=n_mfs, domain=domain,
                                                           mode=mode, lower_scaling=lower_scaling)
+        elif mf_type == 'sigmoid':
+            membership_functions = create_sigmoids_it2(lower_scaling=lower_scaling)
         else:
             raise NotImplemented(f"mf_type of type {mf_type} is not yet implemented.")
 

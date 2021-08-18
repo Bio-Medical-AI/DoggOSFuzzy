@@ -70,6 +70,12 @@ class Domain:
         """
         return self.__max_value
 
+    def __str__(self):
+        return 'Domain(' + str(self.min) + ', ' + str(self.max) + ', ' + str(self.precision) + ')'
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class LinguisticVariable:
     """
@@ -115,3 +121,9 @@ class LinguisticVariable:
         :return: the name of the linguistic variable
         """
         return self.__name
+
+    def __str__(self):
+        return self.name + '_' + str(self.domain)
+
+    def __repr__(self):
+        return self.__str__()

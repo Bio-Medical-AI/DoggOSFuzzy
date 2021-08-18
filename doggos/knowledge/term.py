@@ -89,3 +89,9 @@ class Term(Antecedent):
         new_term = self.__class__(self.algebra, name=self.name + ' | ' + other.name)
         new_term.fire = lambda dict_: self.algebra.s_norm(self.fire(dict_), other.fire(dict_))
         return new_term
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.__str__()

@@ -96,3 +96,9 @@ class MamdaniConsequent(Consequent):
         self.__cut_clause = deepcopy(self.__clause)
         self.__cut_clause.values = np.minimum(self.__cut_clause.values, rule_firing)
         return self.__cut_clause
+
+    def __str__(self):
+        return 'MamdaniConsequent_' + str(self.__clause)
+
+    def __repr__(self):
+        return self.__str__()

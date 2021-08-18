@@ -77,8 +77,8 @@ class InformationSystem:
         consistent_decision_table = self.__inconsistencies_remover.remove_inconsistencies()
 
         self.__rule_builder = RuleBuilder(consistent_decision_table, clauses)
-        terms, antecedents = self.__rule_builder.induce_rules(fuzzy_sets)
-        return terms, antecedents
+        antecedents, str_antecedents = self.__rule_builder.induce_rules(fuzzy_sets)
+        return antecedents, str_antecedents
 
     @property
     def rule_builder(self):

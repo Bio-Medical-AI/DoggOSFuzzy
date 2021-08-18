@@ -27,7 +27,7 @@ def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float
     return output_mf
 
 
-def sigmoid(offset: float, magnitude: float) -> Callable[[float], float]:
+def sigmoid(offset: float, magnitude: float, scaling: float = 1.) -> Callable[[float], float]:
     """
     Sigmoid membership function.\n
     Defines membership function of sigmoid shape.\n
@@ -44,7 +44,7 @@ def sigmoid(offset: float, magnitude: float) -> Callable[[float], float]:
     """
 
     def output_mf(value: float) -> float:
-        return 1. / (1. + np.exp(- magnitude * (value - offset)))
+        return 1. / (1. + np.exp(- magnitude * (value - offset))) * scaling
 
     return output_mf
 

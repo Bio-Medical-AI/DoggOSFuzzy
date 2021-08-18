@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split, RandomizedSearchCV, cross_
 from sklearn.neighbors import NeighborhoodComponentsAnalysis, KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.metrics import accuracy_score, f1_score
+from sklearn.mixture import GaussianMixture
 from sklearn.decomposition import KernelPCA, FactorAnalysis, FastICA, NMF, PCA
 
 from pprint import pprint
@@ -105,7 +106,6 @@ class Evaluator(BaseEstimator):
                  feature_labels: List[str] = None,
                  consequent_labels: List[str] = None,
                  inference_system: InferenceSystem.__class__ = None,
-                 defuzz_method: Callable = None,
                  fuzzy_set_type: str = None,
                  n_mf: int = None,
                  mf_type: str = None,
@@ -114,14 +114,17 @@ class Evaluator(BaseEstimator):
                  domain: Domain = Domain(0, 1.001, 0.001),
                  fuzzy_sets: Dict[str, Dict[str, FuzzySet]] = None,
                  clauses: Dict[str, Dict[str, Clause]] = None,
-                 consequents: Dict[str, Consequent] = None
+                 consequents: Dict[str, Consequent] = None,
+                 lower_scaling: float = 0.8
                  ):
-        # For IT2: Karnik Mendel, fuzzy_set_type='it2', FuzzySet=IntervalType2FuzzySet
         self.model = model
         self.feature_labels = feature_labels
         self.consequent_labels = consequent_labels
         self.inference_system = inference_system
-        self.defuzz_method = defuzz_method
+        if fuzzy_set_type == 't1':
+            self.defuzz_method = center_of_gravity
+        else:
+            self.defuzz_method = karnik_mendel
         self.fuzzy_set_type = fuzzy_set_type
         self.n_mf = n_mf
         self.mf_type = mf_type
@@ -133,6 +136,7 @@ class Evaluator(BaseEstimator):
         self.consequents = consequents
         self.rules = None
         self.antecedents = None
+        self.lower_scaling = lower_scaling
 
     def set_params(self, **params):
         """
@@ -179,18 +183,25 @@ class Evaluator(BaseEstimator):
 
         if self.clauses is None:
             self._create_fuzzy_variables()
+
+        if self.fuzzy_set_type == 't1':
+            self.defuzz_method = center_of_gravity
+        else:
+            self.defuzz_method = karnik_mendel
         return self
 
     def _create_fuzzy_variables(self):
         _, fuzzy_sets, clauses = create_set_of_variables(self.feature_labels,
                                                          mf_type=self.mf_type,
                                                          n_mfs=self.n_mf,
-                                                         fuzzy_set_type=self.fuzzy_set_type)
+                                                         fuzzy_set_type=self.fuzzy_set_type,
+                                                         lower_scaling=self.lower_scaling)
 
         _, _, con_clauses = create_set_of_variables(self.consequent_labels,
                                                     mf_type=self.con_mf_type,
                                                     n_mfs=self.con_n_mf,
-                                                    fuzzy_set_type=self.fuzzy_set_type)
+                                                    fuzzy_set_type=self.fuzzy_set_type,
+                                                    lower_scaling=self.lower_scaling)
         self.fuzzy_sets = fuzzy_sets
         self.clauses = clauses
         self.consequents = {}
@@ -201,8 +212,7 @@ class Evaluator(BaseEstimator):
     def fit(self, X: pd.DataFrame, y: pd.Series):
         information_system = InformationSystem(X, y, self.feature_labels)
         self.antecedents, _ = information_system.induce_rules(self.fuzzy_sets, self.clauses)
-        # Unify key type between antecendents and consequents
-        self.rules = [Rule(self.antecedents[float(decision)], self.consequents[decision])
+        self.rules = [Rule(self.antecedents[decision], self.consequents[decision])
                       for decision in self.consequent_labels]
         fuzzified_dataset = fuzzify(X, self.clauses)
         inference_system = self.inference_system(self.rules)
@@ -277,41 +287,74 @@ feature_labels_by_df.append(feature_labels)
 X_train_dfs.append(dataloader.X_train_frame)
 X_test_dfs.append(dataloader.X_test_frame)
 
+# Trying to check if it is possible to use GaussianMixture instead of ProgressiveGauss
+for X_train in X_train_dfs:
+    mix = GaussianMixture(2)
+    mix.fit(X_train, dataloader.y_train)
+    print(mix.weights_)
+    print(mix.means_)
+
 con_labels = np.unique(dataloader.y)
 con_labels = [str(label) for label in con_labels]
-
-for labels, train_df, test_df in zip(feature_labels_by_df, X_train_dfs, X_test_dfs):
-    grid_params = {
-        'model': [RandomForestClassifier(), KNeighborsClassifier(), DecisionTreeClassifier()],
-        'feature_labels': [labels],
-        'consequent_labels': [con_labels],
-        'inference_system': [MamdaniInferenceSystem],
-        #'defuzz_method': [center_of_gravity],
-        'defuzz_method': [karnik_mendel],
-        'domain': [Domain(0, 1.001, 0.001), Domain(0, 1.001, 0.001)],
-        #'fuzzy_set_type': ['t1'],
-        'fuzzy_set_type': ['it2'],
-        'n_mf': [5, 7, 9, 11],
-        'mf_type': ['gaussian', 'triangular', 'trapezoidal'],
-        'con_n_mf': [2],
-        'con_mf_type': ['gaussian', 'triangular', 'trapezoidal'],
-        'model__n_neighbors': [5, 10, 20, 50],
-        'model__weights': ['uniform', 'distance'],
+models = [RandomForestClassifier(), KNeighborsClassifier(), DecisionTreeClassifier()]
+models_params = [
+    # RandomForestClassifier
+    {
         'model__n_estimators': [50, 100, 200, 400],
         'model__criterion': ['gini', 'entropy'],
         'model__max_features': [None, 'sqrt', 'log2']
+    },
+    # KNeighborsClassifier
+    {
+        'model__n_neighbors': [5, 10, 20, 50],
+        'model__weights': ['uniform', 'distance']
+    },
+    # DecisionTreeClassifier
+    {
+        'model__criterion': ['gini', 'entropy'],
+        'model__max_features': [None, 'sqrt', 'log2']
     }
+]
 
-    evaluator = Evaluator()
-    random_search = RandomizedSearchCV(evaluator, grid_params, n_iter=50, n_jobs=5,
-                                       cv=StratifiedKFold(n_splits=5, shuffle=True), verbose=5, random_state=42,
-                                       scoring='f1', error_score=np.nan)
-    random_search.fit(train_df, dataloader.y_train_frame)
-    y_pred = random_search.predict(test_df)
+accuracies = []
+f1_scores = []
+best_parameters = []
 
-    acc = accuracy_score(dataloader.y_test, y_pred)
-    f1 = f1_score(dataloader.y_test, y_pred)
+for labels, train_df, test_df in zip(feature_labels_by_df, X_train_dfs, X_test_dfs):
+    for model, params in zip(models, models_params):
+        grid_params = {
+            'model': [model],
+            'feature_labels': [labels],
+            'consequent_labels': [con_labels],
+            'inference_system': [MamdaniInferenceSystem],
+            'domain': [Domain(0, 1.001, 0.001), Domain(0, 1.0001, 0.0001)],
+            'fuzzy_set_type': ['t1', 'it2'],
+            'n_mf': [5, 7, 9, 11],
+            'mf_type': ['gaussian', 'triangular', 'trapezoidal'],
+            'con_n_mf': [2],
+            'con_mf_type': ['gaussian', 'triangular', 'trapezoidal', 'sigmoid'],
+            'lower_scaling': [0.5, 0.6, 0.7, 0.8, 0.9]
+        }
+        grid_params.update(params)
+        # 4608 candidates for random forest
+        evaluator = Evaluator()
+        random_search = RandomizedSearchCV(evaluator, grid_params, n_iter=200, n_jobs=5,
+                                           cv=StratifiedKFold(n_splits=5, shuffle=True), verbose=0, random_state=42,
+                                           scoring='f1', error_score=np.nan)
+        random_search.fit(train_df, dataloader.y_train_frame)
+        y_pred = random_search.predict(test_df)
 
-    print(random_search.best_params_)
+        acc = accuracy_score(dataloader.y_test, y_pred)
+        f1 = f1_score(dataloader.y_test, y_pred)
+
+        print(random_search.best_params_)
+        print('\nAccuracy: ', acc)
+        print('F1 Score: ', f1)
+        accuracies.append(acc)
+        f1_scores.append(f1)
+        best_parameters.append(random_search.best_params_)
+
+for acc, f1, best in zip(accuracies, f1_scores, best_parameters):
+    print(best)
     print('\nAccuracy: ', acc)
     print('F1 Score: ', f1)
