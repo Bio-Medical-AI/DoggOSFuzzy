@@ -1,3 +1,5 @@
+from math import sin, exp
+
 import numpy as np
 import sympy as sy
 
@@ -24,6 +26,34 @@ def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float
     def output_mf(value: float) -> float:
         return max_value * np.exp(-(((mean - value) ** 2) / (2 * sigma ** 2)))
 
+    return output_mf
+
+
+def complex_gaussian(mean: float, first_sigma: float, second_sigma, min=-np.inf, max=np.inf,
+                     max_value: float = 1) -> Callable[[float], float]:
+    """
+    Gaussian membership function.\n
+    Defines membership function of gaussian distribution shape.\n
+    Used to determine membership degree of crisp value to fuzzy set defined by this function.
+
+    :param mean: center of gaussian function, expected value
+    :param sigma: standard deviation of gaussian function
+    :param max_value: maximum value of membership function, height
+    :return: callable which calculates membership values for given input
+
+    Example:
+      >>> gaussian_mf = gaussian(0.4, 0.15, 1)
+      >>> membership_value = gaussian_mf(0.5)
+    """
+
+    def output_mf(value: float) -> float:
+        if min <= value <= max:
+            if value < mean:
+                return max_value * np.exp(-(((mean - value) ** 2) / (2 * first_sigma ** 2)))
+            else:
+                return max_value * np.exp(-(((mean - value) ** 2) / (2 * second_sigma ** 2)))
+        else:
+            return 0.0
     return output_mf
 
 
@@ -176,8 +206,47 @@ def __calculate_sigma(first_mean: float, second_mean: float, max_value: float = 
     return np.float64(sigma_value)
 
 
-def generate_progressive_gausses(number_of_gausses: int, start: float, end: float, max_value: float = 1):
-    raise NotImplemented('Progressive Gausses is not yet implemented')
+def generate_progressive_gausses(number_of_gausses: int, middle=0.5, max_value: float = 1):
+    expected_values = [0, middle, 1]
+    first_sigmas = []
+    gausses = []
+    if number_of_gausses < 3:
+        raise Exception('Number of gausses must be >= 3 for progressive distribution')
+
+    number_of_gausses -= 3
+    left_to_calc = int(number_of_gausses / 2)
+
+    for i in range(left_to_calc):
+        arg = exp(-(left_to_calc - i))
+        right_ex = __calculate_expected_value(arg, middle)
+        left_ex = __calculate_expected_value(-arg, middle)
+        expected_values.append(left_ex)
+        expected_values.append(right_ex)
+    expected_values = sorted(expected_values)
+
+    for i in range(len(expected_values) - 1):
+        first_mean = expected_values[i]
+        second_mean = expected_values[i + 1]
+        first_sigmas.append(__calculate_sigma(first_mean, second_mean, max_value))
+    first_sigmas.append(first_sigmas[-1])
+    second_sigmas = first_sigmas[:-1]
+    second_sigmas.insert(0, first_sigmas[-1])
+
+    i = 1
+    ex_values_extended = expected_values.copy()
+    ex_values_extended.insert(0, -np.inf)
+    ex_values_extended.append(np.inf)
+    for ex, first_sigma, second_sigma in zip(expected_values, second_sigmas, first_sigmas):
+        min_ex = ex_values_extended[i - 1]
+        max_ex = ex_values_extended[i + 1]
+        gausses.append(complex_gaussian(ex, first_sigma, second_sigma, min=min_ex, max=max_ex, max_value=max_value))
+        i += 1
+
+    return gausses
+
+
+def __calculate_expected_value(x, middle):
+    return 0.5 * sin(x) + middle
 
 
 def generate_even_triangulars(n_mfs: int, start: float, end: float, max_value: float = 1):

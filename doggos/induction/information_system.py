@@ -1,6 +1,7 @@
 from typing import List, Dict, Tuple, Any
 
 import pandas as pd
+import time
 
 from doggos.fuzzy_sets.fuzzy_set import FuzzySet
 from doggos.induction.fuzzy_decision_table_generator import FuzzyDecisionTableGenerator
@@ -70,14 +71,22 @@ class InformationSystem:
         :param domain: domain on which features are defined
         :return: terms for corresponding decisions and antecedents in string form
         """
+        start = time.time()
         self.__decision_table_generator = FuzzyDecisionTableGenerator(self.__X, self.__y, fuzzy_sets, clauses)
         decision_table = self.__decision_table_generator.fuzzify()
+        end = time.time()
+        print('decision_table_generator: ', end - start)
 
+        start = time.time()
         self.__inconsistencies_remover = InconsistenciesRemover(decision_table, self.__feature_labels)
         consistent_decision_table = self.__inconsistencies_remover.remove_inconsistencies()
-
+        end = time.time()
+        print('inconsistencies_remover: ', end - start)
+        start = time.time()
         self.__rule_builder = RuleBuilder(consistent_decision_table, clauses)
         antecedents, str_antecedents = self.__rule_builder.induce_rules(fuzzy_sets)
+        end = time.time()
+        print('rule_builder: ', end - start)
         return antecedents, str_antecedents
 
     @property

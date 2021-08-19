@@ -50,7 +50,7 @@ class FuzzySet(ABC):
 
     def plot(self,
              axis: plt.axis or None = None,
-             domain: Iterable[float] = np.arange(0, 5, 0.01),
+             domain: Iterable[float] = np.arange(0, 1.0001, 0.0001),
              y_range: Tuple[float] or None = None,
              grid: bool = True,
              title: str or None = None,
