@@ -39,10 +39,30 @@ class TestTakagiSugenoInferenceSystem:
         clause10 = Clause(lingustic_variable_4, 'high', Type1FuzzySet(triangular(6.5, 13, 13.1)))
         clause11 = Clause(lingustic_variable_4, 'medium', Type1FuzzySet(triangular(0, 6.5, 13)))
         clause12 = Clause(lingustic_variable_4, 'low', Type1FuzzySet(triangular(-0.1, 0, 6.5)))
-        fuzzified = fuzzify(df, [clause1, clause2, clause3,
-                                 clause4, clause5, clause6,
-                                 clause7, clause8, clause9,
-                                 clause10, clause11, clause12])
+        clauses = {
+            lingustic_variable_1.name: {
+                'high': clause1,
+                'medium': clause2,
+                'low': clause3
+            },
+            lingustic_variable_2.name: {
+                'high': clause4,
+                'medium': clause5,
+                'low': clause6
+            },
+            lingustic_variable_3.name: {
+                'high': clause7,
+                'medium': clause8,
+                'low': clause9
+            },
+            lingustic_variable_4.name: {
+                'high': clause10,
+                'medium': clause11,
+                'low': clause12
+            },
+        }
+
+        fuzzified = fuzzify(df, clauses)
         algebra = GodelAlgebra()
 
         term1 = Term(algebra, clause1)
@@ -147,10 +167,30 @@ class TestTakagiSugenoInferenceSystem:
         clause12 = Clause(lingustic_variable_4, 'low',
                           IntervalType2FuzzySet(triangular(-0.1, 0, 6.5, 0.5),
                                                 triangular(-0.1, 0, 6.5)))
-        fuzzified = fuzzify(df, [clause1, clause2, clause3,
-                                 clause4, clause5, clause6,
-                                 clause7, clause8, clause9,
-                                 clause10, clause11, clause12])
+        clauses = {
+            lingustic_variable_1.name: {
+                'high': clause1,
+                'medium': clause2,
+                'low': clause3
+            },
+            lingustic_variable_2.name: {
+                'high': clause4,
+                'medium': clause5,
+                'low': clause6
+            },
+            lingustic_variable_3.name: {
+                'high': clause7,
+                'medium': clause8,
+                'low': clause9
+            },
+            lingustic_variable_4.name: {
+                'high': clause10,
+                'medium': clause11,
+                'low': clause12
+            },
+        }
+
+        fuzzified = fuzzify(df, clauses)
         algebra = GodelAlgebra()
 
         term1 = Term(algebra, clause1)

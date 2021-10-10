@@ -49,6 +49,16 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
     consequent_linguistic_variable_1: [0.3],
     consequent_linguistic_variable_1: [0.71]}
     """
+
+    def __init__(self, rule_base: Iterable[Rule]):
+        """
+        Create Takagi-Sugeno Inference System with given rule base.
+        All rules should have the same consequent type and consequents should be defined on the same domain.
+
+        :param rule_base: fuzzy knowledge base used for inference
+        """
+        super().__init__(rule_base)
+
     def infer(self,
               defuzzification_method: Callable,
               features: Dict[Clause, List[MembershipDegree]],
@@ -76,20 +86,20 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
             conclusions[rule.consequent.linguistic_variable] = list()
         consequent_linguistic_variables = conclusions.keys()
         for i in range(len(list(measures.values())[0])):
-            single_features = {}
-            single_measures = {}
+            fuzzy_values = {}
+            crisp_values = {}
             for key, value in features.items():
-                single_features[key] = np.take(value, i, axis=-1)
+                fuzzy_values[key] = np.take(value, i, axis=-1)
             for key, value in measures.items():
-                single_measures[key] = value[i]
+                crisp_values[key] = value[i]
             outputs = {}
             firings = {}
             for ling_var in consequent_linguistic_variables:
                 outputs[ling_var] = list()
                 firings[ling_var] = list()
             for rule in self._rule_base:
-                outputs[rule.consequent.linguistic_variable].append(rule.consequent.output(single_measures))
-                firings[rule.consequent.linguistic_variable].append(rule.antecedent.fire(single_features))
+                outputs[rule.consequent.linguistic_variable].append(rule.consequent.output(crisp_values))
+                firings[rule.consequent.linguistic_variable].append(rule.antecedent.fire(fuzzy_values))
             for ling_var in consequent_linguistic_variables:
                 conclusions[ling_var].append(defuzzification_method(np.array(firings[ling_var]),
                                                                     np.array(outputs[ling_var])))

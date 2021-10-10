@@ -42,7 +42,7 @@ class MamdaniInferenceSystem(InferenceSystem):
 
     def __init__(self, rule_base: Iterable[Rule]):
         """
-        Create mamdani inference system with given rule base.
+        Create Mamdani Inference System with given rule base.
         All rules should have the same consequent type and consequents should be defined on the same domain.
 
         :param rule_base: fuzzy knowledge base used for inference
