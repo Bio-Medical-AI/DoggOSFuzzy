@@ -147,7 +147,7 @@ class RuleBuilder:
         end = time.time()
         print('antecedent_construction: ', end - start)
         if antecedent is None:
-            raise Exception("Dataset is too inconsistent to resolve.")
+            return Term(GodelAlgebra()), ""
         else:
             start = time.time()
             antecedent = str(self.__boolean_algebra.parse(antecedent).simplify())
