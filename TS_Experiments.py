@@ -141,7 +141,7 @@ class TSExperiments:
                                 test_measures,
                                 classification)
         print(f'Final f1: {f1}')
-        self.logger.log(best_val_f1, f1, n_fold, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+        self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
 
     def __create_rules(self, train_X, train_y):
         train_X_fuzzified = fuzzify(train_X, self.clauses)

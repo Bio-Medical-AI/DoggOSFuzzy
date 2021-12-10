@@ -12,7 +12,7 @@ from typing import Sequence, List, Tuple, Iterable, Dict
 from copy import deepcopy, copy
 
 
-def create_gausses_t1(n_mfs, middle_val=0.5, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal'):
+def create_gausses_t1(n_mfs, middle_val=0.5, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal', adjustment='center', mean=0.5):
     if mode == 'equal' or mode == 'default':
         fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision)
     elif mode == 'progressive':
@@ -114,7 +114,9 @@ def create_set_of_variables(ling_var_names: Iterable[str],
                             fuzzy_set_type: str = 't1',
                             mode: str = 'default',
                             lower_scaling: float = 0.8,
-                            middle_vals: float or Iterable[float] = 0.5) \
+                            middle_vals: float or Iterable[float] = 0.5,
+                            adjustment='center',
+                            mean=0.5) \
         -> Tuple[List[LinguisticVariable], Dict[str, Dict[str, FuzzySet]], Dict[str, Dict[str, Clause]]]:
     """
     Creates a list of Linguistic Variables with provided names and domain. For each Linguistic Variable creates a number
