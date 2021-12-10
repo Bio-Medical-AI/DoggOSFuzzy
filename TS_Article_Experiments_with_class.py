@@ -14,12 +14,12 @@ from metaheuristics_wrapper import DifferentialEvolution, PSO
 def main():
     THRESHOLD = 0.5
 
-    pso_logger = Logger("pso", "Haberman")
-    de_logger = Logger("de", "Haberman")
+    pso_logger = Logger("pso", "Breast Cancer Wisconsin")
+    de_logger = Logger("de", "Breast Cancer Wisconsin")
 
-    experiments = TSExperiments('data/Haberman.csv', ';', pso_logger)
+    experiments = TSExperiments('data/Breast Cancer Wisconsin.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale])
-    experiments.prepare_fuzzy_system(n_mfs=9, fuzzy_set_type='it2')
+    experiments.prepare_fuzzy_system(n_mfs=3, fuzzy_set_type='it2')
 
     pso_partial = prepare_pso(experiments.n_params)
     de_partial = prepare_de(experiments.n_params)
