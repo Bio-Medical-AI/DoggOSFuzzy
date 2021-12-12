@@ -49,10 +49,13 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
     consequent_linguistic_variable_1: [0.3],
     consequent_linguistic_variable_1: [0.71]}
     """
+
+    __cache = {}
+
     def infer(self,
               defuzzification_method: Callable,
               features: Dict[Clause, List[MembershipDegree]],
-              measures: Dict[LinguisticVariable, List[float]]) -> Dict[LinguisticVariable, List[float]]:
+              measures: Dict[LinguisticVariable, List[float]]) -> List[float]:
         """
         Inferences output based on features of given object and measured values of them, using chosen method.
 
@@ -71,10 +74,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
         if not isinstance(defuzzification_method, Callable):
             raise ValueError("Defuzzification_method must be Callable")
 
-        conclusions = {}
-        for rule in self._rule_base:
-            conclusions[rule.consequent.linguistic_variable] = list()
-        consequent_linguistic_variables = conclusions.keys()
+        conclusions = []
         for i in range(len(list(measures.values())[0])):
             single_features = {}
             single_measures = {}
@@ -82,15 +82,37 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
                 single_features[key] = np.take(value, i, axis=-1)
             for key, value in measures.items():
                 single_measures[key] = value[i]
-            outputs = {}
-            firings = {}
-            for ling_var in consequent_linguistic_variables:
-                outputs[ling_var] = list()
-                firings[ling_var] = list()
-            for rule in self._rule_base:
-                outputs[rule.consequent.linguistic_variable].append(rule.consequent.output(single_measures))
-                firings[rule.consequent.linguistic_variable].append(rule.antecedent.fire(single_features))
-            for ling_var in consequent_linguistic_variables:
-                conclusions[ling_var].append(defuzzification_method(np.array(firings[ling_var]),
-                                                                    np.array(outputs[ling_var])))
+            input_tuple = self.__get_input_tuple(single_measures.values())
+            if self.__is_cached(input_tuple):
+                conclusions.append(self.__cache[input_tuple])
+            else:
+                outputs = []
+                firings = []
+                for rule in self._rule_base:
+                    outputs.append(rule.consequent.output(single_measures))
+                    firings.append(rule.antecedent.fire(single_features))
+                outputs = np.array(outputs)
+                firings = np.array(firings)
+                ind = np.argsort(outputs)
+                outputs = outputs[ind]
+                firings = firings[ind]
+                conclusion = defuzzification_method(np.array(firings),
+                                                      np.array(outputs))
+                conclusions.append(conclusion)
+                self.__cache[input_tuple] = conclusion
+
         return conclusions
+
+    def __is_cached(self, _input):
+        try:
+            self.__cache[_input]
+            return True
+        except KeyError:
+            return False
+
+    def __get_input_tuple(self, _input):
+        in_values = list(_input)
+        for rule in self._rule_base:
+            for param in rule.consequent.function_parameters.values():
+                in_values.append(param)
+        return tuple(in_values)

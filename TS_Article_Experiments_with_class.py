@@ -12,15 +12,20 @@ from metaheuristics_wrapper import DifferentialEvolution, PSO
 
 def main():
     THRESHOLD = 0.5
-    n_mfs = [3, 5, 7, 9, 11]
-    modes = ['equal', 'progressive']
+    #n_mfs = [3, 5, 7, 9, 11]
+    #modes = ['equal', 'progressive']
+    #adjustments = ['center']
+    #lower_scalings = np.arange(0.5, 1.01, 0.05)
+
+    n_mfs = [9]
+    modes = ['equal']
     adjustments = ['center']
-    lower_scalings = np.arange(0.5, 1.01, 0.05)
+    lower_scalings = [0.8]
 
-    pso_logger = Logger("pso", "Breast Cancer Wisconsin")
-    de_logger = Logger("de", "Breast Cancer Wisconsin")
+    pso_logger = Logger("pso", "Haberman")
+    de_logger = Logger("de", "Haberman")
 
-    experiments = TSExperiments('data/Breast Cancer Wisconsin.csv', ';', pso_logger)
+    experiments = TSExperiments('data/Haberman.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale])
 
     for n_mf in n_mfs:
@@ -32,16 +37,31 @@ def main():
                     pso_partial = prepare_pso(experiments.n_params)
                     de_partial = prepare_de(experiments.n_params)
 
-                    #experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
-                    #                                            metaheuristic=pso_partial,
-                    #                                            debug=True,
-                    #                                            n_folds=6)
+                    experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
+                                                                metaheuristic=pso_partial,
+                                                                debug=True,
+                                                                n_folds=5)
+
+                    experiments.select_optimal_parameters_kfold_ensemble(threshold_classification(THRESHOLD),
+                                                                         metaheuristic=pso_partial,
+                                                                         debug=True,
+                                                                         n_folds=5,
+                                                                         n_classifiers=5)
 
                     experiments.logger = de_logger
                     experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
                                                                 metaheuristic=de_partial,
                                                                 debug=True,
                                                                 n_folds=6)
+
+                    experiments.logger = de_logger
+                    experiments.select_optimal_parameters_kfold_ensemble(threshold_classification(THRESHOLD),
+                                                                         metaheuristic=de_partial,
+                                                                         debug=True,
+                                                                         n_folds=5,
+                                                                         n_classifiers=5)
+
+
 
 
 def threshold_classification(theta):
@@ -60,9 +80,9 @@ def prepare_pso(n_params):
     pso_partial = partial(pso,
                           lb=[-250] * n_params,
                           ub=[250] * n_params,
-                          debug=False,
-                          maxiter=30,
-                          swarmsize=30,
+                          debug=True,
+                          maxiter=15,
+                          swarmsize=20,
                           phig=1)
     return PSO(pso_partial)
 

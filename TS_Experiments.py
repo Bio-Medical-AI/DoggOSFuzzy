@@ -1,3 +1,6 @@
+import math
+
+import numpy as np
 import pandas as pd
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split, StratifiedKFold
@@ -11,6 +14,34 @@ from doggos.utils.grouping_functions import create_set_of_variables
 
 import random
 import time
+
+
+def make_n_splits(data, n):
+    batch_size = int(len(data) / n)
+    batches = []
+    for i in range(0, n - 1):
+        batches.append(data[batch_size * i: batch_size * (i + 1)])
+    batches.append(data[batch_size * (n - 1):])
+    return batches
+
+
+def vote_highest(y_pred):
+    y_np = []
+    for data in y_pred:
+        y_np.append(np.array(data))
+
+    y_sum = np.array(y_np[0])
+    for data in y_np[1:]:
+        y_sum += data
+
+    y_voted = []
+    for y in y_sum:
+        if y < math.floor(len(y_pred) / 2.0) + 1:
+            y_voted.append(0)
+        else:
+            y_voted.append(1)
+
+    return y_voted
 
 
 class TSExperiments:
@@ -52,6 +83,7 @@ class TSExperiments:
             transformed_data = transform(transformed_data)
 
         self.transformed_data = pd.DataFrame(transformed_data, columns=self.data.columns)
+        self.transformed_data = self.transformed_data.round(3)
         self.train, self.test = train_test_split(self.transformed_data,
                                                  stratify=self.transformed_data['Decision'],
                                                  test_size=self.test_size)
@@ -113,12 +145,15 @@ class TSExperiments:
                 print(f'Fold {n_fold}')
                 n_fold += 1
 
+            start = time.time()
             rules, train_fitness = self.__fit_fitness(train_idx, classification)
+            end = time.time()
+            print(f"Induction: {end - start}")
 
             start = time.time()
             lin_fun_params_optimal = metaheuristic(train_fitness)
             end = time.time()
-            print(f"pso: {end - start}")
+            print(f"Optimization: {end - start}")
 
             _, val_fitness = self.__fit_fitness(val_idx, classification, rules)
             val_f1 = 1 - val_fitness(lin_fun_params_optimal)
@@ -140,6 +175,58 @@ class TSExperiments:
                                 self.test_y,
                                 test_measures,
                                 classification)
+        print(f'Final f1: {f1}')
+        self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+
+    def select_optimal_parameters_kfold_ensemble(self,
+                                                 classification,
+                                                 metaheuristic,
+                                                 n_folds=10,
+                                                 n_classifiers=5,
+                                                 shuffle=True,
+                                                 random_state=42,
+                                                 debug=False):
+        best_val_f1 = 0
+        best_params = []
+        best_rules = []
+        skf = StratifiedKFold(n_splits=n_folds, shuffle=shuffle, random_state=random_state)
+        n_fold = 0
+        for train_idx, val_idx in skf.split(self.train, self.train_y):
+            if debug:
+                print(f'Fold {n_fold}')
+                n_fold += 1
+
+            indexes = make_n_splits(train_idx, n_classifiers)
+            start = time.time()
+            n_rules, train_fitness = self.__ensemble_fit_fitness_train(indexes, classification)
+            end = time.time()
+            print(f"Induction: {end - start}")
+
+            start = time.time()
+            lin_fun_params_optimal = metaheuristic(train_fitness)
+            end = time.time()
+            print(f"Ensemble optimization: {end - start}")
+
+            _, val_fitness = self.__ensemble_fit_fitness_val(val_idx, classification, n_rules)
+            val_f1 = 1 - val_fitness(lin_fun_params_optimal)
+            if val_f1 > best_val_f1:
+                if debug:
+                    print(f"New best params in fold {n_fold} with f1 {val_f1}")
+                best_val_f1 = val_f1
+                best_params = lin_fun_params_optimal
+                best_rules = n_rules
+
+        test_fuzzified = fuzzify(self.test, self.clauses)
+        test_measures = {}
+        for idx, label in enumerate(self.feature_names):
+            test_measures[self.ling_vars[idx]] = self.test[label].values
+
+        f1 = 1 - self.__ensemble_fitness(best_params,
+                                         best_rules,
+                                         test_fuzzified,
+                                         self.test_y,
+                                         test_measures,
+                                         classification)
         print(f'Final f1: {f1}')
         self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
 
@@ -178,7 +265,7 @@ class TSExperiments:
 
         ts = TakagiSugenoInferenceSystem(rules)
         result_eval = ts.infer(takagi_sugeno_EIASC, fuzzified_data_X, measures)
-        y_pred_eval = list(map(lambda x: classification(x), result_eval[self.decision]))
+        y_pred_eval = [classification(x) for x in result_eval]
         f1 = f1_score(data_y.values, y_pred_eval)
 
         return 1 - f1
@@ -200,3 +287,100 @@ class TSExperiments:
                                                         data_y=data_y,
                                                         measures=measures,
                                                         classification=classification)
+
+    def __ensemble_fitness(self,
+                           linear_fun_params,
+                           n_rules,
+                           n_fuzzified_data_X,
+                           data_y,
+                           measures,
+                           classification):
+        models = []
+        for rules in n_rules:
+            f_params1 = {}
+            f_params2 = {}
+            it = 0
+            for idx, lv in enumerate(self.ling_vars):
+                f_params1[lv] = linear_fun_params[idx]
+                it += 1
+
+            for lv in self.ling_vars:
+                f_params2[lv] = linear_fun_params[it]
+                it += 1
+
+            rules[0].consequent.function_parameters = f_params1
+            rules[1].consequent.function_parameters = f_params2
+            rules[0].consequent.bias = linear_fun_params[it]
+            it += 1
+            rules[1].consequent.bias = linear_fun_params[it]
+
+            models.append(TakagiSugenoInferenceSystem(rules))
+
+        results = []
+        for model in models:
+            results.append(model.infer(takagi_sugeno_EIASC, n_fuzzified_data_X, measures))
+        y_pred = []
+        for result in results:
+            y_pred.append([classification(x) for x in result])
+        # w tej chwili modele, dla któych reguły zostały utworzone z małych zbiorów danych przewidują etykiety dla
+        # dużych zbiorów danych. Alternatywą jest, żeby każdy model przewidywał etykiety dla swoich danych,
+        # i wtedy nie mamy głosowania większościowego, ale też ma to sens.
+        # pomysł: optymalizacja metaheurystyką val_f1 a nie train_f1
+        y_pred_ensemble = vote_highest(y_pred)
+        f1 = f1_score(data_y, y_pred_ensemble)
+
+        return 1 - f1
+
+    def __ensemble_fit_fitness_train(self, indexes, classification):
+        data_X = []
+        data_y = []
+        for i, idx in enumerate(indexes):
+            data_X.append(self.train.iloc[idx])
+            data_y.append(data_X[i][self.decision_name])
+
+        n_rules = []
+        n_train_X_fuzzified = {}
+        for i in range(len(indexes)):
+            rules, _, train_X_fuzzified = self.__create_rules(data_X[i], data_y[i])
+            if i == 0:
+                for key in train_X_fuzzified.keys():
+                    n_train_X_fuzzified[key] = train_X_fuzzified[key]
+            else:
+                for key in train_X_fuzzified.keys():
+                    n_train_X_fuzzified[key] = np.hstack((n_train_X_fuzzified[key], train_X_fuzzified[key]))
+            n_rules.append(rules)
+
+        measures = {}
+        for n_model in range(len(indexes)):
+            for idx, label in enumerate(self.feature_names):
+                if n_model == 0:
+                    measures[self.ling_vars[idx]] = []
+                measures[self.ling_vars[idx]].extend(data_X[n_model][label].values)
+
+        data_y_flattened = []
+        for data in data_y:
+            data_y_flattened.extend(data.values)
+
+        return n_rules, lambda parameters: self.__ensemble_fitness(parameters,
+                                                                   n_rules=n_rules,
+                                                                   n_fuzzified_data_X=n_train_X_fuzzified,
+                                                                   data_y=data_y_flattened,
+                                                                   measures=measures,
+                                                                   classification=classification)
+
+    def __ensemble_fit_fitness_val(self, indexes, classification, n_rules):
+        data_X = self.train.iloc[indexes]
+        data_y = data_X[self.decision_name]
+
+        measures = {}
+        for idx, label in enumerate(self.feature_names):
+            measures[self.ling_vars[idx]] = data_X[label].values
+
+        val_X_fuzzified = fuzzify(data_X, self.clauses)
+
+        return n_rules, lambda parameters: self.__ensemble_fitness(parameters,
+                                                                   n_rules=n_rules,
+                                                                   n_fuzzified_data_X=val_X_fuzzified,
+                                                                   data_y=data_y,
+                                                                   measures=measures,
+                                                                   classification=classification)
