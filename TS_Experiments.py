@@ -151,7 +151,10 @@ class TSExperiments:
             print(f"Induction: {end - start}")
 
             start = time.time()
-            lin_fun_params_optimal = metaheuristic(train_fitness)
+            try:
+                lin_fun_params_optimal = metaheuristic(train_fitness)
+            except IndexError:
+                continue
             end = time.time()
             print(f"Optimization: {end - start}")
 
@@ -203,7 +206,10 @@ class TSExperiments:
             print(f"Induction: {end - start}")
 
             start = time.time()
-            lin_fun_params_optimal = metaheuristic(train_fitness)
+            try:
+                lin_fun_params_optimal = metaheuristic(train_fitness)
+            except IndexError:
+                continue
             end = time.time()
             print(f"Ensemble optimization: {end - start}")
 
