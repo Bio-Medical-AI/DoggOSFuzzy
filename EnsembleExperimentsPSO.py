@@ -14,7 +14,7 @@ THRESHOLD = 0.5
 n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']
 adjustments = ['center']
-lower_scalings = np.arange(0.5, 1.01, 0.05)
+lower_scalings = np.arange(0.5, 0.96, 0.05)
 PARAM_LOWER_BOUND = -250
 PARAM_UPPER_BOUND = 250
 FUZZY_DEBUG = True
@@ -135,11 +135,11 @@ def prepare_pso(n_params, params_values):
                           lb=[PARAM_LOWER_BOUND] * n_params,
                           ub=[PARAM_UPPER_BOUND] * n_params,
                           debug=PSO_DEBUG,
-                          maxiter=MAXITER,
-                          swarmsize=SWARMSIZE,
-                          phig=PHIG,
-                          omega=OMEGA,
-                          phip=PHIP)
+                          maxiter=params_values['MAXITER'],
+                          swarmsize=params_values['SWARMSIZE'],
+                          phig=params_values['PHIG'],
+                          omega=params_values['OMEGA'],
+                          phip=params_values['PHIP'])
     return PSO(pso_partial)
 
 
