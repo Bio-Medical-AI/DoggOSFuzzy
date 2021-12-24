@@ -46,7 +46,7 @@ def vote_highest(y_pred):
 
 
 class TSExperiments:
-    def __init__(self, filepath, sep, logger, test_size=0.3, params_lower_bound=-10, params_upper_bound=10):
+    def __init__(self, filepath, sep, logger, test_size=0.2, params_lower_bound=-10, params_upper_bound=10):
         self.filepath = filepath
         self.sep = sep
         self.data = None
