@@ -89,9 +89,11 @@ PARAMS_VALUES = {
 
 
 def main():
-    pso_logger = Logger("pso", sys.argv[1] + '.csv')
+    #pso_logger = Logger("pso", sys.argv[1] + '.csv')
+    pso_logger = Logger("pso", 'Haberman' + '.csv')
 
-    experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
+    #experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
+    experiments = TSExperiments('data/' + 'Haberman' + '.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale])
 
     if len(sys.argv) >= 3:
@@ -106,7 +108,8 @@ def main():
                     experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
 
-                    pso_partial = prepare_pso(experiments.n_params, PARAMS_VALUES[sys.argv[1]])
+                    #pso_partial = prepare_pso(experiments.n_params, PARAMS_VALUES[sys.argv[1]])
+                    pso_partial = prepare_pso(experiments.n_params, PARAMS_VALUES['Haberman'])
 
                     experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
                                                                 metaheuristic=pso_partial,

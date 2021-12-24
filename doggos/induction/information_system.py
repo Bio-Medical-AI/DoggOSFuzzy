@@ -79,6 +79,10 @@ class InformationSystem:
 
         self.__rule_builder = RuleBuilder(consistent_decision_table, clauses)
         antecedents, str_antecedents = self.__rule_builder.induce_rules(fuzzy_sets)
+        if len(antecedents) == 1:
+            print(decision_table)
+            print(consistent_decision_table)
+            print("DUPA")
         return antecedents, str_antecedents
 
     @property
