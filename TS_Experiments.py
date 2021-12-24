@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split, StratifiedKFold
 
@@ -69,6 +70,7 @@ class TSExperiments:
         self.mode = None
         self.adjustment = None
         self.lower_scaling = None
+        self.mid_evs = None
         self.params_lower_bound = params_lower_bound
         self.params_upper_bound = params_upper_bound
         self.logger = logger
@@ -91,13 +93,18 @@ class TSExperiments:
         self.test_y = self.test['Decision']
         self.feature_names = list(self.data.columns[:-1])
 
+        self.mid_evs = []
+        for column in self.train.columns:
+            mean, _ = norm.fit(self.train[column].values)
+            self.mid_evs.append(mean)
+
     def prepare_fuzzy_system(self,
                              fuzzy_domain=Domain(0, 1.001, 0.001),
                              mf_type='gaussian',
                              n_mfs=3,
                              fuzzy_set_type='t1',
                              mode='equal',
-                             adjustment="Center",
+                             adjustment="center",
                              lower_scaling=0.8,
                              middle_vals=0.5):
         self.n_mfs = n_mfs
@@ -105,6 +112,8 @@ class TSExperiments:
         self.adjustment = adjustment
         self.lower_scaling = lower_scaling
         self.decision = LinguisticVariable(self.decision_name, Domain(0, 1.001, 0.001))
+        if adjustment == 'mean':
+            middle_vals = self.mid_evs
         self.ling_vars, self.fuzzy_sets, self.clauses = create_set_of_variables(
             ling_var_names=self.feature_names,
             domain=fuzzy_domain,
@@ -113,7 +122,8 @@ class TSExperiments:
             fuzzy_set_type=fuzzy_set_type,
             mode=mode,
             lower_scaling=lower_scaling,
-            middle_vals=middle_vals
+            middle_vals=middle_vals,
+            adjustment=adjustment
         )
 
         self.biases = []

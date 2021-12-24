@@ -12,7 +12,7 @@ from metaheuristics_wrapper import PSO
 THRESHOLD = 0.5
 n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']
-adjustments = ['center']
+adjustments = ['center', 'mean']
 lower_scalings = np.arange(0.5, 0.96, 0.05)
 PARAM_LOWER_BOUND = -250
 PARAM_UPPER_BOUND = 250
