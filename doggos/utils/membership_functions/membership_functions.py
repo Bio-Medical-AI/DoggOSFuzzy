@@ -156,7 +156,7 @@ def linear(a: float, b: float, max_value: float = 1) -> Callable[[float], float]
     return output_mf
 
 
-def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max_value: float = 1.) -> List[Callable]:
+def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max_value: float = 1., mid_ev: float = None) -> List[Callable]:
     """
     Generates specified number of gaussian functions with equal
     standard deviation distributed evenly across given domain.
@@ -168,37 +168,10 @@ def generate_equal_gausses(number_of_gausses: int, start: float, end: float, max
     :return: list of callable gaussian functions
     """
     result = np.zeros(number_of_gausses, dtype=type(gaussian))
-    domain = end - start
-    expected_values_in_domain_range = number_of_gausses - 2
-    cross_points = expected_values_in_domain_range + 1
-    expected_value_of_first_gaussian = 0
-    expected_value_of_second_gaussian = domain / cross_points
-
-    std_deviation = __calculate_sigma(expected_value_of_first_gaussian, expected_value_of_second_gaussian, max_value)
-
-    expected_value = 0.
-    result[0] = gaussian(expected_value, std_deviation, max_value)
-    for i in range(1, number_of_gausses):
-        expected_value = (domain / cross_points) * i
-        result[i] = gaussian(expected_value, std_deviation, max_value)
-
-    return result
-
-
-def generate_mean_gausses(number_of_gausses: int, max_value: float = 1., mid_ev=0.5) -> List[Callable]:
-    """
-    Generates specified number of gaussian functions with equal
-    standard deviation distributed evenly across given domain.
-
-    :param number_of_gausses: number of gaussian functions to generate
-    :param start: start of domain
-    :param end: end of domain
-    :param max_value: maximum value of gaussian functions, height
-    :param mid_mean: expected value of middle gaussian function
-    :return: list of callable gaussian functions
-    """
-    result = np.zeros(number_of_gausses, dtype=type(gaussian))
-    domain = mid_ev * 2
+    if mid_ev is not None:
+        domain = mid_ev * 2
+    else:
+        domain = end - start
     expected_values_in_domain_range = number_of_gausses - 2
     cross_points = expected_values_in_domain_range + 1
     expected_value_of_first_gaussian = 0

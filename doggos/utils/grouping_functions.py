@@ -49,13 +49,21 @@ def create_trapezoidal_t1(n_mfs, domain: Domain = Domain(0, 1.001, 0.001), mode:
 
 
 def create_gausses_it2(n_mfs, middle_val=0.5, domain: Domain = Domain(0, 1.001, 0.001), mode: str = 'equal',
-                       lower_scaling: float = 0.8):
+                       lower_scaling: float = 0.8, adjustment='center', mid_ev=0.5):
     if mode == 'equal' or mode == 'default':
-        upper_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision)
-        lower_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
+        if adjustment == 'center':
+            upper_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision)
+            lower_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision, lower_scaling)
+        elif adjustment == 'mean':
+            upper_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision, mid_ev=middle_val)
+            lower_fuzzy_sets = generate_equal_gausses(n_mfs, domain.min, domain.max - domain.precision, lower_scaling, mid_ev=middle_val)
     elif mode == 'progressive':
-        upper_fuzzy_sets = generate_progressive_gausses(n_mfs, middle_val)
-        lower_fuzzy_sets = generate_progressive_gausses(n_mfs, middle_val, lower_scaling)
+        if adjustment == 'center':
+            upper_fuzzy_sets = generate_progressive_gausses(n_mfs, middle_val)
+            lower_fuzzy_sets = generate_progressive_gausses(n_mfs, middle_val, lower_scaling)
+        elif adjustment == 'mean':
+            upper_fuzzy_sets = generate_progressive_gausses(n_mfs, middle_val)
+            lower_fuzzy_sets = generate_progressive_gausses(n_mfs, middle_val, lower_scaling)
     else:
         raise NotImplemented(f'Gaussian fuzzy sets mode can be either equal or progressive, not {mode}')
     functions = []
@@ -115,8 +123,7 @@ def create_set_of_variables(ling_var_names: Iterable[str],
                             mode: str = 'default',
                             lower_scaling: float = 0.8,
                             middle_vals: float or Iterable[float] = 0.5,
-                            adjustment='center',
-                            mean=0.5) \
+                            adjustment='center') \
         -> Tuple[List[LinguisticVariable], Dict[str, Dict[str, FuzzySet]], Dict[str, Dict[str, Clause]]]:
     """
     Creates a list of Linguistic Variables with provided names and domain. For each Linguistic Variable creates a number
@@ -147,7 +154,7 @@ def create_set_of_variables(ling_var_names: Iterable[str],
         elif fuzzy_set_type == 'it2':
             if mf_type == 'gaussian':
                 membership_functions = create_gausses_it2(n_mfs=n_mfs, middle_val=middle_val, domain=domain,
-                                                          mode=mode, lower_scaling=lower_scaling)
+                                                          mode=mode, lower_scaling=lower_scaling, adjustment=adjustment)
             elif mf_type == 'triangular':
                 membership_functions = create_triangular_it2(n_mfs=n_mfs, domain=domain,
                                                              mode=mode, lower_scaling=lower_scaling)
@@ -196,15 +203,23 @@ def create_set_of_variables(ling_var_names: Iterable[str],
     else:
         raise NotImplemented('n_mfs must have value from set {2, 3, 5, 7, 9, 11}')
 
-    if mode != 'progressive':
-        membership_functions = __create_membership_functions()
-        for var in ling_var_names:
-            fuzzy_sets = __create_fuzzy_sets(membership_functions, fuzzy_sets)
-    else:
+    if adjustment == 'mean':
         if hasattr(middle_vals, '__iter__'):
             for var, middle_val in zip(ling_var_names, middle_vals):
                 membership_functions = __create_membership_functions(middle_val)
                 fuzzy_sets = __create_fuzzy_sets(membership_functions, fuzzy_sets)
+        else:
+            raise Exception(f"Adjustment mean, but middle_vals is not Iterable")
+    else:
+        if mode != 'progressive':
+            membership_functions = __create_membership_functions()
+            for var in ling_var_names:
+                fuzzy_sets = __create_fuzzy_sets(membership_functions, fuzzy_sets)
+        else:
+            if hasattr(middle_vals, '__iter__'):
+                for var, middle_val, mid_ev in zip(ling_var_names, middle_vals):
+                    membership_functions = __create_membership_functions(middle_val)
+                    fuzzy_sets = __create_fuzzy_sets(membership_functions, fuzzy_sets)
 
     clauses = {}
     for var in ling_vars:
