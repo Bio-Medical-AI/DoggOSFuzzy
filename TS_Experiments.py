@@ -231,20 +231,20 @@ class TSExperiments:
                 best_val_f1 = val_f1
                 best_params = lin_fun_params_optimal
                 best_rules = n_rules
+        if len(best_params) != 0:
+            test_fuzzified = fuzzify(self.test, self.clauses)
+            test_measures = {}
+            for idx, label in enumerate(self.feature_names):
+                test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        test_fuzzified = fuzzify(self.test, self.clauses)
-        test_measures = {}
-        for idx, label in enumerate(self.feature_names):
-            test_measures[self.ling_vars[idx]] = self.test[label].values
-
-        f1 = 1 - self.__ensemble_fitness(best_params,
-                                         best_rules,
-                                         test_fuzzified,
-                                         self.test_y,
-                                         test_measures,
-                                         classification)
-        print(f'Final f1: {f1}')
-        self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+            f1 = 1 - self.__ensemble_fitness(best_params,
+                                             best_rules,
+                                             test_fuzzified,
+                                             self.test_y,
+                                             test_measures,
+                                             classification)
+            print(f'Final f1: {f1}')
+            self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
 
     def __create_rules(self, train_X, train_y):
         train_X_fuzzified = fuzzify(train_X, self.clauses)
