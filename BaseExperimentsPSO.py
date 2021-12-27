@@ -1,5 +1,6 @@
 from functools import partial
 import sys
+import random
 
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -89,7 +90,8 @@ PARAMS_VALUES = {
 
 
 def main():
-    pso_logger = Logger("pso", sys.argv[1] + '.csv')
+    seed_libs(42)
+    pso_logger = Logger("base_pso", sys.argv[1] + '.csv')
 
     experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale])
@@ -99,9 +101,9 @@ def main():
     else:
         N_FOLDS = 10
 
-    for n_mf in n_mfs:
-        for mode in modes:
-            for adjustment in adjustments:
+    for mode in modes:
+        for adjustment in adjustments:
+            for n_mf in n_mfs:
                 for ls in lower_scalings:
                     experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
@@ -142,6 +144,11 @@ def prepare_pso(n_params, params_values):
 def min_max_scale(data: np.ndarray):
     min_max_scaler = MinMaxScaler()
     return min_max_scaler.fit_transform(data)
+
+
+def seed_libs(seed=42):
+    np.random.seed(seed)
+    random.seed(seed)
 
 
 if __name__ == '__main__':

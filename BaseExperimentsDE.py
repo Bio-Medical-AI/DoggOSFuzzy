@@ -83,7 +83,7 @@ PARAMS_VALUES = {
 
 
 def main():
-    de_logger = Logger("de", sys.argv[1])
+    de_logger = Logger("base_de", sys.argv[1])
 
     experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', de_logger)
     experiments.prepare_data([min_max_scale])
@@ -93,11 +93,12 @@ def main():
     else:
         N_FOLDS = 10
 
-    for n_mf in n_mfs:
-        for mode in modes:
-            for adjustment in adjustments:
+    for mode in modes:
+        for adjustment in adjustments:
+            for n_mf in n_mfs:
                 for ls in lower_scalings:
-                    experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls, fuzzy_set_type='it2')
+                    experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
+                                                     fuzzy_set_type='it2')
 
                     de_partial = prepare_de(experiments.n_params, PARAMS_VALUES[sys.argv[1]])
 

@@ -88,7 +88,8 @@ class TSExperiments:
         self.transformed_data = self.transformed_data.round(3)
         self.train, self.test = train_test_split(self.transformed_data,
                                                  stratify=self.transformed_data['Decision'],
-                                                 test_size=self.test_size)
+                                                 test_size=self.test_size,
+                                                 random_state=42)
         self.train_y = self.train['Decision']
         self.test_y = self.test['Decision']
         self.feature_names = list(self.data.columns[:-1])
@@ -177,19 +178,20 @@ class TSExperiments:
                 best_params = lin_fun_params_optimal
                 best_rules = rules
 
-        test_fuzzified = fuzzify(self.test, self.clauses)
-        test_measures = {}
-        for idx, label in enumerate(self.feature_names):
-            test_measures[self.ling_vars[idx]] = self.test[label].values
+        if len(best_rules) != 0:
+            test_fuzzified = fuzzify(self.test, self.clauses)
+            test_measures = {}
+            for idx, label in enumerate(self.feature_names):
+                test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        f1 = 1 - self.__fitness(best_params,
-                                best_rules,
-                                test_fuzzified,
-                                self.test_y,
-                                test_measures,
-                                classification)
-        print(f'Final f1: {f1}')
-        self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+            f1 = 1 - self.__fitness(best_params,
+                                    best_rules,
+                                    test_fuzzified,
+                                    self.test_y,
+                                    test_measures,
+                                    classification)
+            print(f'Final f1: {f1}')
+            self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
 
     def select_optimal_parameters_kfold_ensemble(self,
                                                  classification,
@@ -231,7 +233,7 @@ class TSExperiments:
                 best_val_f1 = val_f1
                 best_params = lin_fun_params_optimal
                 best_rules = n_rules
-        if len(best_params) != 0:
+        if len(best_rules) != 0:
             test_fuzzified = fuzzify(self.test, self.clauses)
             test_measures = {}
             for idx, label in enumerate(self.feature_names):
