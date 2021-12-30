@@ -23,15 +23,15 @@ PSO_DEBUG = True
 PARAMS_VALUES = {
     'Breast Cancer Data':
         {
-            'MAXITER': 32,
-            'SWARMSIZE': 63,
-            'PHIG': 0.6239,
-            'PHIP': 1.6319,
-            'OMEGA': 0.6571
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
         },
     'Breast Cancer Wisconsin':
         {
-            'MAXITER': 15,
+            'MAXITER': 150,
             'SWARMSIZE': 69,
             'PHIG': 3.3950,
             'PHIP': -0.2699,
@@ -39,27 +39,27 @@ PARAMS_VALUES = {
         },
     'HTRU':
         {
-            'MAXITER': 32,
-            'SWARMSIZE': 63,
-            'PHIG': 0.6239,
-            'PHIP': 1.6319,
-            'OMEGA': 0.6571
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
         },
     'Immunotherapy':
         {
-            'MAXITER': 32,
-            'SWARMSIZE': 63,
-            'PHIG': 0.6239,
-            'PHIP': 1.6319,
-            'OMEGA': 0.6571
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
         },
     'Pima Indians Diabetes':
         {
-            'MAXITER': 32,
-            'SWARMSIZE': 63,
-            'PHIG': 0.6239,
-            'PHIP': 1.6319,
-            'OMEGA': 0.6571
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
         }
 }
 

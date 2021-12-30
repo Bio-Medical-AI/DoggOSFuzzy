@@ -24,59 +24,59 @@ FUZZY_DEBUG = True
 PARAMS_VALUES = {
     'Haberman':
         {
-            'NP': 28,
-            'MAXITER': 72,
-            'CR': 0.9426,
-            'DIFFERENTIAL_WEIGHT': 0.6607
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
     'Breast Cancer Data':
         {
-            'NP': 28,
-            'MAXITER': 72,
-            'CR': 0.9426,
-            'DIFFERENTIAL_WEIGHT': 0.6607
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
     'Breast Cancer Wisconsin':
         {
-            'NP': 28,
-            'MAXITER': 72,
-            'CR': 0.9426,
-            'DIFFERENTIAL_WEIGHT': 0.6607
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
     'diabetes':
         {
-            'NP': 28,
-            'MAXITER': 72,
-            'CR': 0.9426,
-            'DIFFERENTIAL_WEIGHT': 0.6607
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
     'HTRU':
         {
-            'NP': 28,
-            'MAXITER': 72,
-            'CR': 0.9426,
-            'DIFFERENTIAL_WEIGHT': 0.6607
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
     'Immunotherapy':
         {
-            'NP': 28,
-            'MAXITER': 72,
-            'CR': 0.9426,
-            'DIFFERENTIAL_WEIGHT': 0.6607
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
     'Pima Indians Diabetes':
         {
-            'NP': 28,
-            'MAXITER': 72,
-            'CR': 0.9426,
-            'DIFFERENTIAL_WEIGHT': 0.6607
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
     'Vertebral':
         {
-            'NP': 28,
-            'MAXITER': 72,
-            'CR': 0.9426,
-            'DIFFERENTIAL_WEIGHT': 0.6607
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
 }
 
