@@ -8,11 +8,19 @@ class Logger:
         if not os.path.isfile(self.path):
             with open(self.path, 'w') as file:
                 writer = csv.writer(file)
-                writer.writerow(["val_f1", "test_f1", "n_folds", "n_mfs", "fuzz_type", "adjustment", "lmf_scaling"])
+                writer.writerow(["val_f1", "test_f1", "accuracy", "recall", "precision", "balanced_accuracy", "roc_auc",
+                                 "n_folds", "n_mfs", "fuzz_type", "adjustment", "lmf_scaling"])
 
-    def log(self, val_f1, test_f1, n_folds, n_mfs, fuzz_type, adjustment, sigma_offset):
+    def log(self, val_f1, test_f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
+            n_mfs, fuzz_type, adjustment, sigma_offset, n_folds=0):
         with open(self.path, 'a') as file:
             writer = csv.writer(file)
-            writer.writerow([val_f1, test_f1, n_folds, n_mfs, fuzz_type, adjustment, sigma_offset])
-
-# F1    n_folds n_mfs   fuzz_type   adjustment  sigma_offset date
+            val_f1 = "%3.f" % val_f1
+            test_f1 = "%3.f" % test_f1
+            accuracy = "%3.f" % accuracy
+            recall = "%3.f" % recall
+            precision = "%3.f" % precision
+            balanced_accuracy = "%3.f" % balanced_accuracy
+            roc_auc = "%3.f" % roc_auc
+            writer.writerow([val_f1, test_f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
+                             n_folds, n_mfs, fuzz_type, adjustment, sigma_offset])

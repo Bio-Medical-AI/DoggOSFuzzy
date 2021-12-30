@@ -3,7 +3,8 @@ import math
 import numpy as np
 import pandas as pd
 from scipy.stats import norm
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, accuracy_score, recall_score, precision_score, balanced_accuracy_score, \
+    roc_auc_score
 from sklearn.model_selection import train_test_split, StratifiedKFold
 
 from doggos.induction import InformationSystem
@@ -17,11 +18,20 @@ import random
 import time
 
 
+# def make_n_splits(data, n):
+#     batch_size = int(len(data) / n)
+#     batches = []
+#     for i in range(0, n - 1):
+#         batches.append(data[batch_size * i: batch_size * (i + 1)])
+#     batches.append(data[batch_size * (n - 1):])
+#     return batches
+
+
 def make_n_splits(data, n):
-    batch_size = int(len(data) / n)
+    batch_size = int(len(data.values) / n)
     batches = []
     for i in range(0, n - 1):
-        batches.append(data[batch_size * i: batch_size * (i + 1)])
+        batches.append(data.iloc[batch_size * i: batch_size * (i + 1)])
     batches.append(data[batch_size * (n - 1):])
     return batches
 
@@ -71,6 +81,7 @@ class TSExperiments:
         self.adjustment = None
         self.lower_scaling = None
         self.mid_evs = None
+        self.val = None
         self.params_lower_bound = params_lower_bound
         self.params_upper_bound = params_upper_bound
         self.logger = logger
@@ -139,6 +150,76 @@ class TSExperiments:
 
         self.n_params = len(self.ling_vars) * len(self.consequents) + len(self.consequents)
 
+    def select_optimal_parameters(self,
+                                  classification,
+                                  metaheuristic,
+                                  random_state=41,
+                                  val_size=0.15):
+        train, val = train_test_split(self.train,
+                                      stratify=self.train['Decision'],
+                                      test_size=val_size,
+                                      random_state=random_state)
+
+        rules, train_fitness = self.__fit_fitness(train, classification)
+        _, val_fitness = self.__fit_fitness(val, classification, rules)
+
+        lin_fun_params_optimal = metaheuristic(val_fitness)
+
+        val_f1 = 1 - val_fitness(lin_fun_params_optimal)
+        print(f'Val f1: {val_f1}')
+
+        test_fuzzified = fuzzify(self.test, self.clauses)
+        test_measures = {}
+        for idx, label in enumerate(self.feature_names):
+            test_measures[self.ling_vars[idx]] = self.test[label].values
+
+        y_pred = self.__predict(lin_fun_params_optimal,
+                                rules,
+                                test_fuzzified,
+                                self.test_y,
+                                test_measures,
+                                classification)
+        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
+        print(f'Test f1: {f1}')
+        self.logger.log(val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
+                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+
+    def select_optimal_parameters_ensemble(self,
+                                           classification,
+                                           metaheuristic,
+                                           n_classifiers=5,
+                                           random_state=42,
+                                           val_size=0.15):
+        train, val = train_test_split(self.train,
+                                      stratify=self.train['Decision'],
+                                      test_size=val_size,
+                                      random_state=random_state)
+        batches = make_n_splits(train, n_classifiers)
+
+        n_rules, train_fitness = self.__ensemble_fit_fitness_train(batches, classification)
+        _, val_fitness = self.__ensemble_fit_fitness_val(val, classification, n_rules)
+
+        lin_fun_params_optimal = metaheuristic(val_fitness)
+
+        val_f1 = 1 - val_fitness(lin_fun_params_optimal)
+        print(f'Val F1: {val_f1}')
+
+        test_fuzzified = fuzzify(self.test, self.clauses)
+        test_measures = {}
+        for idx, label in enumerate(self.feature_names):
+            test_measures[self.ling_vars[idx]] = self.test[label].values
+
+        y_pred = self.__predict(lin_fun_params_optimal,
+                                n_rules,
+                                test_fuzzified,
+                                self.test_y,
+                                test_measures,
+                                classification)
+        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
+        print(f'Test f1: {f1}')
+        self.logger.log(val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
+                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+
     def select_optimal_parameters_kfold(self,
                                         classification,
                                         metaheuristic,
@@ -156,20 +237,14 @@ class TSExperiments:
                 print(f'Fold {n_fold}')
                 n_fold += 1
 
-            start = time.time()
-            rules, train_fitness = self.__fit_fitness(train_idx, classification)
-            end = time.time()
-            print(f"Induction: {end - start}")
+            train = self.train[train_idx]
+            val = self.train[val_idx]
 
-            start = time.time()
-            try:
-                lin_fun_params_optimal = metaheuristic(train_fitness)
-            except IndexError:
-                continue
-            end = time.time()
-            print(f"Optimization: {end - start}")
+            rules, train_fitness = self.__fit_fitness(train, classification)
+            _, val_fitness = self.__fit_fitness(val, classification, rules)
 
-            _, val_fitness = self.__fit_fitness(val_idx, classification, rules)
+            lin_fun_params_optimal = metaheuristic(val_fitness)
+
             val_f1 = 1 - val_fitness(lin_fun_params_optimal)
             if val_f1 > best_val_f1:
                 if debug:
@@ -178,20 +253,21 @@ class TSExperiments:
                 best_params = lin_fun_params_optimal
                 best_rules = rules
 
-        if len(best_rules) != 0:
-            test_fuzzified = fuzzify(self.test, self.clauses)
-            test_measures = {}
-            for idx, label in enumerate(self.feature_names):
-                test_measures[self.ling_vars[idx]] = self.test[label].values
+        test_fuzzified = fuzzify(self.test, self.clauses)
+        test_measures = {}
+        for idx, label in enumerate(self.feature_names):
+            test_measures[self.ling_vars[idx]] = self.test[label].values
 
-            f1 = 1 - self.__fitness(best_params,
-                                    best_rules,
-                                    test_fuzzified,
-                                    self.test_y,
-                                    test_measures,
-                                    classification)
-            print(f'Final f1: {f1}')
-            self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+        y_pred = self.__predict(best_params,
+                                best_rules,
+                                test_fuzzified,
+                                self.test_y,
+                                test_measures,
+                                classification)
+        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
+        print(f'Test f1: {f1}')
+        self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
+                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
 
     def select_optimal_parameters_kfold_ensemble(self,
                                                  classification,
@@ -210,22 +286,15 @@ class TSExperiments:
             if debug:
                 print(f'Fold {n_fold}')
                 n_fold += 1
+            train = self.train[train_idx]
+            val = self.train[val_idx]
+            indexes = make_n_splits(train, n_classifiers)
 
-            indexes = make_n_splits(train_idx, n_classifiers)
-            start = time.time()
             n_rules, train_fitness = self.__ensemble_fit_fitness_train(indexes, classification)
-            end = time.time()
-            print(f"Induction: {end - start}")
-
-            start = time.time()
-            try:
-                lin_fun_params_optimal = metaheuristic(train_fitness)
-            except IndexError:
-                continue
-            end = time.time()
-            print(f"Ensemble optimization: {end - start}")
-
             _, val_fitness = self.__ensemble_fit_fitness_val(val_idx, classification, n_rules)
+
+            lin_fun_params_optimal = metaheuristic(val_fitness)
+
             val_f1 = 1 - val_fitness(lin_fun_params_optimal)
             if val_f1 > best_val_f1:
                 if debug:
@@ -233,20 +302,22 @@ class TSExperiments:
                 best_val_f1 = val_f1
                 best_params = lin_fun_params_optimal
                 best_rules = n_rules
-        if len(best_rules) != 0:
-            test_fuzzified = fuzzify(self.test, self.clauses)
-            test_measures = {}
-            for idx, label in enumerate(self.feature_names):
-                test_measures[self.ling_vars[idx]] = self.test[label].values
 
-            f1 = 1 - self.__ensemble_fitness(best_params,
-                                             best_rules,
-                                             test_fuzzified,
-                                             self.test_y,
-                                             test_measures,
-                                             classification)
-            print(f'Final f1: {f1}')
-            self.logger.log(best_val_f1, f1, n_folds, self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+        test_fuzzified = fuzzify(self.test, self.clauses)
+        test_measures = {}
+        for idx, label in enumerate(self.feature_names):
+            test_measures[self.ling_vars[idx]] = self.test[label].values
+
+        y_pred = self.__predict(best_params,
+                                best_rules,
+                                test_fuzzified,
+                                self.test_y,
+                                test_measures,
+                                classification)
+        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
+        print(f'Test f1: {f1}')
+        self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
+                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
 
     def __create_rules(self, train_X, train_y):
         train_X_fuzzified = fuzzify(train_X, self.clauses)
@@ -288,8 +359,7 @@ class TSExperiments:
 
         return 1 - f1
 
-    def __fit_fitness(self, indexes, classification, rules=None):
-        data_X = self.train.iloc[indexes]
+    def __fit_fitness(self, data_X, classification, rules=None):
         data_y = data_X[self.decision_name]
         if rules:
             train_X_fuzzified = fuzzify(data_X, self.clauses)
@@ -349,35 +419,31 @@ class TSExperiments:
 
         return 1 - f1
 
-    def __ensemble_fit_fitness_train(self, indexes, classification):
-        data_X = []
-        data_y = []
-        for i, idx in enumerate(indexes):
-            data_X.append(self.train.iloc[idx])
-            data_y.append(data_X[i][self.decision_name])
-
+    def __ensemble_fit_fitness_train(self, batches, classification):
         n_rules = []
         n_train_X_fuzzified = {}
-        for i in range(len(indexes)):
-            rules, _, train_X_fuzzified = self.__create_rules(data_X[i], data_y[i])
-            if i == 0:
+        first = True
+        for batch in batches:
+            rules, _, train_X_fuzzified = self.__create_rules(batch, batch[self.decision_name])
+            if first:
                 for key in train_X_fuzzified.keys():
                     n_train_X_fuzzified[key] = train_X_fuzzified[key]
+                first = False
             else:
                 for key in train_X_fuzzified.keys():
                     n_train_X_fuzzified[key] = np.hstack((n_train_X_fuzzified[key], train_X_fuzzified[key]))
             n_rules.append(rules)
 
         measures = {}
-        for n_model in range(len(indexes)):
+        for i, batch in enumerate(batches):
             for idx, label in enumerate(self.feature_names):
-                if n_model == 0:
+                if i == 0:
                     measures[self.ling_vars[idx]] = []
-                measures[self.ling_vars[idx]].extend(data_X[n_model][label].values)
+                measures[self.ling_vars[idx]].extend(batch[label].values)
 
         data_y_flattened = []
-        for data in data_y:
-            data_y_flattened.extend(data.values)
+        for batch in batches:
+            data_y_flattened.extend(batch[self.feature_names].values)
 
         return n_rules, lambda parameters: self.__ensemble_fitness(parameters,
                                                                    n_rules=n_rules,
@@ -402,3 +468,42 @@ class TSExperiments:
                                                                    data_y=data_y,
                                                                    measures=measures,
                                                                    classification=classification)
+
+    def __predict(self,
+                  linear_fun_params,
+                  rules,
+                  fuzzified_data_X,
+                  data_y,
+                  measures,
+                  classification):
+        f_params1 = {}
+        f_params2 = {}
+        it = 0
+        for idx, lv in enumerate(self.ling_vars):
+            f_params1[lv] = linear_fun_params[idx]
+            it += 1
+
+        for lv in self.ling_vars:
+            f_params2[lv] = linear_fun_params[it]
+            it += 1
+
+        rules[0].consequent.function_parameters = f_params1
+        rules[1].consequent.function_parameters = f_params2
+        rules[0].consequent.bias = linear_fun_params[it]
+        it += 1
+        rules[1].consequent.bias = linear_fun_params[it]
+
+        ts = TakagiSugenoInferenceSystem(rules)
+        result_eval = ts.infer(takagi_sugeno_EIASC, fuzzified_data_X, measures)
+        y_pred_eval = [classification(x) for x in result_eval]
+
+        return y_pred_eval
+
+    def calc_metrics(self, y_true, y_pred):
+        f1 = f1_score(y_true, y_pred)
+        accuracy = accuracy_score(y_true, y_pred)
+        balanced_accuracy = balanced_accuracy_score(y_true, y_pred)
+        recall = recall_score(y_true, y_pred)
+        precision = precision_score(y_true, y_pred)
+        roc_auc = roc_auc_score(y_true, y_pred)
+        return f1, accuracy, recall, precision, balanced_accuracy, roc_auc

@@ -21,14 +21,6 @@ FUZZY_DEBUG = True
 PSO_DEBUG = True
 
 PARAMS_VALUES = {
-    'Haberman':
-    {
-        'MAXITER': 32,
-        'SWARMSIZE': 63,
-        'PHIG': 0.6239,
-        'PHIP': 1.6319,
-        'OMEGA': 0.6571
-    },
     'Breast Cancer Data':
         {
             'MAXITER': 32,
@@ -44,14 +36,6 @@ PARAMS_VALUES = {
             'PHIG': 3.3950,
             'PHIP': -0.2699,
             'OMEGA': -0.4438
-        },
-    'diabetes':
-        {
-            'MAXITER': 32,
-            'SWARMSIZE': 63,
-            'PHIG': 0.6239,
-            'PHIP': 1.6319,
-            'OMEGA': 0.6571
         },
     'HTRU':
         {
@@ -76,44 +60,32 @@ PARAMS_VALUES = {
             'PHIG': 0.6239,
             'PHIP': 1.6319,
             'OMEGA': 0.6571
-        },
-    'Vertebral':
-        {
-            'MAXITER': 32,
-            'SWARMSIZE': 63,
-            'PHIG': 0.6239,
-            'PHIP': 1.6319,
-            'OMEGA': 0.6571
         }
 }
+
+
 # Parameters from article "Good parameters for particle swarm optimization"
 
 
 def main():
     seed_libs(42)
-    pso_logger = Logger("base_pso", sys.argv[1] + '.csv')
+    pso_logger = Logger("base_pso", "Haberman" + '.csv')
 
-    experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
+    experiments = TSExperiments('data/' + "Haberman" + '.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale])
-
-    if len(sys.argv) >= 3:
-        N_FOLDS = int(sys.argv[2])
-    else:
-        N_FOLDS = 10
 
     for mode in modes:
         for adjustment in adjustments:
             for n_mf in n_mfs:
                 for ls in lower_scalings:
+                    print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
                     experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
 
-                    pso_partial = prepare_pso(experiments.n_params, PARAMS_VALUES[sys.argv[1]])
+                    pso_partial = prepare_pso(experiments.n_params, PARAMS_VALUES["Haberman"])
 
-                    experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
-                                                                metaheuristic=pso_partial,
-                                                                debug=FUZZY_DEBUG,
-                                                                n_folds=N_FOLDS)
+                    experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
+                                                          metaheuristic=pso_partial)
 
 
 def threshold_classification(theta):
