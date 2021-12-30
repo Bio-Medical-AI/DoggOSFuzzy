@@ -69,9 +69,9 @@ PARAMS_VALUES = {
 
 def main():
     seed_libs(42)
-    pso_logger = Logger("base_pso", "Haberman" + '.csv')
+    pso_logger = Logger("base_pso", sys.argv[1] + '.csv')
 
-    experiments = TSExperiments('data/' + "Haberman" + '.csv', ';', pso_logger)
+    experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale])
 
     for mode in modes:
@@ -82,7 +82,7 @@ def main():
                     experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
 
-                    pso_partial = prepare_pso(experiments.n_params, PARAMS_VALUES["Haberman"])
+                    pso_partial = prepare_pso(experiments.n_params, PARAMS_VALUES[sys.argv[1]])
 
                     experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
                                                           metaheuristic=pso_partial)
