@@ -452,8 +452,8 @@ class TSExperiments:
                                                                    measures=measures,
                                                                    classification=classification)
 
-    def __ensemble_fit_fitness_val(self, indexes, classification, n_rules):
-        data_X = self.train.iloc[indexes]
+    def __ensemble_fit_fitness_val(self, val, classification, n_rules):
+        data_X = val
         data_y = data_X[self.decision_name]
 
         measures = {}
