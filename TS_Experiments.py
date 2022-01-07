@@ -471,33 +471,45 @@ class TSExperiments:
 
     def __predict(self,
                   linear_fun_params,
-                  rules,
-                  fuzzified_data_X,
+                  n_rules,
+                  n_fuzzified_data_X,
                   data_y,
                   measures,
                   classification):
-        f_params1 = {}
-        f_params2 = {}
-        it = 0
-        for idx, lv in enumerate(self.ling_vars):
-            f_params1[lv] = linear_fun_params[idx]
+        models = []
+        for rules in n_rules:
+            f_params1 = {}
+            f_params2 = {}
+            it = 0
+            for idx, lv in enumerate(self.ling_vars):
+                f_params1[lv] = linear_fun_params[idx]
+                it += 1
+
+            for lv in self.ling_vars:
+                f_params2[lv] = linear_fun_params[it]
+                it += 1
+
+            rules[0].consequent.function_parameters = f_params1
+            rules[1].consequent.function_parameters = f_params2
+            rules[0].consequent.bias = linear_fun_params[it]
             it += 1
+            rules[1].consequent.bias = linear_fun_params[it]
 
-        for lv in self.ling_vars:
-            f_params2[lv] = linear_fun_params[it]
-            it += 1
+            models.append(TakagiSugenoInferenceSystem(rules))
 
-        rules[0].consequent.function_parameters = f_params1
-        rules[1].consequent.function_parameters = f_params2
-        rules[0].consequent.bias = linear_fun_params[it]
-        it += 1
-        rules[1].consequent.bias = linear_fun_params[it]
+        results = []
+        for model in models:
+            results.append(model.infer(takagi_sugeno_EIASC, n_fuzzified_data_X, measures))
+        y_pred = []
+        for result in results:
+            y_pred.append([classification(x) for x in result])
+        # w tej chwili modele, dla któych reguły zostały utworzone z małych zbiorów danych przewidują etykiety dla
+        # dużych zbiorów danych. Alternatywą jest, żeby każdy model przewidywał etykiety dla swoich danych,
+        # i wtedy nie mamy głosowania większościowego, ale też ma to sens.
+        # pomysł: optymalizacja metaheurystyką val_f1 a nie train_f1
+        y_pred_ensemble = vote_highest(y_pred)
 
-        ts = TakagiSugenoInferenceSystem(rules)
-        result_eval = ts.infer(takagi_sugeno_EIASC, fuzzified_data_X, measures)
-        y_pred_eval = [classification(x) for x in result_eval]
-
-        return y_pred_eval
+        return y_pred_ensemble
 
     def calc_metrics(self, y_true, y_pred):
         f1 = f1_score(y_true, y_pred)
