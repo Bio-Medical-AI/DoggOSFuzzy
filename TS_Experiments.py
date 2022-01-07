@@ -182,7 +182,7 @@ class TSExperiments:
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
-                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling, lin_fun_params_optimal)
 
     def select_optimal_parameters_ensemble(self,
                                            classification,
@@ -218,7 +218,7 @@ class TSExperiments:
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
-                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling, lin_fun_params_optimal)
 
     def select_optimal_parameters_kfold(self,
                                         classification,
@@ -267,7 +267,7 @@ class TSExperiments:
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
-                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling, best_params)
 
     def select_optimal_parameters_kfold_ensemble(self,
                                                  classification,
@@ -317,7 +317,7 @@ class TSExperiments:
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
-                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling)
+                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling, best_params)
 
     def __create_rules(self, train_X, train_y):
         train_X_fuzzified = fuzzify(train_X, self.clauses)
