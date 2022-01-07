@@ -37,6 +37,14 @@ PARAMS_VALUES = {
             'PHIP': -0.2699,
             'OMEGA': -0.4438
         },
+    'Data Banknote Auth':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
     'HTRU':
         {
             'MAXITER': 377,
@@ -52,6 +60,22 @@ PARAMS_VALUES = {
             'PHIG': 4.8976,
             'PHIP': -0.2746,
             'OMEGA': -0.3488
+        },
+    'Ionosphere':
+        {
+            'MAXITER': 188,
+            'SWARMSIZE': 106,
+            'PHIG': 3.8876,
+            'PHIP': -0.1564,
+            'OMEGA': -0.2256
+        },
+    'Parkinson':
+        {
+            'MAXITER': 188,
+            'SWARMSIZE': 106,
+            'PHIG': 3.8876,
+            'PHIP': -0.1564,
+            'OMEGA': -0.2256
         },
     'Pima Indians Diabetes':
         {

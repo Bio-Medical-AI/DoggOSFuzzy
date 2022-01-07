@@ -22,13 +22,6 @@ DE_DEBUG = True
 FUZZY_DEBUG = True
 
 PARAMS_VALUES = {
-    'Haberman':
-        {
-            'NP': 18,
-            'MAXITER': 1000,
-            'CR': 0.5026,
-            'DIFFERENTIAL_WEIGHT': 0.6714
-        },
     'Breast Cancer Data':
         {
             'NP': 18,
@@ -38,12 +31,12 @@ PARAMS_VALUES = {
         },
     'Breast Cancer Wisconsin':
         {
-            'NP': 18,
-            'MAXITER': 1000,
-            'CR': 0.5026,
-            'DIFFERENTIAL_WEIGHT': 0.6714
+            'NP': 37,
+            'MAXITER': 500,
+            'CR': 0.9455,
+            'DIFFERENTIAL_WEIGHT': 0.6497
         },
-    'diabetes':
+    'Data Banknote Auth':
         {
             'NP': 18,
             'MAXITER': 1000,
@@ -64,20 +57,27 @@ PARAMS_VALUES = {
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
         },
+    'Ionosphere':
+        {
+            'NP': 48,
+            'MAXITER': 416,
+            'CR': 0.9784,
+            'DIFFERENTIAL_WEIGHT': 0.6876
+        },
+    'Parkinson':
+        {
+            'NP': 48,
+            'MAXITER': 416,
+            'CR': 0.9784,
+            'DIFFERENTIAL_WEIGHT': 0.6876
+        },
     'Pima Indians Diabetes':
         {
             'NP': 18,
             'MAXITER': 1000,
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
-        },
-    'Vertebral':
-        {
-            'NP': 18,
-            'MAXITER': 1000,
-            'CR': 0.5026,
-            'DIFFERENTIAL_WEIGHT': 0.6714
-        },
+        }
 }
 
 
