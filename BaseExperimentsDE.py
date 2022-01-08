@@ -87,10 +87,10 @@ def main():
     experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', de_logger)
     experiments.prepare_data([min_max_scale])
 
-    for mode in modes:
-        for adjustment in adjustments:
-            for n_mf in n_mfs:
-                for ls in lower_scalings:
+    for ls in lower_scalings:
+        for mode in modes:
+            for adjustment in adjustments:
+                for n_mf in n_mfs:
                     print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
                     experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
