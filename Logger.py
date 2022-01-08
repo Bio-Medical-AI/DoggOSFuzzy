@@ -24,6 +24,6 @@ class Logger:
             roc_auc = "%3.f" % roc_auc
             params = ""
             for param in fun_params:
-                params += "3.f" % param
+                params += "%3.f" % param
             writer.writerow([val_f1, test_f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
                              n_folds, n_mfs, fuzz_type, adjustment, sigma_offset, params])
