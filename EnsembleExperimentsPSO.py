@@ -14,8 +14,8 @@ n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']
 adjustments = ['center', 'mean']
 lower_scalings = np.arange(0.5, 0.96, 0.05)
-PARAM_LOWER_BOUND = -250
-PARAM_UPPER_BOUND = 250
+PARAM_LOWER_BOUND = -400
+PARAM_UPPER_BOUND = 400
 FUZZY_DEBUG = True
 PSO_DEBUG = True
 
