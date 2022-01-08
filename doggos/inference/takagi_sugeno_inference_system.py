@@ -83,23 +83,25 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
             for key, value in measures.items():
                 single_measures[key] = value[i]
             input_tuple = self.__get_input_tuple(single_measures.values())
+            firings = []
+            outputs = []
             if self.__is_cached(input_tuple):
-                conclusions.append(self.__cache[input_tuple])
+                firings = self.__cache[input_tuple]
             else:
-                outputs = []
-                firings = []
                 for rule in self._rule_base:
-                    outputs.append(rule.consequent.output(single_measures))
                     firings.append(rule.antecedent.fire(single_features))
-                outputs = np.array(outputs)
-                firings = np.array(firings)
-                ind = np.argsort(outputs)
-                outputs = outputs[ind]
-                firings = firings[ind]
-                conclusion = defuzzification_method(np.array(firings),
-                                                      np.array(outputs))
-                conclusions.append(conclusion)
-                self.__cache[input_tuple] = conclusion
+                self.__cache[input_tuple] = firings
+
+            for rule in self._rule_base:
+                outputs.append(rule.consequent.output(single_measures))
+            outputs = np.array(outputs)
+            firings = np.array(firings)
+            ind = np.argsort(outputs)
+            outputs = outputs[ind]
+            firings = firings[ind]
+            conclusion = defuzzification_method(np.array(firings),
+                                                np.array(outputs))
+            conclusions.append(conclusion)
 
         return conclusions
 
@@ -112,7 +114,4 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
 
     def __get_input_tuple(self, _input):
         in_values = list(_input)
-        for rule in self._rule_base:
-            for param in rule.consequent.function_parameters.values():
-                in_values.append(param)
         return tuple(in_values)

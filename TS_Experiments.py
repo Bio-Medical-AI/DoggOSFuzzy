@@ -160,8 +160,8 @@ class TSExperiments:
                                       test_size=val_size,
                                       random_state=random_state)
 
-        rules, train_fitness = self.__fit_fitness(train, classification)
-        _, val_fitness = self.__fit_fitness(val, classification, rules)
+        _, rules, train_fitness = self.__fit_fitness(train, classification)
+        ts, _, val_fitness = self.__fit_fitness(val, classification, rules)
 
         lin_fun_params_optimal = metaheuristic(val_fitness)
 
@@ -173,7 +173,8 @@ class TSExperiments:
         for idx, label in enumerate(self.feature_names):
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        y_pred = self.__predict(lin_fun_params_optimal,
+        y_pred = self.__predict(ts,
+                                lin_fun_params_optimal,
                                 rules,
                                 test_fuzzified,
                                 self.test_y,
@@ -196,8 +197,8 @@ class TSExperiments:
                                       random_state=random_state)
         batches = make_n_splits(train, n_classifiers)
 
-        n_rules, train_fitness = self.__ensemble_fit_fitness_train(batches, classification)
-        _, val_fitness = self.__ensemble_fit_fitness_val(val, classification, n_rules)
+        _, n_rules, _ = self.__ensemble_fit_fitness_train(batches, classification)
+        models, _, val_fitness = self.__ensemble_fit_fitness_val(val, classification, n_rules)
 
         lin_fun_params_optimal = metaheuristic(val_fitness)
 
@@ -209,12 +210,13 @@ class TSExperiments:
         for idx, label in enumerate(self.feature_names):
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        y_pred = self.__predict(lin_fun_params_optimal,
-                                n_rules,
-                                test_fuzzified,
-                                self.test_y,
-                                test_measures,
-                                classification)
+        y_pred = self.__ensemble_predict(models,
+                                         lin_fun_params_optimal,
+                                         n_rules,
+                                         test_fuzzified,
+                                         self.test_y,
+                                         test_measures,
+                                         classification)
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
@@ -240,8 +242,8 @@ class TSExperiments:
             train = self.train[train_idx]
             val = self.train[val_idx]
 
-            rules, train_fitness = self.__fit_fitness(train, classification)
-            _, val_fitness = self.__fit_fitness(val, classification, rules)
+            _, rules, train_fitness = self.__fit_fitness(train, classification)
+            ts, _, val_fitness = self.__fit_fitness(val, classification, rules)
 
             lin_fun_params_optimal = metaheuristic(val_fitness)
 
@@ -258,7 +260,9 @@ class TSExperiments:
         for idx, label in enumerate(self.feature_names):
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        y_pred = self.__predict(best_params,
+        ts = TakagiSugenoInferenceSystem(best_rules)
+        y_pred = self.__predict(ts,
+                                best_params,
                                 best_rules,
                                 test_fuzzified,
                                 self.test_y,
@@ -280,6 +284,7 @@ class TSExperiments:
         best_val_f1 = 0
         best_params = []
         best_rules = []
+        best_models = []
         skf = StratifiedKFold(n_splits=n_folds, shuffle=shuffle, random_state=random_state)
         n_fold = 0
         for train_idx, val_idx in skf.split(self.train, self.train_y):
@@ -290,8 +295,8 @@ class TSExperiments:
             val = self.train[val_idx]
             indexes = make_n_splits(train, n_classifiers)
 
-            n_rules, train_fitness = self.__ensemble_fit_fitness_train(indexes, classification)
-            _, val_fitness = self.__ensemble_fit_fitness_val(val_idx, classification, n_rules)
+            _, n_rules, train_fitness = self.__ensemble_fit_fitness_train(indexes, classification)
+            models, _, val_fitness = self.__ensemble_fit_fitness_val(val_idx, classification, n_rules)
 
             lin_fun_params_optimal = metaheuristic(val_fitness)
 
@@ -302,18 +307,20 @@ class TSExperiments:
                 best_val_f1 = val_f1
                 best_params = lin_fun_params_optimal
                 best_rules = n_rules
+                best_models = models
 
         test_fuzzified = fuzzify(self.test, self.clauses)
         test_measures = {}
         for idx, label in enumerate(self.feature_names):
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        y_pred = self.__predict(best_params,
-                                best_rules,
-                                test_fuzzified,
-                                self.test_y,
-                                test_measures,
-                                classification)
+        y_pred = self.__ensemble_predict(best_models,
+                                         best_params,
+                                         best_rules,
+                                         test_fuzzified,
+                                         self.test_y,
+                                         test_measures,
+                                         classification)
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
@@ -329,6 +336,7 @@ class TSExperiments:
         return rules, string_antecedents, train_X_fuzzified
 
     def __fitness(self,
+                  ts,
                   linear_fun_params,
                   rules,
                   fuzzified_data_X,
@@ -352,7 +360,6 @@ class TSExperiments:
         it += 1
         rules[1].consequent.bias = linear_fun_params[it]
 
-        ts = TakagiSugenoInferenceSystem(rules)
         result_eval = ts.infer(takagi_sugeno_EIASC, fuzzified_data_X, measures)
         y_pred_eval = [classification(x) for x in result_eval]
         f1 = f1_score(data_y.values, y_pred_eval)
@@ -369,21 +376,24 @@ class TSExperiments:
         for idx, label in enumerate(self.feature_names):
             measures[self.ling_vars[idx]] = data_X[label].values
 
-        return rules, lambda parameters: self.__fitness(parameters,
-                                                        rules,
-                                                        fuzzified_data_X=train_X_fuzzified,
-                                                        data_y=data_y,
-                                                        measures=measures,
-                                                        classification=classification)
+        ts = TakagiSugenoInferenceSystem(rules)
+
+        return ts, rules, lambda parameters: self.__fitness(ts,
+                                                            parameters,
+                                                            rules,
+                                                            fuzzified_data_X=train_X_fuzzified,
+                                                            data_y=data_y,
+                                                            measures=measures,
+                                                            classification=classification)
 
     def __ensemble_fitness(self,
+                           models,
                            linear_fun_params,
                            n_rules,
                            n_fuzzified_data_X,
                            data_y,
                            measures,
                            classification):
-        models = []
         for rules in n_rules:
             f_params1 = {}
             f_params2 = {}
@@ -401,8 +411,6 @@ class TSExperiments:
             rules[0].consequent.bias = linear_fun_params[it]
             it += 1
             rules[1].consequent.bias = linear_fun_params[it]
-
-            models.append(TakagiSugenoInferenceSystem(rules))
 
         results = []
         for model in models:
@@ -445,12 +453,17 @@ class TSExperiments:
         for batch in batches:
             data_y_flattened.extend(batch[self.feature_names].values)
 
-        return n_rules, lambda parameters: self.__ensemble_fitness(parameters,
-                                                                   n_rules=n_rules,
-                                                                   n_fuzzified_data_X=n_train_X_fuzzified,
-                                                                   data_y=data_y_flattened,
-                                                                   measures=measures,
-                                                                   classification=classification)
+        models = []
+        for rules in n_rules:
+            models.append(TakagiSugenoInferenceSystem(rules))
+
+        return models, n_rules, lambda parameters: self.__ensemble_fitness(models,
+                                                                           parameters,
+                                                                           n_rules=n_rules,
+                                                                           n_fuzzified_data_X=n_train_X_fuzzified,
+                                                                           data_y=data_y_flattened,
+                                                                           measures=measures,
+                                                                           classification=classification)
 
     def __ensemble_fit_fitness_val(self, val, classification, n_rules):
         data_X = val
@@ -462,21 +475,56 @@ class TSExperiments:
 
         val_X_fuzzified = fuzzify(data_X, self.clauses)
 
-        return n_rules, lambda parameters: self.__ensemble_fitness(parameters,
-                                                                   n_rules=n_rules,
-                                                                   n_fuzzified_data_X=val_X_fuzzified,
-                                                                   data_y=data_y,
-                                                                   measures=measures,
-                                                                   classification=classification)
+        models = []
+        for rules in n_rules:
+            models.append(TakagiSugenoInferenceSystem(rules))
+
+        return models, n_rules, lambda parameters: self.__ensemble_fitness(models,
+                                                                           parameters,
+                                                                           n_rules=n_rules,
+                                                                           n_fuzzified_data_X=val_X_fuzzified,
+                                                                           data_y=data_y,
+                                                                           measures=measures,
+                                                                           classification=classification)
 
     def __predict(self,
+                  ts,
                   linear_fun_params,
-                  n_rules,
-                  n_fuzzified_data_X,
+                  rules,
+                  fuzzified_data_X,
                   data_y,
                   measures,
                   classification):
-        models = []
+        f_params1 = {}
+        f_params2 = {}
+        it = 0
+        for idx, lv in enumerate(self.ling_vars):
+            f_params1[lv] = linear_fun_params[idx]
+            it += 1
+
+        for lv in self.ling_vars:
+            f_params2[lv] = linear_fun_params[it]
+            it += 1
+
+        rules[0].consequent.function_parameters = f_params1
+        rules[1].consequent.function_parameters = f_params2
+        rules[0].consequent.bias = linear_fun_params[it]
+        it += 1
+        rules[1].consequent.bias = linear_fun_params[it]
+
+        result_eval = ts.infer(takagi_sugeno_EIASC, fuzzified_data_X, measures)
+        y_pred_eval = [classification(x) for x in result_eval]
+
+        return y_pred_eval
+
+    def __ensemble_predict(self,
+                           models,
+                           linear_fun_params,
+                           n_rules,
+                           n_fuzzified_data_X,
+                           data_y,
+                           measures,
+                           classification):
         for rules in n_rules:
             f_params1 = {}
             f_params2 = {}
@@ -494,8 +542,6 @@ class TSExperiments:
             rules[0].consequent.bias = linear_fun_params[it]
             it += 1
             rules[1].consequent.bias = linear_fun_params[it]
-
-            models.append(TakagiSugenoInferenceSystem(rules))
 
         results = []
         for model in models:
