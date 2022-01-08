@@ -15,15 +15,15 @@ class Logger:
             n_mfs, fuzz_type, adjustment, sigma_offset, fun_params, n_folds=0):
         with open(self.path, 'a') as file:
             writer = csv.writer(file)
-            val_f1 = "%3.f" % val_f1
-            test_f1 = "%3.f" % test_f1
-            accuracy = "%3.f" % accuracy
-            recall = "%3.f" % recall
-            precision = "%3.f" % precision
-            balanced_accuracy = "%3.f" % balanced_accuracy
-            roc_auc = "%3.f" % roc_auc
+            val_f1 = "%.3f" % val_f1
+            test_f1 = "%.3f" % test_f1
+            accuracy = "%.3f" % accuracy
+            recall = "%.3f" % recall
+            precision = "%.3f" % precision
+            balanced_accuracy = "%.3f" % balanced_accuracy
+            roc_auc = "%.3f" % roc_auc
             params = ""
             for param in fun_params:
-                params += "%3.f" % param
+                params += "%.3f" % param + " "
             writer.writerow([val_f1, test_f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
                              n_folds, n_mfs, fuzz_type, adjustment, sigma_offset, params])

@@ -93,7 +93,7 @@ PARAMS_VALUES = {
 
 def main():
     seed_libs(42)
-    pso_logger = Logger("base_pso", sys.argv[1] + '.csv')
+    pso_logger = Logger("base_pso", sys.argv[1])
 
     experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale])
