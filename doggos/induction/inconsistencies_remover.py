@@ -44,7 +44,7 @@ class InconsistenciesRemover:
         :param feature_labels: labels of features to consider for calculating samples identity
         :param target_label: label of the target prediction value
         """
-        self.__dataset = dataset
+        self.__dataset = dataset.reset_index().drop(columns=['index'])
         self.__feature_labels = feature_labels
         self.__target_label = target_label
         self.__clean_decisions = None

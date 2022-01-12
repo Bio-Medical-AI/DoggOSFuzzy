@@ -8,7 +8,7 @@ from functools import partial
 
 def center_of_gravity(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
     cut = __membership_func_union(membership_functions)
-    return np.average(domain, weights=cut)
+    return np.average(domain, weights=cut + 1e-10)
 
 
 def largest_of_maximum(domain: np.ndarray, membership_functions: List[np.ndarray]) -> float:
@@ -164,9 +164,11 @@ def __find_y(partial_find_c_minute: partial, domain: np.ndarray, thetas: np.ndar
     """
     c_prim = np.average(domain, weights=thetas)
     c_minute = partial_find_c_minute(c=c_prim, domain=domain)
-    while abs(c_minute - c_prim) > np.finfo(float).eps:
+    i = 0
+    while abs(c_minute - c_prim) > np.finfo(float).eps and i < 20:
         c_prim = c_minute
         c_minute = partial_find_c_minute(c=c_prim, domain=domain)
+        i += 1
     return c_minute
 
 

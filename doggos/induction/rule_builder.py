@@ -1,3 +1,4 @@
+import time
 from typing import Dict, Tuple, Any, List
 
 import pandas as pd
@@ -51,7 +52,7 @@ class RuleBuilder:
     __boolean_algebra: boolean.BooleanAlgebra
     __target_label: str
 
-    def __init__(self, dataset: pd.DataFrame, domain: Domain, target_label: str = 'Decision'):
+    def __init__(self, dataset: pd.DataFrame, clauses, target_label: str = 'Decision'):
         """
         Creates RuleBuilder for final step of rules induction from given dataset.
 
@@ -60,17 +61,13 @@ class RuleBuilder:
         :param target_label: label of the target prediction value
         """
         self.__target_label = target_label
+        self.__clauses = clauses
         self.__decision_rules = {}
         self.__dataset = dataset.reset_index().drop(columns=['index'])
-        for column in self.__dataset.columns:
-            self.__dataset.rename({column: str(column)})
         self.__features = []
         columns = list(dataset.columns)
         columns.remove(target_label)
-        for feature in columns:
-            self.__features.append(LinguisticVariable(feature, domain))
         self.__terms = {}
-        self.__clauses = []
         self.__boolean_algebra = boolean.BooleanAlgebra()
 
     def induce_rules(self, fuzzy_sets: Dict[str, Dict[str, FuzzySet]],
@@ -82,20 +79,23 @@ class RuleBuilder:
         :param algebra: represents algebra for specific fuzzy logic
         :return: rules as aggregated terms and as strings
         """
-        for feature in self.__features:
-            for key in fuzzy_sets[feature.name]:
-                clause = Clause(feature, key, fuzzy_sets[feature.name][key])
-                self.__terms[f"{feature.name}_{key}"] = Term(algebra, clause)
-                self.__clauses.append(clause)
-        differences = self.__get_differences(self.__dataset)
+        columns = list(self.__dataset.columns)
+        columns.remove(self.__target_label)
+        for feature in columns:
+            for key in fuzzy_sets[feature]:
+                self.__terms[f"{feature}_{key}"] = Term(algebra, self.__clauses[feature][key])
 
+        start = time.time()
+        differences = self.__get_differences(self.__dataset)
+        end = time.time()
+        print('rule_builder__get_differences: ', end - start)
         decisions = np.unique(self.__dataset[self.__target_label])
         decision_rules = {}
         string_antecedents = {}
         for decision in decisions:
             indices = np.where(self.__dataset[self.__target_label].values == decision)[0]
             idx_rows = [(index, self.__dataset.loc[index, self.__dataset.columns]) for index in indices]
-            decision_rules[decision], string_antecedents[decision] = self.__build_rules(differences, idx_rows)
+            decision_rules[str(decision)], string_antecedents[str(decision)] = self.__build_rules(differences, idx_rows)
 
         self.__decision_rules = decision_rules
         return self.__decision_rules, string_antecedents
@@ -109,10 +109,14 @@ class RuleBuilder:
         :return: term with aggregated firing function and string form of antecedent
         """
         all_conjunction = []
+        start = time.time()
         for idx, row in idx_rows:
             conjunction = self.__get_implicants(differences, row, idx)
             if len(conjunction) > 0:
                 all_conjunction.append(conjunction)
+        end = time.time()
+        print('implicants_construction: ', end - start)
+        start = time.time()
         all_conjunction.sort(key=lambda x: len(x))
         res_conjunction = []
         for con in all_conjunction:
@@ -140,8 +144,20 @@ class RuleBuilder:
                 subexpression += str(inner_subexpression)
                 subexpression += ")"
                 antecedent += subexpression
-        antecedent = str(self.__boolean_algebra.parse(antecedent).simplify())
-        return eval(str(antecedent), self.__terms), antecedent
+        end = time.time()
+        print('antecedent_construction: ', end - start)
+        if antecedent is None:
+            raise Exception("Dataset is too inconsistent to resolve.")
+        else:
+            start = time.time()
+            antecedent = str(self.__boolean_algebra.parse(antecedent).simplify())
+            end = time.time()
+            print('Simplification: ', end - start)
+            start = time.time()
+            terms = eval(str(antecedent), self.__terms)
+            end = time.time()
+            print('antecedent_evaluation: ', end - start)
+            return terms, antecedent
 
     def __get_implicants(self, differences: np.ndarray, row: pd.Series, index: int) -> List[List[str]]:
         """

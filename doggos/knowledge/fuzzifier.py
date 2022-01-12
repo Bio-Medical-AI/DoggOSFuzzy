@@ -5,7 +5,7 @@ from typing import Iterable, Dict
 from doggos.knowledge import Clause
 
 
-def fuzzify(dataset: pd.DataFrame, clauses: Iterable[Clause]) -> Dict[Clause, np.ndarray]:
+def fuzzify(dataset: pd.DataFrame, clauses: Dict[str, Dict[str, Clause]]) -> Dict[Clause, np.ndarray]:
     """
     Calculates membership degrees of features of the dataset for each clause.
 
@@ -32,8 +32,8 @@ def fuzzify(dataset: pd.DataFrame, clauses: Iterable[Clause]) -> Dict[Clause, np
     :return: membership degrees of features of the dataset for each clause
     """
     fuzzified_dataset = dict()
-    for clause in clauses:
-        category = clause.linguistic_variable.name
-        data = dataset[category].values
-        fuzzified_dataset[clause] = clause.get_value(data)
+    for feature in clauses.keys():
+        for adj in clauses[feature].keys():
+            data = dataset[feature].values
+            fuzzified_dataset[clauses[feature][adj]] = clauses[feature][adj].get_value(data)
     return fuzzified_dataset
