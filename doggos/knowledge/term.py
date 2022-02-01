@@ -6,6 +6,8 @@ from doggos.fuzzy_sets.fuzzy_set import MembershipDegree
 from doggos.knowledge.clause import Clause
 from doggos.knowledge.antecedent import Antecedent
 
+from functools import partial
+
 
 class Term(Antecedent):
     """
@@ -76,7 +78,8 @@ class Term(Antecedent):
         :return: term
         """
         new_term = self.__class__(self.algebra, name=self.name + ' & ' + other.name)
-        new_term.fire = lambda dict_: self.algebra.t_norm(self.fire(dict_), other.fire(dict_))
+        # Sprawdzić czy działa 01.02.2022
+        new_term.fire = partial(self.apply_dict_t_norm, other=other)
         return new_term
 
     def __or__(self, other: Term) -> Term:
@@ -87,7 +90,8 @@ class Term(Antecedent):
         :return: term
         """
         new_term = self.__class__(self.algebra, name=self.name + ' | ' + other.name)
-        new_term.fire = lambda dict_: self.algebra.s_norm(self.fire(dict_), other.fire(dict_))
+        # Sprawdzić czy działa 01.02.2022
+        new_term.fire = partial(self.apply_dict_s_norm, other=other)
         return new_term
 
     def __str__(self):
@@ -95,3 +99,9 @@ class Term(Antecedent):
 
     def __repr__(self):
         return self.__str__()
+
+    def apply_dict_t_norm(self, dict_, other):
+        return self.algebra.t_norm(self.fire(dict_), other.fire(dict_))
+
+    def apply_dict_s_norm(self, dict_, other):
+        return self.algebra.s_norm(self.fire(dict_), other.fire(dict_))

@@ -14,6 +14,7 @@ class InferenceSystem(ABC):
             raise TypeError('rule_base must be an iterable of type Rule')
 
         self._rule_base = rule_base
+        self._cache = {}
 
     @abstractmethod
     def infer(self, *args) -> Iterable[float]:

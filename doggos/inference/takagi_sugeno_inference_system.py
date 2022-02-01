@@ -50,8 +50,6 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
     consequent_linguistic_variable_1: [0.71]}
     """
 
-    __cache = {}
-
     def infer(self,
               defuzzification_method: Callable,
               features: Dict[Clause, List[MembershipDegree]],
@@ -86,11 +84,11 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
             firings = []
             outputs = []
             if self.__is_cached(input_tuple):
-                firings = self.__cache[input_tuple]
+                firings = self._cache[input_tuple]
             else:
                 for rule in self._rule_base:
                     firings.append(rule.antecedent.fire(single_features))
-                self.__cache[input_tuple] = firings
+                self._cache[input_tuple] = firings
 
             for rule in self._rule_base:
                 outputs.append(rule.consequent.output(single_measures))
@@ -107,7 +105,7 @@ class TakagiSugenoInferenceSystem(InferenceSystem):
 
     def __is_cached(self, _input):
         try:
-            self.__cache[_input]
+            self._cache[_input]
             return True
         except KeyError:
             return False

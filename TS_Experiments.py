@@ -6,6 +6,7 @@ from scipy.stats import norm
 from sklearn.metrics import f1_score, accuracy_score, recall_score, precision_score, balanced_accuracy_score, \
     roc_auc_score
 from sklearn.model_selection import train_test_split, StratifiedKFold
+from functools import partial
 
 from doggos.induction import InformationSystem
 from doggos.inference import TakagiSugenoInferenceSystem
@@ -336,8 +337,8 @@ class TSExperiments:
         return rules, string_antecedents, train_X_fuzzified
 
     def __fitness(self,
-                  ts,
                   linear_fun_params,
+                  ts,
                   rules,
                   fuzzified_data_X,
                   data_y,
@@ -378,17 +379,17 @@ class TSExperiments:
 
         ts = TakagiSugenoInferenceSystem(rules)
 
-        return ts, rules, lambda parameters: self.__fitness(ts,
-                                                            parameters,
-                                                            rules,
-                                                            fuzzified_data_X=train_X_fuzzified,
-                                                            data_y=data_y,
-                                                            measures=measures,
-                                                            classification=classification)
+        return ts, rules, partial(self.__fitness,
+                                  ts=ts,
+                                  rules=rules,
+                                  fuzzified_data_X=train_X_fuzzified,
+                                  data_y=data_y,
+                                  measures=measures,
+                                  classification=classification)
 
     def __ensemble_fitness(self,
-                           models,
                            linear_fun_params,
+                           models,
                            n_rules,
                            n_fuzzified_data_X,
                            data_y,
@@ -457,13 +458,13 @@ class TSExperiments:
         for rules in n_rules:
             models.append(TakagiSugenoInferenceSystem(rules))
 
-        return models, n_rules, lambda parameters: self.__ensemble_fitness(models,
-                                                                           parameters,
-                                                                           n_rules=n_rules,
-                                                                           n_fuzzified_data_X=n_train_X_fuzzified,
-                                                                           data_y=data_y_flattened,
-                                                                           measures=measures,
-                                                                           classification=classification)
+        return models, n_rules, partial(self.__ensemble_fitness,
+                                        models=models,
+                                        n_rules=n_rules,
+                                        n_fuzzified_data_X=n_train_X_fuzzified,
+                                        data_y=data_y_flattened,
+                                        measures=measures,
+                                        classification=classification)
 
     def __ensemble_fit_fitness_val(self, val, classification, n_rules):
         data_X = val
@@ -479,13 +480,13 @@ class TSExperiments:
         for rules in n_rules:
             models.append(TakagiSugenoInferenceSystem(rules))
 
-        return models, n_rules, lambda parameters: self.__ensemble_fitness(models,
-                                                                           parameters,
-                                                                           n_rules=n_rules,
-                                                                           n_fuzzified_data_X=val_X_fuzzified,
-                                                                           data_y=data_y,
-                                                                           measures=measures,
-                                                                           classification=classification)
+        return models, n_rules, partial(self.__ensemble_fitness,
+                                        models=models,
+                                        n_rules=n_rules,
+                                        n_fuzzified_data_X=val_X_fuzzified,
+                                        data_y=data_y,
+                                        measures=measures,
+                                        classification=classification)
 
     def __predict(self,
                   ts,

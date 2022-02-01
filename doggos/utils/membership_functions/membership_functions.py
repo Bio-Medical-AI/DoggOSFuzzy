@@ -6,9 +6,14 @@ import sympy as sy
 
 from sympy import symbols, Eq, solve
 from typing import Callable, List
+from functools import partial
 
 
-def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float], float]:
+def __gaussian(value, mean, sigma, max_value):
+    return max_value * np.exp(-(((mean - value) ** 2) / (2 * sigma ** 2)))
+
+
+def gaussian(mean: float, sigma: float, max_value: float = 1) -> partial:
     """
     Gaussian membership function.\n
     Defines membership function of gaussian distribution shape.\n
@@ -27,7 +32,7 @@ def gaussian(mean: float, sigma: float, max_value: float = 1) -> Callable[[float
     def output_mf(value: float) -> float:
         return max_value * np.exp(-(((mean - value) ** 2) / (2 * sigma ** 2)))
 
-    return output_mf
+    return partial(__gaussian, mean=mean, sigma=sigma, max_value=max_value)
 
 
 def complex_gaussian(mean: float, first_sigma: float, second_sigma, min=-np.inf, max=np.inf,
