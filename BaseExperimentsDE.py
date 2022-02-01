@@ -46,7 +46,7 @@ PARAMS_VALUES = {
     'HTRU':
         {
             'NP': 18,
-            'MAXITER': 1000,
+            'MAXITER': 10,
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
         },
