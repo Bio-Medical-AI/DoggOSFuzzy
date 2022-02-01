@@ -101,16 +101,17 @@ def main():
                                                           metaheuristic=de_partial)
 
 
-def threshold_classification(theta):
-    def _classify(x):
-        if x <= theta:
-            return 0
-        elif x > theta:
-            return 1
-        else:
-            print('else')
+def classify(x, theta):
+    if x <= theta:
+        return 0
+    elif x > theta:
+        return 1
+    else:
+        print('else')
 
-    return _classify
+
+def threshold_classification(theta):
+    return partial(classify, theta=theta)
 
 
 def prepare_de(n_params, params_values):

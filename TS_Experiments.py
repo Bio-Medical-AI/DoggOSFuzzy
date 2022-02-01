@@ -156,34 +156,30 @@ class TSExperiments:
                                   metaheuristic,
                                   random_state=41,
                                   val_size=0.15):
-        train, val = train_test_split(self.train,
-                                      stratify=self.train['Decision'],
-                                      test_size=val_size,
-                                      random_state=random_state)
+        train = self.train
 
-        _, rules, train_fitness = self.__fit_fitness(train, classification)
-        ts, _, val_fitness = self.__fit_fitness(val, classification, rules)
+        ts, rules, train_fitness = self.fit_fitness(train, classification)
 
-        lin_fun_params_optimal = metaheuristic(val_fitness)
+        lin_fun_params_optimal = metaheuristic(train_fitness)
 
-        val_f1 = 1 - val_fitness(lin_fun_params_optimal)
-        print(f'Val f1: {val_f1}')
+        train_f1 = 1 - train_fitness(lin_fun_params_optimal)
+        print(f'Train f1: {train_f1}')
 
         test_fuzzified = fuzzify(self.test, self.clauses)
         test_measures = {}
         for idx, label in enumerate(self.feature_names):
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        y_pred = self.__predict(ts,
-                                lin_fun_params_optimal,
-                                rules,
-                                test_fuzzified,
-                                self.test_y,
-                                test_measures,
-                                classification)
+        y_pred = self.predict(ts,
+                              lin_fun_params_optimal,
+                              rules,
+                              test_fuzzified,
+                              self.test_y,
+                              test_measures,
+                              classification)
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
-        self.logger.log(val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
+        self.logger.log(train_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
                         self.n_mfs, self.mode, self.adjustment, self.lower_scaling, lin_fun_params_optimal)
 
     def select_optimal_parameters_ensemble(self,
@@ -198,8 +194,8 @@ class TSExperiments:
                                       random_state=random_state)
         batches = make_n_splits(train, n_classifiers)
 
-        _, n_rules, _ = self.__ensemble_fit_fitness_train(batches, classification)
-        models, _, val_fitness = self.__ensemble_fit_fitness_val(val, classification, n_rules)
+        _, n_rules, _ = self.ensemble_fit_fitness_train(batches, classification)
+        models, _, val_fitness = self.ensemble_fit_fitness_val(val, classification, n_rules)
 
         lin_fun_params_optimal = metaheuristic(val_fitness)
 
@@ -211,13 +207,13 @@ class TSExperiments:
         for idx, label in enumerate(self.feature_names):
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        y_pred = self.__ensemble_predict(models,
-                                         lin_fun_params_optimal,
-                                         n_rules,
-                                         test_fuzzified,
-                                         self.test_y,
-                                         test_measures,
-                                         classification)
+        y_pred = self.ensemble_predict(models,
+                                       lin_fun_params_optimal,
+                                       n_rules,
+                                       test_fuzzified,
+                                       self.test_y,
+                                       test_measures,
+                                       classification)
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
@@ -243,8 +239,8 @@ class TSExperiments:
             train = self.train[train_idx]
             val = self.train[val_idx]
 
-            _, rules, train_fitness = self.__fit_fitness(train, classification)
-            ts, _, val_fitness = self.__fit_fitness(val, classification, rules)
+            _, rules, train_fitness = self.fit_fitness(train, classification)
+            ts, _, val_fitness = self.fit_fitness(val, classification, rules)
 
             lin_fun_params_optimal = metaheuristic(val_fitness)
 
@@ -262,13 +258,13 @@ class TSExperiments:
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
         ts = TakagiSugenoInferenceSystem(best_rules)
-        y_pred = self.__predict(ts,
-                                best_params,
-                                best_rules,
-                                test_fuzzified,
-                                self.test_y,
-                                test_measures,
-                                classification)
+        y_pred = self.predict(ts,
+                              best_params,
+                              best_rules,
+                              test_fuzzified,
+                              self.test_y,
+                              test_measures,
+                              classification)
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
@@ -296,8 +292,8 @@ class TSExperiments:
             val = self.train[val_idx]
             indexes = make_n_splits(train, n_classifiers)
 
-            _, n_rules, train_fitness = self.__ensemble_fit_fitness_train(indexes, classification)
-            models, _, val_fitness = self.__ensemble_fit_fitness_val(val_idx, classification, n_rules)
+            _, n_rules, train_fitness = self.ensemble_fit_fitness_train(indexes, classification)
+            models, _, val_fitness = self.ensemble_fit_fitness_val(val_idx, classification, n_rules)
 
             lin_fun_params_optimal = metaheuristic(val_fitness)
 
@@ -315,7 +311,7 @@ class TSExperiments:
         for idx, label in enumerate(self.feature_names):
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
-        y_pred = self.__ensemble_predict(best_models,
+        y_pred = self.ensemble_predict(best_models,
                                          best_params,
                                          best_rules,
                                          test_fuzzified,
@@ -327,7 +323,7 @@ class TSExperiments:
         self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
                         self.n_mfs, self.mode, self.adjustment, self.lower_scaling, best_params)
 
-    def __create_rules(self, train_X, train_y):
+    def create_rules(self, train_X, train_y):
         train_X_fuzzified = fuzzify(train_X, self.clauses)
         information_system = InformationSystem(train_X, train_y, self.feature_names)
         antecedents, string_antecedents = information_system.induce_rules(self.fuzzy_sets, self.clauses)
@@ -336,14 +332,14 @@ class TSExperiments:
             rules.append(Rule(antecedents[key], self.consequents[idx]))
         return rules, string_antecedents, train_X_fuzzified
 
-    def __fitness(self,
-                  linear_fun_params,
-                  ts,
-                  rules,
-                  fuzzified_data_X,
-                  data_y,
-                  measures,
-                  classification):
+    def fitness(self,
+                linear_fun_params,
+                ts,
+                rules,
+                fuzzified_data_X,
+                data_y,
+                measures,
+                classification):
         f_params1 = {}
         f_params2 = {}
         it = 0
@@ -367,19 +363,19 @@ class TSExperiments:
 
         return 1 - f1
 
-    def __fit_fitness(self, data_X, classification, rules=None):
+    def fit_fitness(self, data_X, classification, rules=None):
         data_y = data_X[self.decision_name]
         if rules:
             train_X_fuzzified = fuzzify(data_X, self.clauses)
         else:
-            rules, string_antecedents, train_X_fuzzified = self.__create_rules(data_X, data_y)
+            rules, string_antecedents, train_X_fuzzified = self.create_rules(data_X, data_y)
         measures = {}
         for idx, label in enumerate(self.feature_names):
             measures[self.ling_vars[idx]] = data_X[label].values
 
         ts = TakagiSugenoInferenceSystem(rules)
 
-        return ts, rules, partial(self.__fitness,
+        return ts, rules, partial(self.fitness,
                                   ts=ts,
                                   rules=rules,
                                   fuzzified_data_X=train_X_fuzzified,
@@ -387,14 +383,14 @@ class TSExperiments:
                                   measures=measures,
                                   classification=classification)
 
-    def __ensemble_fitness(self,
-                           linear_fun_params,
-                           models,
-                           n_rules,
-                           n_fuzzified_data_X,
-                           data_y,
-                           measures,
-                           classification):
+    def ensemble_fitness(self,
+                         linear_fun_params,
+                         models,
+                         n_rules,
+                         n_fuzzified_data_X,
+                         data_y,
+                         measures,
+                         classification):
         for rules in n_rules:
             f_params1 = {}
             f_params2 = {}
@@ -428,12 +424,12 @@ class TSExperiments:
 
         return 1 - f1
 
-    def __ensemble_fit_fitness_train(self, batches, classification):
+    def ensemble_fit_fitness_train(self, batches, classification):
         n_rules = []
         n_train_X_fuzzified = {}
         first = True
         for batch in batches:
-            rules, _, train_X_fuzzified = self.__create_rules(batch, batch[self.decision_name])
+            rules, _, train_X_fuzzified = self.create_rules(batch, batch[self.decision_name])
             if first:
                 for key in train_X_fuzzified.keys():
                     n_train_X_fuzzified[key] = train_X_fuzzified[key]
@@ -458,7 +454,7 @@ class TSExperiments:
         for rules in n_rules:
             models.append(TakagiSugenoInferenceSystem(rules))
 
-        return models, n_rules, partial(self.__ensemble_fitness,
+        return models, n_rules, partial(self.ensemble_fitness,
                                         models=models,
                                         n_rules=n_rules,
                                         n_fuzzified_data_X=n_train_X_fuzzified,
@@ -466,7 +462,7 @@ class TSExperiments:
                                         measures=measures,
                                         classification=classification)
 
-    def __ensemble_fit_fitness_val(self, val, classification, n_rules):
+    def ensemble_fit_fitness_val(self, val, classification, n_rules):
         data_X = val
         data_y = data_X[self.decision_name]
 
@@ -480,7 +476,7 @@ class TSExperiments:
         for rules in n_rules:
             models.append(TakagiSugenoInferenceSystem(rules))
 
-        return models, n_rules, partial(self.__ensemble_fitness,
+        return models, n_rules, partial(self.ensemble_fitness,
                                         models=models,
                                         n_rules=n_rules,
                                         n_fuzzified_data_X=val_X_fuzzified,
@@ -488,14 +484,14 @@ class TSExperiments:
                                         measures=measures,
                                         classification=classification)
 
-    def __predict(self,
-                  ts,
-                  linear_fun_params,
-                  rules,
-                  fuzzified_data_X,
-                  data_y,
-                  measures,
-                  classification):
+    def predict(self,
+                ts,
+                linear_fun_params,
+                rules,
+                fuzzified_data_X,
+                data_y,
+                measures,
+                classification):
         f_params1 = {}
         f_params2 = {}
         it = 0
@@ -518,14 +514,14 @@ class TSExperiments:
 
         return y_pred_eval
 
-    def __ensemble_predict(self,
-                           models,
-                           linear_fun_params,
-                           n_rules,
-                           n_fuzzified_data_X,
-                           data_y,
-                           measures,
-                           classification):
+    def ensemble_predict(self,
+                         models,
+                         linear_fun_params,
+                         n_rules,
+                         n_fuzzified_data_X,
+                         data_y,
+                         measures,
+                         classification):
         for rules in n_rules:
             f_params1 = {}
             f_params2 = {}

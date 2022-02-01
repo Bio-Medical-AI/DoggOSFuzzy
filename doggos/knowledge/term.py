@@ -50,7 +50,10 @@ class Term(Antecedent):
                 self.name = clause.linguistic_variable.name + '_' + clause.gradation_adjective
             else:
                 self.name = name
-            self.__fire = lambda dict_: dict_[clause]
+            self.__fire = partial(self.dict_clause, clause=clause)
+
+    def dict_clause(self, dict_, clause):
+        return dict_[clause]
 
     @property
     def fire(self) -> Callable[[Dict[Clause, MembershipDegree]], MembershipDegree]:
