@@ -4,7 +4,7 @@ import os
 
 class Logger:
     def __init__(self, metaheuristic, dataset):
-        self.path = f"results\\{metaheuristic}_{dataset}.csv"
+        self.path = f"results/{metaheuristic}_{dataset}.csv"
         if not os.path.isfile(self.path):
             with open(self.path, 'w') as file:
                 writer = csv.writer(file)

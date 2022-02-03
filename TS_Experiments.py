@@ -158,7 +158,11 @@ class TSExperiments:
                                   val_size=0.15):
         train = self.train
 
-        ts, rules, train_fitness = self.fit_fitness(train, classification)
+        try:
+            ts, rules, train_fitness = self.fit_fitness(train, classification)
+        except ValueError:
+            print("Induced only one rule")
+            return
 
         lin_fun_params_optimal = metaheuristic(train_fitness)
 
@@ -194,7 +198,11 @@ class TSExperiments:
                                       random_state=random_state)
         batches = make_n_splits(train, n_classifiers)
 
-        _, n_rules, _ = self.ensemble_fit_fitness_train(batches, classification)
+        try:
+            _, n_rules, _ = self.ensemble_fit_fitness_train(batches, classification)
+        except ValueError:
+            print("Induced only one rule")
+            return
         models, _, val_fitness = self.ensemble_fit_fitness_val(val, classification, n_rules)
 
         lin_fun_params_optimal = metaheuristic(val_fitness)
@@ -239,7 +247,11 @@ class TSExperiments:
             train = self.train[train_idx]
             val = self.train[val_idx]
 
-            _, rules, train_fitness = self.fit_fitness(train, classification)
+            try:
+                _, rules, train_fitness = self.fit_fitness(train, classification)
+            except ValueError:
+                print("Induced only one rule")
+                return
             ts, _, val_fitness = self.fit_fitness(val, classification, rules)
 
             lin_fun_params_optimal = metaheuristic(val_fitness)
@@ -292,7 +304,11 @@ class TSExperiments:
             val = self.train[val_idx]
             indexes = make_n_splits(train, n_classifiers)
 
-            _, n_rules, train_fitness = self.ensemble_fit_fitness_train(indexes, classification)
+            try:
+                _, n_rules, train_fitness = self.ensemble_fit_fitness_train(indexes, classification)
+            except ValueError:
+                print("Induced only one rule")
+                return
             models, _, val_fitness = self.ensemble_fit_fitness_val(val_idx, classification, n_rules)
 
             lin_fun_params_optimal = metaheuristic(val_fitness)

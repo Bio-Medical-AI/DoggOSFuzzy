@@ -9,6 +9,9 @@ from Logger import Logger
 from TS_Experiments import TSExperiments
 from metaheuristics_wrapper import DifferentialEvolution, PSO
 
+import warnings
+warnings.filterwarnings("ignore")
+
 THRESHOLD = 0.5
 n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']

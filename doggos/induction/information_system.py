@@ -79,6 +79,9 @@ class InformationSystem:
 
         self.__rule_builder = RuleBuilder(consistent_decision_table, clauses)
         antecedents, str_antecedents = self.__rule_builder.induce_rules(fuzzy_sets)
+        if len(antecedents) < 2:
+            raise ValueError("Induced only one rule")
+
         return antecedents, str_antecedents
 
     @property

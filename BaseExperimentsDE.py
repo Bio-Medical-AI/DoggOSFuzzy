@@ -9,6 +9,9 @@ from Logger import Logger
 from TS_Experiments import TSExperiments
 from metaheuristics_wrapper import DifferentialEvolution, PSO
 
+import warnings
+warnings.filterwarnings("ignore")
+
 THRESHOLD = 0.5
 n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']
@@ -46,7 +49,7 @@ PARAMS_VALUES = {
     'HTRU':
         {
             'NP': 18,
-            'MAXITER': 10,
+            'MAXITER': 1000,
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
         },
@@ -74,7 +77,7 @@ PARAMS_VALUES = {
     'Pima Indians Diabetes':
         {
             'NP': 18,
-            'MAXITER': 20,
+            'MAXITER': 1000,
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
         }
