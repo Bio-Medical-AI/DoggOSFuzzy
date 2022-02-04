@@ -31,6 +31,14 @@ PARAMS_VALUES = {
             'PHIP': -0.2746,
             'OMEGA': -0.3488
         },
+    'Breast Cancer Data PCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
     'Breast Cancer Wisconsin':
         {
             'MAXITER': 150,
@@ -38,6 +46,14 @@ PARAMS_VALUES = {
             'PHIG': 3.3950,
             'PHIP': -0.2699,
             'OMEGA': -0.4438
+        },
+    'Breast Cancer Wisconsin PCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
         },
     'Data Banknote Auth':
         {
@@ -47,7 +63,23 @@ PARAMS_VALUES = {
             'PHIP': -0.2746,
             'OMEGA': -0.3488
         },
+    'Data Banknote Auth PCA':
+        {
+            'MAXITER': 45,
+            'SWARMSIZE': 223,
+            'PHIG': 3.3657,
+            'PHIP': -0.1207,
+            'OMEGA': -0.3699
+        },
     'HTRU':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
+    'HTRU PCA':
         {
             'MAXITER': 377,
             'SWARMSIZE': 53,
@@ -63,6 +95,14 @@ PARAMS_VALUES = {
             'PHIP': -0.2746,
             'OMEGA': -0.3488
         },
+    'Immunotherapy PCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
     'Ionosphere':
         {
             'MAXITER': 188,
@@ -70,6 +110,14 @@ PARAMS_VALUES = {
             'PHIG': 3.8876,
             'PHIP': -0.1564,
             'OMEGA': -0.2256
+        },
+    'Ionosphere PCA':
+        {
+            'MAXITER': 290,
+            'SWARMSIZE': 69,
+            'PHIG': 3.3950,
+            'PHIP': -0.2699,
+            'OMEGA': -0.4438
         },
     'Parkinson':
         {
@@ -79,7 +127,23 @@ PARAMS_VALUES = {
             'PHIP': -0.1564,
             'OMEGA': -0.2256
         },
+    'Parkinson PCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
     'Pima Indians Diabetes':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
+    'Pima Indians Diabetes PCA':
         {
             'MAXITER': 377,
             'SWARMSIZE': 53,

@@ -32,12 +32,26 @@ PARAMS_VALUES = {
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
         },
+    'Breast Cancer Data PCA':
+        {
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
+        },
     'Breast Cancer Wisconsin':
         {
             'NP': 37,
             'MAXITER': 500,
             'CR': 0.9455,
             'DIFFERENTIAL_WEIGHT': 0.6497
+        },
+    'Breast Cancer Wisconsin PCA':
+        {
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         },
     'Data Banknote Auth':
         {
@@ -46,7 +60,21 @@ PARAMS_VALUES = {
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
         },
+    'Data Banknote Auth PCA':
+        {
+            'NP': 20,
+            'MAXITER': 500,
+            'CR': 0.6938,
+            'DIFFERENTIAL_WEIGHT': 0.9314
+        },
     'HTRU':
+        {
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
+        },
+    'HTRU PCA':
         {
             'NP': 18,
             'MAXITER': 1000,
@@ -60,12 +88,26 @@ PARAMS_VALUES = {
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
         },
+    'Immunotherapy PCA':
+        {
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
+        },
     'Ionosphere':
         {
             'NP': 48,
             'MAXITER': 416,
             'CR': 0.9784,
             'DIFFERENTIAL_WEIGHT': 0.6876
+        },
+    'Ionosphere PCA':
+        {
+            'NP': 37,
+            'MAXITER': 1082,
+            'CR': 0.9455,
+            'DIFFERENTIAL_WEIGHT': 0.6497
         },
     'Parkinson':
         {
@@ -74,7 +116,21 @@ PARAMS_VALUES = {
             'CR': 0.9784,
             'DIFFERENTIAL_WEIGHT': 0.6876
         },
+    'Parkinson PCA':
+        {
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
+        },
     'Pima Indians Diabetes':
+        {
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
+        },
+    'Pima Indians Diabetes PCA':
         {
             'NP': 18,
             'MAXITER': 1000,
