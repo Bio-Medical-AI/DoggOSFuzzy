@@ -40,6 +40,14 @@ PARAMS_VALUES = {
             'PHIP': -0.2746,
             'OMEGA': -0.3488
         },
+    'Breast Cancer Data StdPCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
     'Breast Cancer Wisconsin':
         {
             'MAXITER': 150,
@@ -49,6 +57,14 @@ PARAMS_VALUES = {
             'OMEGA': -0.4438
         },
     'Breast Cancer Wisconsin PCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
+    'Breast Cancer Wisconsin StdPCA':
         {
             'MAXITER': 377,
             'SWARMSIZE': 53,
@@ -72,6 +88,14 @@ PARAMS_VALUES = {
             'PHIP': -0.1207,
             'OMEGA': -0.3699
         },
+    'Data Banknote Auth StdPCA':
+        {
+            'MAXITER': 45,
+            'SWARMSIZE': 223,
+            'PHIG': 3.3657,
+            'PHIP': -0.1207,
+            'OMEGA': -0.3699
+        },
     'HTRU':
         {
             'MAXITER': 377,
@@ -81,6 +105,14 @@ PARAMS_VALUES = {
             'OMEGA': -0.3488
         },
     'HTRU PCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
+    'HTRU StdPCA':
         {
             'MAXITER': 377,
             'SWARMSIZE': 53,
@@ -104,6 +136,14 @@ PARAMS_VALUES = {
             'PHIP': -0.2746,
             'OMEGA': -0.3488
         },
+    'Immunotherapy StdPCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
     'Ionosphere':
         {
             'MAXITER': 188,
@@ -113,6 +153,14 @@ PARAMS_VALUES = {
             'OMEGA': -0.2256
         },
     'Ionosphere PCA':
+        {
+            'MAXITER': 290,
+            'SWARMSIZE': 69,
+            'PHIG': 3.3950,
+            'PHIP': -0.2699,
+            'OMEGA': -0.4438
+        },
+    'Ionosphere StdPCA':
         {
             'MAXITER': 290,
             'SWARMSIZE': 69,
@@ -136,6 +184,14 @@ PARAMS_VALUES = {
             'PHIP': -0.2746,
             'OMEGA': -0.3488
         },
+    'Parkinson StdPCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
     'Pima Indians Diabetes':
         {
             'MAXITER': 377,
@@ -145,6 +201,14 @@ PARAMS_VALUES = {
             'OMEGA': -0.3488
         },
     'Pima Indians Diabetes PCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
+        },
+    'Pima Indians Diabetes StdPCA':
         {
             'MAXITER': 377,
             'SWARMSIZE': 53,
