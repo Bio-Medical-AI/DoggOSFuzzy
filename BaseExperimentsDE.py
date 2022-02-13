@@ -143,6 +143,13 @@ PARAMS_VALUES = {
             'MAXITER': 1000,
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
+        },,
+    'Pima Indians Diabetes KernelPCA':
+        {
+            'NP': 18,
+            'MAXITER': 1000,
+            'CR': 0.5026,
+            'DIFFERENTIAL_WEIGHT': 0.6714
         }
 }
 

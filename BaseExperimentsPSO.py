@@ -215,6 +215,14 @@ PARAMS_VALUES = {
             'PHIG': 4.8976,
             'PHIP': -0.2746,
             'OMEGA': -0.3488
+        },
+    'Pima Indians Diabetes KernelPCA':
+        {
+            'MAXITER': 377,
+            'SWARMSIZE': 53,
+            'PHIG': 4.8976,
+            'PHIP': -0.2746,
+            'OMEGA': -0.3488
         }
 }
 
