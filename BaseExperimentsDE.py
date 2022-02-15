@@ -17,8 +17,8 @@ n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']
 adjustments = ['center', 'mean']
 lower_scalings = np.flip(np.arange(0.5, 0.96, 0.05))
-PARAM_LOWER_BOUND = -400
-PARAM_UPPER_BOUND = 400
+PARAM_LOWER_BOUND = -10
+PARAM_UPPER_BOUND = 10
 STRATEGY = 'rand1bin'
 UPDATING = 'immediate'
 DE_DEBUG = True
@@ -143,7 +143,7 @@ PARAMS_VALUES = {
             'MAXITER': 1000,
             'CR': 0.5026,
             'DIFFERENTIAL_WEIGHT': 0.6714
-        },,
+        },
     'Pima Indians Diabetes KernelPCA':
         {
             'NP': 18,
@@ -188,8 +188,8 @@ def threshold_classification(theta):
 
 
 def prepare_de(n_params, params_values):
-    lb = [PARAM_LOWER_BOUND] * n_params
-    ub = [PARAM_UPPER_BOUND] * n_params
+    lb = [PARAM_LOWER_BOUND] * (n_params - 2) + [0, 1]
+    ub = [PARAM_UPPER_BOUND] * (n_params - 2) + [0, 1]
     bounds = []
     for l, u in zip(lb, ub):
         bounds.append((l, u))

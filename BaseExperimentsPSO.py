@@ -18,8 +18,8 @@ n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']
 adjustments = ['center', 'mean']
 lower_scalings = np.flip(np.arange(0.5, 0.96, 0.05))
-PARAM_LOWER_BOUND = -400
-PARAM_UPPER_BOUND = 400
+PARAM_LOWER_BOUND = -10
+PARAM_UPPER_BOUND = 10
 FUZZY_DEBUG = True
 PSO_DEBUG = True
 
@@ -265,8 +265,8 @@ def threshold_classification(theta):
 
 def prepare_pso(n_params, params_values):
     pso_partial = partial(pso,
-                          lb=[PARAM_LOWER_BOUND] * n_params,
-                          ub=[PARAM_UPPER_BOUND] * n_params,
+                          lb=[PARAM_LOWER_BOUND] * (n_params - 2) + [0, 1],
+                          ub=[PARAM_UPPER_BOUND] * (n_params - 2) + [0, 1],
                           debug=PSO_DEBUG,
                           maxiter=params_values['MAXITER'],
                           swarmsize=params_values['SWARMSIZE'],
