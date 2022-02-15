@@ -266,8 +266,8 @@ def threshold_classification(theta):
 
 def prepare_pso(n_params, params_values):
     pso_partial = partial(pso,
-                          lb=[PARAM_LOWER_BOUND] * (n_params - 2) + [0, 1],
-                          ub=[PARAM_UPPER_BOUND] * (n_params - 2) + [0, 1],
+                          lb=[PARAM_LOWER_BOUND] * (n_params - 2) + [0, 0],
+                          ub=[PARAM_UPPER_BOUND] * (n_params - 2) + [1, 1],
                           debug=PSO_DEBUG,
                           maxiter=params_values['MAXITER'],
                           swarmsize=params_values['SWARMSIZE'],
