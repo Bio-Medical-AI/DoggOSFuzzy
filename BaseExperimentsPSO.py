@@ -3,6 +3,7 @@ import sys
 import random
 
 import numpy as np
+import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from pyswarm import pso
 
@@ -235,7 +236,7 @@ def main():
     pso_logger = Logger("base_pso", sys.argv[1])
 
     experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
-    experiments.prepare_data([min_max_scale])
+    experiments.prepare_data([min_max_scale], ros=True)
 
     for ls in lower_scalings:
         for mode in modes:

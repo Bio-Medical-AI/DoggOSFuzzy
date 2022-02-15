@@ -2,6 +2,7 @@ import sys
 from functools import partial
 
 import numpy as np
+import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from scipy.optimize import differential_evolution
 
@@ -158,7 +159,7 @@ def main():
     de_logger = Logger("base_de", sys.argv[1])
 
     experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', de_logger)
-    experiments.prepare_data([min_max_scale])
+    experiments.prepare_data([min_max_scale], ros=True)
 
     for ls in lower_scalings:
         for mode in modes:
