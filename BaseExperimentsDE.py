@@ -189,8 +189,8 @@ def threshold_classification(theta):
 
 
 def prepare_de(n_params, params_values):
-    lb = [PARAM_LOWER_BOUND] * (n_params - 2) + [0, 0]
-    ub = [PARAM_UPPER_BOUND] * (n_params - 2) + [1, 1]
+    lb = [PARAM_LOWER_BOUND] * n_params
+    ub = [PARAM_UPPER_BOUND] * n_params
     bounds = []
     for l, u in zip(lb, ub):
         bounds.append((l, u))
