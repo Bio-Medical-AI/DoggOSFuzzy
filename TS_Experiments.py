@@ -103,7 +103,7 @@ class TSExperiments:
                                                  test_size=self.test_size,
                                                  random_state=42)
         if ros:
-            self.train = self.random_oversampling(self.train)
+            self.train = self.random_oversampling(self.train).astype('float')
         self.train_y = self.train['Decision']
         self.test_y = self.test['Decision']
         self.feature_names = list(self.data.columns[:-1])
