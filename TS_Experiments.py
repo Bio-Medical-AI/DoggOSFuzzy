@@ -89,8 +89,6 @@ class TSExperiments:
 
     def prepare_data(self, transformations, ros=False):
         self.data = pd.read_csv(self.filepath, sep=self.sep)
-        if ros:
-            self.data = self.random_oversampling(self.data)
         self.decision_name = self.data.columns[-1]
         self.n_classes = len(self.data[self.decision_name].unique())
 
@@ -104,6 +102,8 @@ class TSExperiments:
                                                  stratify=self.transformed_data['Decision'],
                                                  test_size=self.test_size,
                                                  random_state=42)
+        if ros:
+            self.train = self.random_oversampling(self.train)
         self.train_y = self.train['Decision']
         self.test_y = self.test['Decision']
         self.feature_names = list(self.data.columns[:-1])
@@ -156,11 +156,16 @@ class TSExperiments:
     def random_oversampling(self, df):
         new_df = pd.DataFrame(columns=df.columns)
         classes = df.value_counts('Decision', sort=True)
-        higher_class = classes[0]
+
+        higher_class = 0
+        for cls, val in classes.items():
+            if classes[higher_class] < val:
+                higher_class = cls
+
         for cls, _ in classes.items():
             cls_df = df[df['Decision'] == cls]
             if cls != higher_class:
-                resampled = cls_df.sample(higher_class, replace=True, ignore_index=True)
+                resampled = cls_df.sample(classes[higher_class], replace=True, ignore_index=True)
             else:
                 resampled = cls_df
             new_df = pd.concat([new_df, resampled], ignore_index=True)
