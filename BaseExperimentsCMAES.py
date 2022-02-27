@@ -7,6 +7,7 @@ import pandas as pd
 
 from sklearn.preprocessing import MinMaxScaler
 from pymoo.algorithms.soo.nonconvex.cmaes import CMAES
+from pymoo.util.normalization import denormalize
 
 from Logger import Logger
 from TS_Experiments import TSExperiments
@@ -247,7 +248,7 @@ def main():
                     experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
 
-                    cmaes = prepare_cmaes(experiments.n_params, PARAMS_VALUES[sys.argv[1]])
+                    cmaes = prepare_cmaes()
 
                     experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
                                                           metaheuristic=cmaes)
@@ -265,14 +266,12 @@ def threshold_classification(theta):
     return _classify
 
 
-def prepare_cmaes(n_params, params_values):
-    lb = [PARAM_LOWER_BOUND] * n_params
-    ub = [PARAM_UPPER_BOUND] * n_params
-    bounds = []
-    for l, u in zip(lb, ub):
-        bounds.append((l, u))
-
-    cmaes = CMAES()
+def prepare_cmaes():
+    x0 = denormalize(np.random.random(18), PARAM_LOWER_BOUND, PARAM_UPPER_BOUND)
+    cmaes = CMAES(x0=x0,
+                  sigma=0.5,
+                  restarts=2,
+                  incpopsize=2)
     return CMAESWrapper(cmaes)
 
 
