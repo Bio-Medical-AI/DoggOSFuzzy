@@ -4,6 +4,7 @@ from scipy.stats import norm
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
+from sklearn.preprocessing import MinMaxScaler
 
 from doggos.fuzzy_sets import IntervalType2FuzzySet
 from doggos.induction import InformationSystem
@@ -33,7 +34,7 @@ def test_on_mamdani(x_train, x_test, y_train, y_test, col_names, adjustment):
         middle_vals = mid_evs
     else:
         middle_vals = 0.5
-
+    print("Generating funcs")
     ling_vars, fuzzy_sets, clauses = create_set_of_variables(
         ling_var_names=col_names,
         domain=Domain(0, 1.001, 0.001),
@@ -45,7 +46,7 @@ def test_on_mamdani(x_train, x_test, y_train, y_test, col_names, adjustment):
         lower_scaling=0.975,
         middle_vals=middle_vals
     )
-
+    print("Setting up consequents")
     decision = LinguisticVariable('Decision', Domain(0, 1.001, 0.001))
 
     decision_zero = IntervalType2FuzzySet(sigmoid(0.5, 0.71), sigmoid(0.5, 0.29))
@@ -83,6 +84,8 @@ def main():
     df = pd.read_csv('data/Breast Cancer Data.csv', sep=';')
     X = df.drop(columns=['Decision']).values
     y = df['Decision'].values
+    scaler = MinMaxScaler()
+    X, y = scaler.fit_transform(X, y)
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
     test_on_mamdani(x_train, x_test, y_train, y_test, df.drop(columns=['Decision']).columns, "mean")
 
