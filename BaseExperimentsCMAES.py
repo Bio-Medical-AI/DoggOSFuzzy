@@ -237,7 +237,7 @@ def main():
     seed_libs(42)
     pso_logger = Logger("base_cmaes", sys.argv[1])
 
-    experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
+    experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ',', pso_logger)
     experiments.prepare_data([min_max_scale], ros=True)
 
     for ls in lower_scalings:
@@ -268,10 +268,15 @@ def threshold_classification(theta):
 
 def prepare_cmaes():
     x0 = denormalize(np.random.random(18), PARAM_LOWER_BOUND, PARAM_UPPER_BOUND)
+    kwargs = {
+        'tolstagnation': 100
+    }
     cmaes = CMAES(x0=x0,
+                  maxfevals=20000,
                   sigma=0.5,
                   restarts=2,
-                  incpopsize=2)
+                  incpopsize=2,
+                  **kwargs)
     return CMAESWrapper(cmaes)
 
 
