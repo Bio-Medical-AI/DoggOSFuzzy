@@ -17,7 +17,7 @@ from doggos.utils.membership_functions import sigmoid
 from doggos.utils.membership_functions.membership_functions import sigmoid_reversed
 
 
-def test_on_knn(x_train, x_test, y_train, y_test):
+def dtest_on_knn(x_train, x_test, y_train, y_test):
     for k in range(3, 20):
         knn = KNeighborsClassifier(n_neighbors=k)
         knn.fit(x_train, y_train)
@@ -25,7 +25,7 @@ def test_on_knn(x_train, x_test, y_train, y_test):
         print(f1_score(y_test, y_pred))
 
 
-def test_on_mamdani(x_train, x_test, y_train, y_test, col_names, adjustment):
+def dtest_on_mamdani(x_train, x_test, y_train, y_test, col_names, adjustment):
     if adjustment == 'mean':
         mid_evs = []
         for vals in x_train.T:
@@ -49,10 +49,10 @@ def test_on_mamdani(x_train, x_test, y_train, y_test, col_names, adjustment):
     print("Setting up consequents")
     decision = LinguisticVariable('Decision', Domain(0, 1.001, 0.001))
 
-    decision_zero = IntervalType2FuzzySet(sigmoid(0.5, 0.71), sigmoid(0.5, 0.29))
+    decision_zero = IntervalType2FuzzySet(sigmoid_reversed(0.29, 11), sigmoid_reversed(0.71, 11))
     decision_zero_clause = Clause(decision, 'Zero', decision_zero)
 
-    decision_one = IntervalType2FuzzySet(sigmoid_reversed(0.5, 0.29), sigmoid_reversed(0.5, 0.71))
+    decision_one = IntervalType2FuzzySet(sigmoid(0.71, 11), sigmoid(0.29, 11))
     decision_one_clause = Clause(decision, 'One', decision_one)
     consequents = [
         MamdaniConsequent(decision_zero_clause),
@@ -87,7 +87,7 @@ def main():
     scaler = MinMaxScaler()
     X = scaler.fit_transform(X, y)
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
-    test_on_mamdani(x_train, x_test, y_train, y_test, df.drop(columns=['Decision']).columns, "mean")
+    dtest_on_mamdani(x_train, x_test, y_train, y_test, df.drop(columns=['Decision']).columns, "mean")
 
 
 if __name__ == '__main__':
