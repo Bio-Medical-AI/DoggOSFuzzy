@@ -85,7 +85,7 @@ def main():
     X = df.drop(columns=['Decision']).values
     y = df['Decision'].values
     scaler = MinMaxScaler()
-    X, y = scaler.fit_transform(X, y)
+    X = scaler.fit_transform(X, y)
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
     test_on_mamdani(x_train, x_test, y_train, y_test, df.drop(columns=['Decision']).columns, "mean")
 
