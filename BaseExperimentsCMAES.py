@@ -267,7 +267,7 @@ def threshold_classification(theta):
 
 
 def prepare_cmaes():
-    x0 = denormalize(np.random.random(18), PARAM_LOWER_BOUND, PARAM_UPPER_BOUND)
+    x0 = denormalize(np.random.random(10), PARAM_LOWER_BOUND, PARAM_UPPER_BOUND)
     kwargs = {
         'tolstagnation': 100
     }

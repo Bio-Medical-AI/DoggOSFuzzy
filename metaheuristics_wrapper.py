@@ -35,7 +35,7 @@ class CMAESWrapper:
 
 class TSProblem(Problem):
     def __init__(self, fitness):
-        super().__init__(n_var=18,
+        super().__init__(n_var=10,
                          n_obj=1,
                          xl=-400.0,
                          xu=400.0)

@@ -85,6 +85,28 @@ def sigmoid(offset: float, magnitude: float, scaling: float = 1.) -> Callable[[f
     return output_mf
 
 
+def sigmoid_reversed(offset: float, magnitude: float, scaling: float = 1.) -> Callable[[float], float]:
+    """
+    Sigmoid membership function.\n
+    Defines membership function of sigmoid shape.\n
+    Used to determine membership degree of crisp value to fuzzy set defined by this function.
+
+    :param offset: point on x-axis at which function has value equal to 0.5. Determines 'lean' of function
+    :param magnitude: defines width of sigmoidal region around offset. Sign of the value determines which side
+        of the function is open
+    :return: callable which calculates membership values for given input
+
+    Example:
+      >>> sigmoid_mf = sigmoid(0.5, -15)
+      >>> membership_value = sigmoid_mf(0.2)
+    """
+
+    def output_mf(value: float) -> float:
+        return 1 - (1. / (1. + np.exp(- magnitude * (value - offset))) * scaling)
+
+    return output_mf
+
+
 def triangular(l_end: float, center: float, r_end: float, max_value: float = 1) -> Callable[[float], float]:
     """
     Triangular membership function.\n
