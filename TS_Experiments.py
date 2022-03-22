@@ -186,7 +186,6 @@ class TSExperiments:
                               lin_fun_params_optimal,
                               rules,
                               test_fuzzified,
-                              self.test_y,
                               test_measures,
                               classification)
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
@@ -258,11 +257,9 @@ class TSExperiments:
 
             train = self.train.iloc[train_idx]
             val = self.train.iloc[val_idx]
-            train_y = train['Decision']
             val_y = val['Decision']
             if ros:
                 train = self.random_oversampling(train).astype('float')
-                train_y = train['Decision']
 
             try:
                 ts, rules, train_fitness = self.fit_fitness(train, classification)
@@ -281,7 +278,6 @@ class TSExperiments:
                                   lin_fun_params_optimal,
                                   rules,
                                   val_fuzzified,
-                                  val_y,
                                   val_measures,
                                   classification)
 
