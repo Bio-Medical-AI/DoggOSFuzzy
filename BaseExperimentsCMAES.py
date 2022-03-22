@@ -269,12 +269,13 @@ def threshold_classification(theta):
 def prepare_cmaes():
     x0 = denormalize(np.random.random(10), PARAM_LOWER_BOUND, PARAM_UPPER_BOUND)
     kwargs = {
-        'tolstagnation': 100
+        'tolstagnation': 100,
+        'popsize': 20
     }
     cmaes = CMAES(x0=x0,
                   maxfevals=20000,
                   sigma=0.5,
-                  restarts=2,
+                  restarts=1,
                   incpopsize=2,
                   **kwargs)
     return CMAESWrapper(cmaes)

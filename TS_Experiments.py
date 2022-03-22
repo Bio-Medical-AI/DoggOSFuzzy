@@ -173,9 +173,7 @@ class TSExperiments:
 
     def select_optimal_parameters(self,
                                   classification,
-                                  metaheuristic,
-                                  random_state=41,
-                                  val_size=0.15):
+                                  metaheuristic):
         train = self.train
 
         try:
@@ -254,9 +252,12 @@ class TSExperiments:
                                         shuffle=True,
                                         random_state=42,
                                         debug=False):
-        best_val_f1 = 0
-        best_params = []
-        best_rules = []
+        val_f1s = []
+        val_accs = []
+        val_precisions = []
+        val_recalls = []
+        val_balaccs = []
+        val_roc_aucs = []
         skf = StratifiedKFold(n_splits=n_folds, shuffle=shuffle, random_state=random_state)
         n_fold = 0
         for train_idx, val_idx in skf.split(self.train, self.train_y):
@@ -268,39 +269,36 @@ class TSExperiments:
             val = self.train[val_idx]
 
             try:
-                _, rules, train_fitness = self.fit_fitness(train, classification)
+                ts, rules, train_fitness = self.fit_fitness(train, classification)
             except ValueError:
                 print("Induced only one rule")
                 return
-            ts, _, val_fitness = self.fit_fitness(val, classification, rules)
+            lin_fun_params_optimal = metaheuristic(train_fitness)
 
-            lin_fun_params_optimal = metaheuristic(val_fitness)
+            val_fuzzified = fuzzify(val, self.clauses)
+            val_measures = {}
+            for idx, label in enumerate(self.feature_names):
+                val_measures[self.ling_vars[idx]] = val[label].values
 
-            val_f1 = 1 - val_fitness(lin_fun_params_optimal)
-            if val_f1 > best_val_f1:
-                if debug:
-                    print(f"New best params in fold {n_fold} with f1 {val_f1}")
-                best_val_f1 = val_f1
-                best_params = lin_fun_params_optimal
-                best_rules = rules
+            y_pred = self.predict(ts,
+                                  lin_fun_params_optimal,
+                                  rules,
+                                  val_fuzzified,
+                                  self.train_y[val_idx],
+                                  val_measures,
+                                  classification)
 
-        test_fuzzified = fuzzify(self.test, self.clauses)
-        test_measures = {}
-        for idx, label in enumerate(self.feature_names):
-            test_measures[self.ling_vars[idx]] = self.test[label].values
+            f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
+            val_f1s.append(f1)
+            val_accs.append(accuracy)
+            val_recalls.append(recall)
+            val_balaccs.append(balanced_accuracy)
+            val_roc_aucs.append(roc_auc)
 
-        ts = TakagiSugenoInferenceSystem(best_rules)
-        y_pred = self.predict(ts,
-                              best_params,
-                              best_rules,
-                              test_fuzzified,
-                              self.test_y,
-                              test_measures,
-                              classification)
-        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
-        print(f'Test f1: {f1}')
-        self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
-                        self.n_mfs, self.mode, self.adjustment, self.lower_scaling, best_params)
+        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = np.mean(val_f1s, val_accs, val_recalls, val_precisions, val_balaccs, val_roc_aucs)
+        print(f'Mean val f1: {f1}')
+        self.logger.log_kfold(f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
+                              self.n_mfs, self.mode, self.adjustment, self.lower_scaling, n_folds)
 
     def select_optimal_parameters_kfold_ensemble(self,
                                                  classification,
@@ -348,12 +346,12 @@ class TSExperiments:
             test_measures[self.ling_vars[idx]] = self.test[label].values
 
         y_pred = self.ensemble_predict(best_models,
-                                         best_params,
-                                         best_rules,
-                                         test_fuzzified,
-                                         self.test_y,
-                                         test_measures,
-                                         classification)
+                                       best_params,
+                                       best_rules,
+                                       test_fuzzified,
+                                       self.test_y,
+                                       test_measures,
+                                       classification)
         f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
         print(f'Test f1: {f1}')
         self.logger.log(best_val_f1, f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
