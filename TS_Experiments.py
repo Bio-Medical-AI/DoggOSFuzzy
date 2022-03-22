@@ -16,16 +16,6 @@ from doggos.knowledge.consequents import TakagiSugenoConsequent
 from doggos.utils.grouping_functions import create_set_of_variables
 
 import random
-import time
-
-
-# def make_n_splits(data, n):
-#     batch_size = int(len(data) / n)
-#     batches = []
-#     for i in range(0, n - 1):
-#         batches.append(data[batch_size * i: batch_size * (i + 1)])
-#     batches.append(data[batch_size * (n - 1):])
-#     return batches
 
 
 def make_n_splits(data, n):
@@ -87,7 +77,7 @@ class TSExperiments:
         self.params_upper_bound = params_upper_bound
         self.logger = logger
 
-    def prepare_data(self, transformations, ros=False):
+    def prepare_data(self, transformations):
         self.data = pd.read_csv(self.filepath, sep=self.sep)
         self.decision_name = self.data.columns[-1]
         self.n_classes = len(self.data[self.decision_name].unique())
@@ -102,16 +92,13 @@ class TSExperiments:
                                                  stratify=self.transformed_data['Decision'],
                                                  test_size=self.test_size,
                                                  random_state=42)
-        if ros:
-            self.train = self.random_oversampling(self.train).astype('float')
         self.train_y = self.train['Decision']
         self.test_y = self.test['Decision']
         self.feature_names = list(self.data.columns[:-1])
 
         self.mid_evs = []
         for column in self.train.columns:
-            mean, _ = norm.fit(self.train[column].values)
-            self.mid_evs.append(mean)
+            self.mid_evs.append(np.mean(self.train[column].values))
 
     def prepare_fuzzy_system(self,
                              fuzzy_domain=Domain(0, 1.001, 0.001),
@@ -173,8 +160,11 @@ class TSExperiments:
 
     def select_optimal_parameters(self,
                                   classification,
-                                  metaheuristic):
+                                  metaheuristic,
+                                  ros=False):
         train = self.train
+        if ros:
+            train = self.random_oversampling(train).astype('float')
 
         try:
             ts, rules, train_fitness = self.fit_fitness(train, classification)
@@ -251,7 +241,8 @@ class TSExperiments:
                                         n_folds=10,
                                         shuffle=True,
                                         random_state=42,
-                                        debug=False):
+                                        debug=False,
+                                        ros=False):
         val_f1s = []
         val_accs = []
         val_precisions = []
@@ -267,12 +258,18 @@ class TSExperiments:
 
             train = self.train.iloc[train_idx]
             val = self.train.iloc[val_idx]
+            train_y = self.train_y
+            val_y = train_y.iloc[val_idx]
+            if ros:
+                train = self.random_oversampling(train).astype('float')
+                train_y = train['Decision']
+
             try:
                 ts, rules, train_fitness = self.fit_fitness(train, classification)
             except ValueError:
                 print("Induced only one rule")
                 return
-            print("Starting metaheuristic")
+
             lin_fun_params_optimal = metaheuristic(train_fitness)
 
             val_fuzzified = fuzzify(val, self.clauses)
@@ -284,18 +281,19 @@ class TSExperiments:
                                   lin_fun_params_optimal,
                                   rules,
                                   val_fuzzified,
-                                  self.train_y.values[val_idx],
+                                  train_y.values[val_idx],
                                   val_measures,
                                   classification)
 
-            f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(self.test_y, y_pred)
+            f1, accuracy, recall, precision, balanced_accuracy, roc_auc = self.calc_metrics(val_y, y_pred)
             val_f1s.append(f1)
             val_accs.append(accuracy)
             val_recalls.append(recall)
             val_balaccs.append(balanced_accuracy)
             val_roc_aucs.append(roc_auc)
 
-        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = np.mean(val_f1s, val_accs, val_recalls, val_precisions, val_balaccs, val_roc_aucs)
+        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = np.mean(val_f1s, val_accs, val_recalls,
+                                                                              val_precisions, val_balaccs, val_roc_aucs)
         print(f'Mean val f1: {f1}')
         self.logger.log_kfold(f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
                               self.n_mfs, self.mode, self.adjustment, self.lower_scaling, n_folds)

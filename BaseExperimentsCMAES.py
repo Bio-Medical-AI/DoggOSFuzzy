@@ -239,7 +239,7 @@ def main():
     pso_logger = Logger("base_cmaes", sys.argv[1])
 
     experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
-    experiments.prepare_data([min_max_scale], ros=True)
+    experiments.prepare_data([min_max_scale])
 
     for ls in lower_scalings:
         for mode in modes:
@@ -253,7 +253,8 @@ def main():
 
                     experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
                                                                 metaheuristic=cmaes,
-                                                                debug=True)
+                                                                debug=True,
+                                                                ros=True)
 
 
 def threshold_classification(theta):
@@ -276,7 +277,7 @@ def prepare_cmaes():
     }
     cmaes = CMAES(x0=x0,
                   maxfevals=20000,
-                  sigma=0.5,
+                  sigma=0.99,
                   restarts=1,
                   incpopsize=2,
                   **kwargs)

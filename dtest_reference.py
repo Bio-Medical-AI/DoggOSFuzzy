@@ -100,17 +100,21 @@ def random_oversampling(df):
 
 
 def main():
-    df = pd.read_csv('data/wdbc.csv', sep=';')
+    df = pd.read_csv('data/Pima Indians Diabetes PCA.csv', sep=';')
     df = random_oversampling(df).astype(float)
-    X = df.drop(columns=['Decision']).values
-    y = df['Decision'].values
-    scaler = MinMaxScaler()
-    X = scaler.fit_transform(X, y)
-    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
-    x_train = pd.DataFrame(np.hstack([x_train, y_train.reshape(-1, 1)]), columns=df.columns)
-    y_train = pd.Series(y_train, name='Decision')
-    x_test = pd.DataFrame(x_test, columns=df.columns[:-1])
-    dtest_on_mamdani(x_train, x_test, y_train, y_test, df.drop(columns=['Decision']).columns, "mean")
+    for col in df.columns[:-1]:
+        print(np.mean(df[col].values))
+        mean, _ = norm.fit(df[col].values)
+        print(mean)
+    # X = df.drop(columns=['Decision']).values
+    # y = df['Decision'].values
+    # scaler = MinMaxScaler()
+    # X = scaler.fit_transform(X, y)
+    # x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
+    # x_train = pd.DataFrame(np.hstack([x_train, y_train.reshape(-1, 1)]), columns=df.columns)
+    # y_train = pd.Series(y_train, name='Decision')
+    # x_test = pd.DataFrame(x_test, columns=df.columns[:-1])
+    # dtest_on_mamdani(x_train, x_test, y_train, y_test, df.drop(columns=['Decision']).columns, "mean")
 
 
 if __name__ == '__main__':
