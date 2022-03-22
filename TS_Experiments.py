@@ -258,8 +258,8 @@ class TSExperiments:
 
             train = self.train.iloc[train_idx]
             val = self.train.iloc[val_idx]
-            train_y = self.train_y
-            val_y = train_y.iloc[val_idx]
+            train_y = train['Decision']
+            val_y = val['Decision']
             if ros:
                 train = self.random_oversampling(train).astype('float')
                 train_y = train['Decision']
