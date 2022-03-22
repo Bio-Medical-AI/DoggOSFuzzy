@@ -288,8 +288,9 @@ class TSExperiments:
             val_balaccs.append(balanced_accuracy)
             val_roc_aucs.append(roc_auc)
 
-        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = np.mean(val_f1s, val_accs, val_recalls,
-                                                                              val_precisions, val_balaccs, val_roc_aucs)
+        f1, accuracy, recall, precision, balanced_accuracy, roc_auc = np.mean(val_f1s), np.mean(val_accs), \
+                                                                      np.mean(val_recalls), np.mean(val_precisions), \
+                                                                      np.mean(val_balaccs), np.mean(val_roc_aucs)
         print(f'Mean val f1: {f1}')
         self.logger.log_kfold(f1, accuracy, recall, precision, balanced_accuracy, roc_auc,
                               self.n_mfs, self.mode, self.adjustment, self.lower_scaling, n_folds)
