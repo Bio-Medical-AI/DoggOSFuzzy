@@ -265,14 +265,14 @@ class TSExperiments:
                 print(f'Fold {n_fold}')
                 n_fold += 1
 
-            train = self.train[train_idx]
-            val = self.train[val_idx]
-
+            train = self.train.iloc[train_idx]
+            val = self.train.iloc[val_idx]
             try:
                 ts, rules, train_fitness = self.fit_fitness(train, classification)
             except ValueError:
                 print("Induced only one rule")
                 return
+            print("Starting metaheuristic")
             lin_fun_params_optimal = metaheuristic(train_fitness)
 
             val_fuzzified = fuzzify(val, self.clauses)
@@ -284,7 +284,7 @@ class TSExperiments:
                                   lin_fun_params_optimal,
                                   rules,
                                   val_fuzzified,
-                                  self.train_y[val_idx],
+                                  self.train_y.values[val_idx],
                                   val_measures,
                                   classification)
 

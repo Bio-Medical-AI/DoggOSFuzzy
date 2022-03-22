@@ -14,6 +14,7 @@ from TS_Experiments import TSExperiments
 from metaheuristics_wrapper import PSO, CMAESWrapper
 
 import warnings
+
 warnings.filterwarnings("ignore")
 
 THRESHOLD = 0.5
@@ -251,7 +252,8 @@ def main():
                     cmaes = prepare_cmaes()
 
                     experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
-                                                          metaheuristic=cmaes)
+                                                                metaheuristic=cmaes,
+                                                                debug=True)
 
 
 def threshold_classification(theta):
