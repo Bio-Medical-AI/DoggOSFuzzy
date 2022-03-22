@@ -281,7 +281,7 @@ class TSExperiments:
                                   lin_fun_params_optimal,
                                   rules,
                                   val_fuzzified,
-                                  train_y.values[val_idx],
+                                  val_y,
                                   val_measures,
                                   classification)
 
