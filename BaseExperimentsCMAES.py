@@ -250,7 +250,7 @@ def main():
 
                     cmaes = prepare_cmaes()
 
-                    experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
+                    experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
                                                           metaheuristic=cmaes)
 
 
