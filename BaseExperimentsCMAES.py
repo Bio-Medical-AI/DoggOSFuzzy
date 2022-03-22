@@ -235,9 +235,9 @@ PARAMS_VALUES = {
 
 def main():
     seed_libs(42)
-    pso_logger = Logger("base_cmaes", 'wdbc PCA')
+    pso_logger = Logger("base_cmaes", sys.argv[1])
 
-    experiments = TSExperiments('data/' + 'wdbc PCA' + '.csv', ';', pso_logger)
+    experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale], ros=True)
 
     for ls in lower_scalings:
