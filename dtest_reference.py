@@ -28,7 +28,7 @@ def dtest_on_knn(x_train, x_test, y_train, y_test):
 def dtest_on_mamdani(x_train, x_test, y_train, y_test, col_names, adjustment):
     if adjustment == 'mean':
         mid_evs = []
-        for vals in x_train.T:
+        for vals in x_train.values.T:
             mean, _ = norm.fit(vals)
             mid_evs.append(mean)
         middle_vals = mid_evs
@@ -59,7 +59,7 @@ def dtest_on_mamdani(x_train, x_test, y_train, y_test, col_names, adjustment):
         MamdaniConsequent(decision_one_clause)
     ]
 
-    information_system = InformationSystem(x_train, y_train, col_names)
+    information_system = InformationSystem(x_train, y_train, list(col_names))
     print("Induction")
     antecedents, string_antecedents = information_system.induce_rules(fuzzy_sets, clauses)
     rule_base = []
@@ -80,13 +80,36 @@ def dtest_on_mamdani(x_train, x_test, y_train, y_test, col_names, adjustment):
     print(f1_score(y_test, y_pred))
 
 
+def random_oversampling(df):
+    new_df = pd.DataFrame(columns=df.columns)
+    classes = df.value_counts('Decision', sort=True)
+
+    higher_class = 0
+    for cls, val in classes.items():
+        if classes[higher_class] < val:
+            higher_class = cls
+
+    for cls, _ in classes.items():
+        cls_df = df[df['Decision'] == cls]
+        if cls != higher_class:
+            resampled = cls_df.sample(classes[higher_class], replace=True, ignore_index=True)
+        else:
+            resampled = cls_df
+        new_df = pd.concat([new_df, resampled], ignore_index=True)
+    return new_df
+
+
 def main():
-    df = pd.read_csv('data/Breast Cancer Data.csv', sep=';')
+    df = pd.read_csv('data/wdbc.csv', sep=';')
+    df = random_oversampling(df).astype(float)
     X = df.drop(columns=['Decision']).values
     y = df['Decision'].values
     scaler = MinMaxScaler()
     X = scaler.fit_transform(X, y)
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y)
+    x_train = pd.DataFrame(np.hstack([x_train, y_train.reshape(-1, 1)]), columns=df.columns)
+    y_train = pd.Series(y_train, name='Decision')
+    x_test = pd.DataFrame(x_test, columns=df.columns[:-1])
     dtest_on_mamdani(x_train, x_test, y_train, y_test, df.drop(columns=['Decision']).columns, "mean")
 
 
