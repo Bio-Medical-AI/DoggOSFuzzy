@@ -521,7 +521,6 @@ class TSExperiments:
                 linear_fun_params,
                 rules,
                 fuzzified_data_X,
-                data_y,
                 measures,
                 classification):
         f_params1 = {}
