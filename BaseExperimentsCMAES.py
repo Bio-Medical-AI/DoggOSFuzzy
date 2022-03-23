@@ -41,7 +41,7 @@ def main():
                 for n_mf in n_mfs:
                     print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
 
-                    experiments.prepare_fuzzy_system(n_mfs=n_mfs, mode=mode, adjustment=adjustment, lower_scaling=ls,
+                    experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
 
                     cmaes = prepare_cmaes()
