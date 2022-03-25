@@ -27,6 +27,25 @@ PARAM_UPPER_BOUND = 400
 FUZZY_DEBUG = True
 PSO_DEBUG = True
 
+n_params = {
+    'Breast Cancer Wisconsin': 20,
+    'Breast Cancer Wisconsin StdPCA': 10,
+    'Data Banknote Auth': 10,
+    'Data Banknote Auth StdPCA': 6,
+    'HTRU': 18,
+    'HTRU StdPCA': 10,
+    'Immunotherapy': 16,
+    'Immunotherapy StdPCA': 14,
+    'Ionosphere': 70,
+    'Ionosphere StdPCA': 20,
+    'Parkinson': 46,
+    'Parkinson StdPCA': 20,
+    'Pima Indians Diabetes': 18,
+    'Pima Indians Diabetes StdPCA': 10,
+    'wdbc': 62,
+    'wdbc StdPCA': 10
+}
+
 
 def main():
     seed_libs(42)
@@ -44,7 +63,7 @@ def main():
         experiments.prepare_fuzzy_system(n_mfs=9, mode='progressive', adjustment='mean', lower_scaling=0.8,
                                          fuzzy_set_type='it2')
 
-        cmaes = prepare_cmaes()
+        cmaes = prepare_cmaes(n_params[sys.argv[1]])
 
         experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
                                                     metaheuristic=cmaes,
@@ -64,8 +83,8 @@ def threshold_classification(theta):
     return _classify
 
 
-def prepare_cmaes():
-    x0 = denormalize(np.random.random(10), PARAM_LOWER_BOUND, PARAM_UPPER_BOUND)
+def prepare_cmaes(n_param):
+    x0 = denormalize(np.random.random(n_param), PARAM_LOWER_BOUND, PARAM_UPPER_BOUND)
     kwargs = {
         'tolstagnation': 100,
         'popsize': 20
@@ -76,7 +95,7 @@ def prepare_cmaes():
                   restarts=1,
                   incpopsize=2,
                   **kwargs)
-    return CMAESWrapper(cmaes)
+    return CMAESWrapper(cmaes, n_param)
 
 
 def min_max_scale(data: np.ndarray):
