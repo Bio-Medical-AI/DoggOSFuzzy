@@ -285,6 +285,7 @@ class TSExperiments:
             val_f1s.append(f1)
             val_accs.append(accuracy)
             val_recalls.append(recall)
+            val_precisions.append(precision)
             val_balaccs.append(balanced_accuracy)
             val_roc_aucs.append(roc_auc)
 

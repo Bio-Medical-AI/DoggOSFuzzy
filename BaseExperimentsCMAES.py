@@ -54,21 +54,25 @@ def main():
     experiments = TSExperiments('data/' + sys.argv[1] + '.csv', ';', pso_logger)
     experiments.prepare_data([min_max_scale])
 
-    # for ls in lower_scalings:
-    #     for mode in modes:
-    #         for adjustment in adjustments:
-    #             for n_mf in n_mfs:
-    #                 print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
-    for _ in range(5):
-        experiments.prepare_fuzzy_system(n_mfs=9, mode='progressive', adjustment='mean', lower_scaling=0.8,
-                                         fuzzy_set_type='it2')
+    for ls in lower_scalings:
+        for mode in modes:
+            for adjustment in adjustments:
+                for n_mf in n_mfs:
+                    print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
 
+<<<<<<< HEAD
         cmaes = prepare_cmaes(n_params[sys.argv[1]])
+=======
+                    experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
+                                                     fuzzy_set_type='it2')
+>>>>>>> 4c5044df9005eaa3c11e18e07e28cfeb0c295b90
 
-        experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
-                                                    metaheuristic=cmaes,
-                                                    debug=True,
-                                                    ros=True)
+                    cmaes = prepare_cmaes()
+
+                    experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
+                                                                metaheuristic=cmaes,
+                                                                debug=True,
+                                                                ros=True)
 
 
 def threshold_classification(theta):
@@ -91,7 +95,7 @@ def prepare_cmaes(n_param):
     }
     cmaes = CMAES(x0=x0,
                   maxfevals=20000,
-                  sigma=0.999,
+                  sigma=0.7,
                   restarts=1,
                   incpopsize=2,
                   **kwargs)
