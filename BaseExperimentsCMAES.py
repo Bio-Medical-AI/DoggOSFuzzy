@@ -60,14 +60,10 @@ def main():
                 for n_mf in n_mfs:
                     print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
 
-<<<<<<< HEAD
-        cmaes = prepare_cmaes(n_params[sys.argv[1]])
-=======
+                    cmaes = prepare_cmaes(n_params[sys.argv[1]])
+
                     experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
->>>>>>> 4c5044df9005eaa3c11e18e07e28cfeb0c295b90
-
-                    cmaes = prepare_cmaes()
 
                     experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
                                                                 metaheuristic=cmaes,
