@@ -58,9 +58,10 @@ def main():
                                      lower_scaling=float(sys.argv[5]),
                                      fuzzy_set_type='it2')
 
-    experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
-                                          metaheuristic=cmaes,
-                                          ros=True)
+    for i in range(10):
+        experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
+                                              metaheuristic=cmaes,
+                                              ros=True)
 
 
 def threshold_classification(theta):
