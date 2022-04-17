@@ -55,7 +55,7 @@ def main():
     experiments.prepare_fuzzy_system(n_mfs=int(sys.argv[2]),
                                      mode=sys.argv[3],
                                      adjustment=sys.argv[4],
-                                     lower_scaling=int(sys.argv[5]),
+                                     lower_scaling=float(sys.argv[5]),
                                      fuzzy_set_type='it2')
 
     experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
