@@ -17,11 +17,11 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-THRESHOLD = 0.5
+THRESHOLD = 0.0
 n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']
 adjustments = ['center', 'mean']
-lower_scalings = np.flip(np.arange(0.5, 0.96, 0.05))
+lower_scalings = np.flip(np.arange(0.5, 0.91, 0.05))
 PARAM_LOWER_BOUND = -400
 PARAM_UPPER_BOUND = 400
 FUZZY_DEBUG = True
@@ -68,7 +68,7 @@ def main():
                     experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
                                                                 metaheuristic=cmaes,
                                                                 debug=True,
-                                                                ros=True)
+                                                                ros=True, n_folds=int(sys.argv[2]))
 
 
 def threshold_classification(theta):
