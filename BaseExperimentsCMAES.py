@@ -17,7 +17,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-THRESHOLD = 0.5
+THRESHOLD = 0.0
 n_mfs = [3, 5, 7, 9, 11]
 modes = ['equal', 'progressive']
 adjustments = ['center', 'mean']
@@ -34,6 +34,11 @@ n_params = {
     'Data Banknote Auth StdPCA': 6,
     'HTRU': 18,
     'HTRU StdPCA': 10,
+    'haberman': 8,
+    'heart': 28,
+    'heart StdPCA': 14,
+    'Indian Liver Patient': 22,
+    'Indian Liver Patient StdPCA': 10,
     'Immunotherapy': 16,
     'Immunotherapy StdPCA': 14,
     'Ionosphere': 70,
@@ -42,8 +47,12 @@ n_params = {
     'Parkinson StdPCA': 20,
     'Pima Indians Diabetes': 18,
     'Pima Indians Diabetes StdPCA': 10,
+    'transfusion': 10,
+    'transfusion StdPCA': 8,
     'wdbc': 62,
-    'wdbc StdPCA': 10
+    'wdbc StdPCA': 10,
+    'vertebral': 14,
+    'vertebral StdPCA': 10
 }
 
 
@@ -67,8 +76,8 @@ def main():
 
                     experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
                                                                 metaheuristic=cmaes,
-                                                                debug=True,
-                                                                ros=True)
+                                                                ros=True,
+                                                                n_folds=int(sys.argv[2]))
 
 
 def threshold_classification(theta):
