@@ -11,7 +11,7 @@ def main():
     print(f"Min test_f1: {test_f1.min()}")
     print(f"Avg test_f1: {test_f1.mean()}")
     print(f"Std test_f1: {test_f1.std()}")
-
+    #print(df[df['f1'] == test_f1.max()])
 
 if __name__ == '__main__':
     main()
