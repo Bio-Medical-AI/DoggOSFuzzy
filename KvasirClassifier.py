@@ -91,7 +91,7 @@ class KvasirExperiments:
         print(train_undersampled.value_counts('Label'))
 
         train_text_feats = textural_features_mult_images(images[train_undersampled['Index'].values.astype('int32')],
-                                                         masks[train_undersampled['Index'].values])
+                                                         masks[train_undersampled['Index'].values.astype('int32')])
         test_text_feats = textural_features_mult_images(images[test_idxs],
                                                         masks[test_idxs])
         #red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
@@ -191,13 +191,8 @@ class KvasirExperiments:
     def random_undersampling(self, df):
         new_df = pd.DataFrame(columns=df.columns)
         classes = df.value_counts('Label', sort=True)
-        print('df.value_counts w undersampling')
-        print(classes)
-        print(df.head())
-        print(df.tail())
 
         lower_class = classes.keys()[-1]
-        print(classes[lower_class])
 
         for cls, _ in classes.items():
             cls_df = df[df['Label'] == cls]
@@ -206,7 +201,6 @@ class KvasirExperiments:
             else:
                 resampled = cls_df
             new_df = pd.concat([new_df, resampled], ignore_index=True)
-            print(new_df.value_counts('Label', sort=True))
         return new_df
 
     def select_optimal_parameters(self,
