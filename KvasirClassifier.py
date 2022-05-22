@@ -76,9 +76,10 @@ class KvasirExperiments:
                 labels.append(idx)
 
         text_feats = textural_features_mult_images(np.array(images), np.array(masks))
-        red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
-        rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
-        data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
+        #red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
+        #rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
+        #data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
+        data = list(text_feats)
 
         df_dict = {}
         df_dict['Label'] = labels
@@ -87,7 +88,7 @@ class KvasirExperiments:
             df_dict[f'F{i}'] = features
 
         self.data = pd.DataFrame(df_dict)
-        print(self.data.drop(columns=['Label'], axis=1).head())
+        print(self.data[self.data.columns[1:]].head())
         X_train, X_test, y_train, y_test = train_test_split(self.data.drop(columns=['Label'], axis=1).values, self.data['Label'].values,
                                                             self.test_size, random_state=42, stratify=self.data['Label'].values,
                                                             shuffle=True)
