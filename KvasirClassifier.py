@@ -90,10 +90,10 @@ class KvasirExperiments:
         train_undersampled = self.random_undersampling(pd.DataFrame({'Index': train_idxs, 'Decision': labels[train_idxs]}))
         print(train_undersampled.value_counts('Decision'))
 
-        train_text_feats = textural_features_mult_images(images[train_undersampled['Index'].values.astype('int32')],
-                                                         masks[train_undersampled['Index'].values.astype('int32')])
-        test_text_feats = textural_features_mult_images(images[test_idxs],
-                                                        masks[test_idxs])
+        train_text_feats = np.array(textural_features_mult_images(images[train_undersampled['Index'].values.astype('int32')],
+                                                         masks[train_undersampled['Index'].values.astype('int32')]))
+        test_text_feats = np.array(textural_features_mult_images(images[test_idxs],
+                                                        masks[test_idxs]))
         #red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
         #rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
         #data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
