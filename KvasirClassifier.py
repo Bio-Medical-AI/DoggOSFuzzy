@@ -86,20 +86,20 @@ class KvasirExperiments:
             df_dict[f'F{i}'] = []
 
         df_dict['Label'] = []
-        print(len(data[0]))
-        # for features, label in zip(data, labels):
-        #     for i, feature in enumerate(features):
-        #         df_dict[f'F{i}'].append(feature)
-        #     df_dict['Label'].append(label)
-        #
-        # self.data = pd.DataFrame(df_dict)
-        # X_train, X_test, y_train, y_test = train_test_split(self.data.drop(columns=['Label']), self.data['Label'],
-        #                                                     self.test_size, random_state=42, stratify=self.data['Label'],
-        #                                                     shuffle=True)
-        # self.X_train = X_train
-        # self.X_test = X_test
-        # self.y_train = y_train
-        # self.y_test = y_test
+
+        for features, label in zip(data, labels):
+            for i, feature in enumerate(features):
+                df_dict[f'F{i}'].append(feature)
+            df_dict['Label'].append(label)
+
+        self.data = pd.DataFrame(df_dict)
+        X_train, X_test, y_train, y_test = train_test_split(self.data.drop(columns=['Label']), self.data['Label'],
+                                                            self.test_size, random_state=42, stratify=self.data['Label'],
+                                                            shuffle=True)
+        self.X_train = X_train
+        self.X_test = X_test
+        self.y_train = y_train
+        self.y_test = y_test
 
     def perform_pca(self):
         pca = PCA()
