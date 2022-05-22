@@ -86,8 +86,8 @@ class KvasirExperiments:
                                                  test_size=self.test_size,
                                                  random_state=42,
                                                  shuffle=True)
-        train_images = images[train_idxs]
-        X_train_under_sampled = self.random_undersampling(pd.DataFrame(train_images, columns=['Label']))
+
+        X_train_under_sampled = self.random_undersampling(pd.DataFrame({'Index': train_idxs, 'Label': labels[train_idxs]}).set_index('Index'))
         print(X_train_under_sampled.value_counts('Label'))
 
         text_feats = textural_features_mult_images(images, masks)
