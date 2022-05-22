@@ -80,10 +80,8 @@ class KvasirExperiments:
         labels = np.array(labels)
         images = np.array(images)
         masks = np.array(masks)
-        print((labels == 0).sum())
-        print((labels == 1).sum())
 
-        train_idxs, test_idxs = train_test_split(labels,
+        train_idxs, test_idxs = train_test_split(np.arange(0, len(labels), 1),
                                                  stratify=labels,
                                                  test_size=self.test_size,
                                                  random_state=42,
