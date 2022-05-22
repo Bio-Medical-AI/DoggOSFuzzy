@@ -64,7 +64,6 @@ class KvasirExperiments:
         self.logger = logger
 
     def load_data(self, kvasir_dir_path, classes):
-        data = []
         labels = []
         images = []
         masks = []
@@ -79,17 +78,15 @@ class KvasirExperiments:
         text_feats = textural_features_mult_images(np.array(images), np.array(masks))
         red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
         rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
-        data.append(list(text_feats) + list(red_feats) + list(rgb_hsv_feats))
+        data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
 
         df_dict = {}
-        for i in range(len(data[0])):
-            df_dict[f'F{i}'] = []
-
         df_dict['Label'] = labels
 
-        for features in data:
-            for i, feature in enumerate(features):
-                df_dict[f'F{i}'].append(feature)
+        print(len(data))
+        print(len(data[0]))
+        for i, features in enumerate(data):
+            df_dict[f'F{i}'] = features
 
         print(len(labels))
         print(len(df_dict.keys()))
