@@ -98,8 +98,10 @@ class KvasirExperiments:
             df_dict[f'F{i}'] = features
 
         self.data = pd.DataFrame(df_dict)
-        self.train, self.test = train_test_split(self.data, self.data['Label'],
-                                                 test_size=self.test_size, random_state=42, stratify=self.data['Label'],
+        self.train, self.test = train_test_split(self.data,
+                                                 stratify=self.data['Label'],
+                                                 test_size=self.test_size,
+                                                 random_state=42,
                                                  shuffle=True)
         self.train_y = self.train['Label']
 
