@@ -38,8 +38,7 @@ def main():
 
     experiments = KvasirExperiments(logger)
     experiments.load_data('labelled_images/', ['angiectasia'])
-    experiments.perform_pca()
-    X_train_under_sampled = experiments.random_undersampling(experiments.X_train.join(experiments.y_train))
+    X_train_under_sampled = experiments.random_undersampling(experiments.train)
     print(X_train_under_sampled.value_counts('Label'))
 
     # for ls in lower_scalings:

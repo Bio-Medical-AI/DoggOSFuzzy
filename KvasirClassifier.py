@@ -12,6 +12,8 @@ from sklearn.metrics import f1_score, accuracy_score, recall_score, precision_sc
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from functools import partial
 
+from sklearn.preprocessing import StandardScaler
+
 from doggos.induction import InformationSystem
 from doggos.inference import TakagiSugenoInferenceSystem
 from doggos.inference.defuzzification_algorithms import takagi_sugeno_EIASC
@@ -63,7 +65,7 @@ class KvasirExperiments:
         self.params_upper_bound = params_upper_bound
         self.logger = logger
 
-    def load_data(self, kvasir_dir_path, classes):
+    def load_data(self, kvasir_dir_path, classes, pca_=False, standarize=False):
         labels = []
         images = []
         masks = []
@@ -84,23 +86,22 @@ class KvasirExperiments:
         df_dict = {}
         df_dict['Label'] = labels
 
+        if pca_:
+            pca = PCA()
+            data = pca.fit_transform(data, labels)
+            print(pca.explained_variance_ratio_)
+
         for i, features in enumerate(data):
+            if standarize:
+                scaler = StandardScaler()
+                features = scaler.fit_transform(features, labels)
             df_dict[f'F{i}'] = features
 
         self.data = pd.DataFrame(df_dict)
-        X_train, X_test, y_train, y_test = train_test_split(self.data[self.data.columns[1:]], self.data['Label'],
-                                                            test_size=self.test_size, random_state=42, stratify=self.data['Label'],
-                                                            shuffle=True)
-        self.X_train = X_train
-        self.X_test = X_test
-        self.y_train = y_train
-        self.y_test = y_test
-
-    def perform_pca(self):
-        pca = PCA()
-        self.X_train = pca.fit_transform(self.X_train, self.y_train)
-        print(pca.explained_variance_ratio_)
-        self.X_test = pca.transform(self.X_test)
+        self.train, self.test = train_test_split(self.data, self.data['Label'],
+                                                 test_size=self.test_size, random_state=42, stratify=self.data['Label'],
+                                                 shuffle=True)
+        self.train_y = self.train['Label']
 
     def prepare_fuzzy_system(self,
                              fuzzy_domain=Domain(0, 1.001, 0.001),
