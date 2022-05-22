@@ -173,7 +173,7 @@ class KvasirExperiments:
 
     def random_oversampling(self, df):
         new_df = pd.DataFrame(columns=df.columns)
-        classes = df.value_counts('Label', sort=True)
+        classes = df.value_counts('Decision', sort=True)
 
         higher_class = 0
         for cls, val in classes.items():
@@ -181,7 +181,7 @@ class KvasirExperiments:
                 higher_class = cls
 
         for cls, _ in classes.items():
-            cls_df = df[df['Label'] == cls]
+            cls_df = df[df['Decision'] == cls]
             if cls != higher_class:
                 resampled = cls_df.sample(classes[higher_class], replace=True, ignore_index=True)
             else:
@@ -191,12 +191,12 @@ class KvasirExperiments:
 
     def random_undersampling(self, df):
         new_df = pd.DataFrame(columns=df.columns)
-        classes = df.value_counts('Label', sort=True)
+        classes = df.value_counts('Decision', sort=True)
 
         lower_class = classes.keys()[-1]
 
         for cls, _ in classes.items():
-            cls_df = df[df['Label'] == cls]
+            cls_df = df[df['Decision'] == cls]
             if cls != lower_class:
                 resampled = cls_df.sample(classes[lower_class], replace=False, ignore_index=True, random_state=42)
             else:
