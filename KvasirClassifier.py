@@ -87,17 +87,22 @@ class KvasirExperiments:
                                                  random_state=42,
                                                  shuffle=True)
 
-        X_train_under_sampled = self.random_undersampling(pd.DataFrame({'Index': train_idxs, 'Label': labels[train_idxs]}).set_index('Index'))
-        print(X_train_under_sampled.value_counts('Label'))
+        train_undersampled = self.random_undersampling(pd.DataFrame({'Index': train_idxs, 'Label': labels[train_idxs]}))
+        print(train_undersampled.value_counts('Label'))
 
-        text_feats = textural_features_mult_images(images, masks)
+        train_text_feats = textural_features_mult_images(images[train_undersampled['Index'].values],
+                                                         masks[train_undersampled['Index'].values])
+        test_text_feats = textural_features_mult_images(images[test_idxs],
+                                                        masks[test_idxs])
         #red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
         #rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
         #data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
-        data = list(text_feats)
+        data = []
+        for train_feature, test_feature in zip(train_text_feats, test_text_feats):
+            feature = train_feature.extend(test_feature)
+            data.append(feature)
 
         df_dict = {}
-        df_dict['Label'] = labels
 
         if pca_:
             pca = PCA()
@@ -110,8 +115,18 @@ class KvasirExperiments:
                 features = scaler.fit_transform(features, labels)
             df_dict[f'F{i}'] = features
 
+        split = np.empty_like(data[0], dtype='object')
+        split[:train_text_feats.shape[1]] = 'train'
+        split[train_text_feats.shape[1]:] = 'test'
+        df_dict['Split'] = split
+        label = list(train_undersampled['Label'].values)
+        label.extend(labels[test_idxs])
+        df_dict['Label'] = label
+
         self.data = pd.DataFrame(df_dict)
-        self.train, self.test = self.data.iloc[train_idxs], self.data.iloc[test_idxs]
+        self.train, self.test = self.data.loc[self.data['split'] == 'train'], self.data.loc[self.data['split'] == 'test']
+        self.train = self.train.drop(['Split'], axis=1)
+        self.test = self.test.drop(['Split'], axis=1)
         self.train_y = self.train['Label']
         self.test_y = self.test['Label']
 
@@ -176,16 +191,19 @@ class KvasirExperiments:
     def random_undersampling(self, df):
         new_df = pd.DataFrame(columns=df.columns)
         classes = df.value_counts('Label', sort=True)
+        print(classes)
 
         lower_class = classes.keys()[0]
+        print(classes[lower_class])
 
         for cls, _ in classes.items():
             cls_df = df[df['Label'] == cls]
             if cls != lower_class:
-                resampled = cls_df.sample(classes[lower_class], replace=False, ignore_index=True)
+                resampled = cls_df.sample(classes[lower_class], replace=False, ignore_index=True, random_state=42)
             else:
                 resampled = cls_df
             new_df = pd.concat([new_df, resampled], ignore_index=True)
+            print(new_df.value_counts('Label'), sort=True)
         return new_df
 
     def select_optimal_parameters(self,
