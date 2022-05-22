@@ -391,13 +391,13 @@ def red_prop_features_mult_images(images_rgb, masks):
 
     masks = masks.astype('bool')
 
-    r_vals = images_rgb[:, :, :, 0][masks]
-    g_vals = images_rgb[:, :, :, 1][masks]
-    b_vals = images_rgb[:, :, :, 2][masks]
+    r_vals = images_rgb[:, :, :, 0][masks].reshape((images_rgb.shape[0], -1))
+    g_vals = images_rgb[:, :, :, 1][masks].reshape((images_rgb.shape[0], -1))
+    b_vals = images_rgb[:, :, :, 2][masks].reshape((images_rgb.shape[0], -1))
     print(r_vals.shape)
-    r_sum = r_vals.sum(axis=(1, 2))
-    g_sum = g_vals.sum(axis=(1, 2))
-    b_sum = b_vals.sum(axis=(1, 2))
+    r_sum = r_vals.sum(axis=1)
+    g_sum = g_vals.sum(axis=1)
+    b_sum = b_vals.sum(axis=1)
     c1 = r_sum / g_sum
     c2 = r_sum / b_sum
     c3 = r_sum / (r_sum + g_sum + b_sum)  # chromacity
