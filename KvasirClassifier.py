@@ -196,7 +196,7 @@ class KvasirExperiments:
         print(df.head())
         print(df.tail())
 
-        lower_class = classes.keys()[0]
+        lower_class = classes.keys()[-1]
         print(classes[lower_class])
 
         for cls, _ in classes.items():
