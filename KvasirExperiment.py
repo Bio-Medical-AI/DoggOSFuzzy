@@ -38,8 +38,6 @@ def main():
 
     experiments = KvasirExperiments(logger)
     experiments.load_data('labelled_images/', ['angiectasia', 'normal_clean_mucosa'])
-    X_train_under_sampled = experiments.random_undersampling(experiments.train)
-    print(X_train_under_sampled.value_counts('Label'))
 
     # for ls in lower_scalings:
     #     for mode in modes:

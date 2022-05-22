@@ -77,7 +77,20 @@ class KvasirExperiments:
                 masks.append(np.ones_like(images[-1][:, :, 0]))
                 labels.append(idx)
 
-        text_feats = textural_features_mult_images(np.array(images), np.array(masks))
+        labels = np.array(labels)
+        images = np.array(images)
+        masks = np.array(masks)
+
+        train_idxs, test_idxs = train_test_split(labels,
+                                                 stratify=labels,
+                                                 test_size=self.test_size,
+                                                 random_state=42,
+                                                 shuffle=True)
+        train_images = images[train_idxs]
+        X_train_under_sampled = self.random_undersampling(pd.DataFrame(train_images, columns=['Label']))
+        print(X_train_under_sampled.value_counts('Label'))
+
+        text_feats = textural_features_mult_images(images, masks)
         #red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
         #rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
         #data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
@@ -98,12 +111,9 @@ class KvasirExperiments:
             df_dict[f'F{i}'] = features
 
         self.data = pd.DataFrame(df_dict)
-        self.train, self.test = train_test_split(self.data,
-                                                 stratify=self.data['Label'],
-                                                 test_size=self.test_size,
-                                                 random_state=42,
-                                                 shuffle=True)
+        self.train, self.test = self.data.iloc[train_idxs], self.data.iloc[test_idxs]
         self.train_y = self.train['Label']
+        self.test_y = self.test['Label']
 
     def prepare_fuzzy_system(self,
                              fuzzy_domain=Domain(0, 1.001, 0.001),
