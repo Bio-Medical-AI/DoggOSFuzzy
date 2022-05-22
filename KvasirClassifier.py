@@ -80,6 +80,8 @@ class KvasirExperiments:
         labels = np.array(labels)
         images = np.array(images)
         masks = np.array(masks)
+        print((labels == 0).sum())
+        print((labels == 1).sum())
 
         train_idxs, test_idxs = train_test_split(labels,
                                                  stratify=labels,
@@ -191,7 +193,10 @@ class KvasirExperiments:
     def random_undersampling(self, df):
         new_df = pd.DataFrame(columns=df.columns)
         classes = df.value_counts('Label', sort=True)
+        print('df.value_counts w undersampling')
         print(classes)
+        print(df.head())
+        print(df.tail())
 
         lower_class = classes.keys()[0]
         print(classes[lower_class])
@@ -203,7 +208,7 @@ class KvasirExperiments:
             else:
                 resampled = cls_df
             new_df = pd.concat([new_df, resampled], ignore_index=True)
-            print(new_df.value_counts('Label'), sort=True)
+            print(new_df.value_counts('Label', sort=True))
         return new_df
 
     def select_optimal_parameters(self,
