@@ -77,19 +77,16 @@ class KvasirExperiments:
                 labels.append(idx)
 
         text_feats = textural_features_mult_images(np.array(images), np.array(masks))
-        print(np.array(text_feats).shape)
         red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
-        print(np.array(red_feats).shape)
         rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
-        print(np.array(rgb_hsv_feats).shape)
-        # data.append(features)
-        #
-        # df_dict = {}
-        # for i in range(len(data[0])):
-        #     df_dict[f'F{i}'] = []
-        #
-        # df_dict['Label'] = []
-        #
+        data.append(list(text_feats) + list(red_feats) + list(rgb_hsv_feats))
+
+        df_dict = {}
+        for i in range(len(data[0])):
+            df_dict[f'F{i}'] = []
+
+        df_dict['Label'] = []
+        print(len(data[0]))
         # for features, label in zip(data, labels):
         #     for i, feature in enumerate(features):
         #         df_dict[f'F{i}'].append(feature)

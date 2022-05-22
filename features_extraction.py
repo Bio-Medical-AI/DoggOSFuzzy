@@ -394,7 +394,6 @@ def red_prop_features_mult_images(images_rgb, masks):
     r_vals = images_rgb[:, :, :, 0][masks].reshape((images_rgb.shape[0], -1))
     g_vals = images_rgb[:, :, :, 1][masks].reshape((images_rgb.shape[0], -1))
     b_vals = images_rgb[:, :, :, 2][masks].reshape((images_rgb.shape[0], -1))
-    print(r_vals.shape)
     r_sum = r_vals.sum(axis=1)
     g_sum = g_vals.sum(axis=1)
     b_sum = b_vals.sum(axis=1)
@@ -430,16 +429,16 @@ def rgb_hsv_means_mult_images(images_rgb, masks):
 
     image_hsv = np.array([hsv2rgb(deepcopy(image)) for image in images_rgb])
 
-    r_vals = images_rgb[:, :, :, 0][masks]
-    g_vals = images_rgb[:, :, :, 1][masks]
-    b_vals = images_rgb[:, :, :, 2][masks]
-    h_vals = image_hsv[:, :, :, 0][masks]
-    s_vals = image_hsv[:, :, :, 1][masks]
-    v_vals = image_hsv[:, :, :, 2][masks]
-    r_mean = np.mean(r_vals)
-    g_mean = np.mean(g_vals)
-    b_mean = np.mean(b_vals)
-    h_mean = np.mean(h_vals)
-    s_mean = np.mean(s_vals)
-    v_mean = np.mean(v_vals)
+    r_vals = images_rgb[:, :, :, 0][masks].reshape((images_rgb.shape[0], -1))
+    g_vals = images_rgb[:, :, :, 1][masks].reshape((images_rgb.shape[0], -1))
+    b_vals = images_rgb[:, :, :, 2][masks].reshape((images_rgb.shape[0], -1))
+    h_vals = image_hsv[:, :, :, 0][masks].reshape((images_rgb.shape[0], -1))
+    s_vals = image_hsv[:, :, :, 1][masks].reshape((images_rgb.shape[0], -1))
+    v_vals = image_hsv[:, :, :, 2][masks].reshape((images_rgb.shape[0], -1))
+    r_mean = r_vals.mean(axis=1)
+    g_mean = g_vals.mean(axis=1)
+    b_mean = b_vals.mean(axis=1)
+    h_mean = h_vals.mean(axis=1)
+    s_mean = s_vals.mean(axis=1)
+    v_mean = v_vals.mean(axis=1)
     return r_mean, g_mean, b_mean, h_mean, s_mean, v_mean
