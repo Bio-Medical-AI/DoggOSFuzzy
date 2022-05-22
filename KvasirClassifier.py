@@ -114,7 +114,7 @@ class KvasirExperiments:
             if standarize:
                 scaler = StandardScaler()
                 features = scaler.fit_transform(features.reshape(-1, 1), labels)
-            df_dict[f'F{i}'] = features
+            df_dict[f'F{i}'] = list(features)
 
         split = np.empty_like(data[0], dtype='object')
         split[:train_text_feats.shape[1]] = 'train'
