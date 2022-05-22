@@ -104,26 +104,27 @@ class KvasirExperiments:
             data.append(feature)
 
         df_dict = {}
-
+        label = list(train_undersampled['Decision'].values)
+        label.extend(labels[test_idxs])
         if pca_:
             pca = PCA()
-            data = pca.fit_transform(data, labels)
+            data = pca.fit_transform(data, label)
             print(pca.explained_variance_ratio_)
 
         for i, features in enumerate(data):
             if standarize:
                 scaler = StandardScaler()
-                features = scaler.fit_transform(features.reshape(-1, 1), labels)
+                features = scaler.fit_transform(features.reshape(-1, 1), label)
             df_dict[f'F{i}'] = list(features)
 
         split = np.empty_like(data[0], dtype='object')
         split[:train_text_feats.shape[1]] = 'train'
         split[train_text_feats.shape[1]:] = 'test'
         df_dict['Split'] = split
-        label = list(train_undersampled['Decision'].values)
-        label.extend(labels[test_idxs])
-        df_dict['Decision'] = label
 
+        df_dict['Decision'] = label
+        for vals in df_dict.values():
+            print(len(vals))
         self.data = pd.DataFrame(df_dict)
         self.train, self.test = self.data.loc[self.data['split'] == 'train'], self.data.loc[self.data['split'] == 'test']
         self.train = self.train.drop(['Split'], axis=1)
