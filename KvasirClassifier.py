@@ -91,9 +91,11 @@ class KvasirExperiments:
             for i, feature in enumerate(features):
                 df_dict[f'F{i}'].append(feature)
 
+        print(len(labels))
+        print(len(df_dict.keys()))
+        print(len(df_dict['F0']))
         self.data = pd.DataFrame(df_dict)
         print(self.data['Label'])
-        print(len(labels))
         print(self.data.drop(['Label'], axis=1))
         print(self.data.head())
         print(self.data.describe())
