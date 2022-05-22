@@ -87,8 +87,8 @@ class KvasirExperiments:
                                                  random_state=42,
                                                  shuffle=True)
 
-        train_undersampled = self.random_undersampling(pd.DataFrame({'Index': train_idxs, 'Label': labels[train_idxs]}))
-        print(train_undersampled.value_counts('Label'))
+        train_undersampled = self.random_undersampling(pd.DataFrame({'Index': train_idxs, 'Decision': labels[train_idxs]}))
+        print(train_undersampled.value_counts('Decision'))
 
         train_text_feats = textural_features_mult_images(images[train_undersampled['Index'].values.astype('int32')],
                                                          masks[train_undersampled['Index'].values.astype('int32')])
@@ -121,14 +121,14 @@ class KvasirExperiments:
         df_dict['Split'] = split
         label = list(train_undersampled['Label'].values)
         label.extend(labels[test_idxs])
-        df_dict['Label'] = label
+        df_dict['Decision'] = label
 
         self.data = pd.DataFrame(df_dict)
         self.train, self.test = self.data.loc[self.data['split'] == 'train'], self.data.loc[self.data['split'] == 'test']
         self.train = self.train.drop(['Split'], axis=1)
         self.test = self.test.drop(['Split'], axis=1)
-        self.train_y = self.train['Label']
-        self.test_y = self.test['Label']
+        self.train_y = self.train['Decision']
+        self.test_y = self.test['Decision']
 
     def prepare_fuzzy_system(self,
                              fuzzy_domain=Domain(0, 1.001, 0.001),
