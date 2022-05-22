@@ -120,7 +120,7 @@ class KvasirExperiments:
         split[:train_text_feats.shape[1]] = 'train'
         split[train_text_feats.shape[1]:] = 'test'
         df_dict['Split'] = split
-        label = list(train_undersampled['Label'].values)
+        label = list(train_undersampled['Decision'].values)
         label.extend(labels[test_idxs])
         df_dict['Decision'] = label
 
