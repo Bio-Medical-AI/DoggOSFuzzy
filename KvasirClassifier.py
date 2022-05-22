@@ -77,11 +77,11 @@ class KvasirExperiments:
                 labels.append(idx)
 
         text_feats = textural_features_mult_images(np.array(images), np.array(masks))
-        print(text_feats.shape)
+        print(np.array(text_feats).shape)
         red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
-        print(red_feats.shape)
+        print(np.array(red_feats).shape)
         rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
-        print(rgb_hsv_feats.shape)
+        print(np.array(rgb_hsv_feats).shape)
         # data.append(features)
         #
         # df_dict = {}
