@@ -114,7 +114,9 @@ class KvasirExperiments:
         for i, features in enumerate(data):
             if standarize:
                 scaler = StandardScaler()
+                print(features.shape)
                 features = scaler.fit_transform(features.reshape(-1, 1), label)
+                print(features.shape)
             df_dict[f'F{i}'] = list(features)
 
         split = np.empty_like(data[0], dtype='object')
