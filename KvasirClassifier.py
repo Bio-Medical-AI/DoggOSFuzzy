@@ -75,13 +75,13 @@ class KvasirExperiments:
                 masks.append(np.ones_like(images[-1][:, :, 0]))
                 labels.append(idx)
 
-        text_feats = textural_features_mult_images(np.array(images), np.array(masks))
-        red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
-        rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
+        text_feats = textural_features_mult_images(np.array(images)[:10], np.array(masks)[:10])
+        red_feats = red_prop_features_mult_images(np.array(images)[:10], np.array(masks)[:10])
+        rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images)[:10], np.array(masks)[:10])
         data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
 
         df_dict = {}
-        df_dict['Label'] = labels
+        df_dict['Label'] = labels[:10]
 
         for i, features in enumerate(data):
             df_dict[f'F{i}'] = features
