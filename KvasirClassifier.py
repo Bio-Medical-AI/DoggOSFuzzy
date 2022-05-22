@@ -85,19 +85,19 @@ class KvasirExperiments:
         for i in range(len(data[0])):
             df_dict[f'F{i}'] = []
 
-        df_dict['Label'] = []
+        df_dict['Label'] = labels
 
-        for features, label in zip(data, labels):
+        for features in data:
             for i, feature in enumerate(features):
                 df_dict[f'F{i}'].append(feature)
-            df_dict['Label'].append(label)
 
         self.data = pd.DataFrame(df_dict)
         print(self.data['Label'])
-        print(self.data.drop(['Label']))
+        print(len(labels))
+        print(self.data.drop(['Label'], axis=1))
         print(self.data.head())
         print(self.data.describe())
-        X_train, X_test, y_train, y_test = train_test_split(self.data.drop(columns=['Label']), self.data['Label'],
+        X_train, X_test, y_train, y_test = train_test_split(self.data.drop(columns=['Label'], axis=1), self.data['Label'],
                                                             self.test_size, random_state=42, stratify=self.data['Label'],
                                                             shuffle=True)
         self.X_train = X_train
