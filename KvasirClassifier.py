@@ -93,6 +93,10 @@ class KvasirExperiments:
             df_dict['Label'].append(label)
 
         self.data = pd.DataFrame(df_dict)
+        print(self.data['Label'])
+        print(self.data.drop(['Label']))
+        print(self.data.head())
+        print(self.data.describe())
         X_train, X_test, y_train, y_test = train_test_split(self.data.drop(columns=['Label']), self.data['Label'],
                                                             self.test_size, random_state=42, stratify=self.data['Label'],
                                                             shuffle=True)
