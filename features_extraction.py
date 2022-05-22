@@ -394,6 +394,7 @@ def red_prop_features_mult_images(images_rgb, masks):
     r_vals = images_rgb[:, :, :, 0][masks]
     g_vals = images_rgb[:, :, :, 1][masks]
     b_vals = images_rgb[:, :, :, 2][masks]
+    print(r_vals.shape)
     r_sum = r_vals.sum(axis=(1, 2))
     g_sum = g_vals.sum(axis=(1, 2))
     b_sum = b_vals.sum(axis=(1, 2))
