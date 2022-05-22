@@ -397,8 +397,8 @@ def red_prop_features_mult_images(images_rgb, masks):
     r_sum = r_vals.sum(axis=1)
     g_sum = g_vals.sum(axis=1)
     b_sum = b_vals.sum(axis=1)
-    print(r_vals.shape)
-    print(r_sum.shape)
+    print(r_vals[0])
+    print(r_sum[0])
     c1 = r_sum / g_sum
     c2 = r_sum / b_sum
     c3 = r_sum / (r_sum + g_sum + b_sum)  # chromacity
@@ -408,7 +408,7 @@ def red_prop_features_mult_images(images_rgb, masks):
     #     c4.append(r_val / (np.sqrt(g_val ** 2 + b_val ** 2) + 1e-5))
     #     c5.append(1 - (np.min([g_val, b_val]) / (r_val + 1e-5)))
     # , np.mean(c4), np.mean(c5)
-    print(c1.shape)
+    print(c1[0])
     return c1, c2, c3
 
 
