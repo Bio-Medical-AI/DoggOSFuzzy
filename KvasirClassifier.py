@@ -99,7 +99,8 @@ class KvasirExperiments:
         #data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
         data = []
         for train_feature, test_feature in zip(train_text_feats, test_text_feats):
-            feature = train_feature.extend(test_feature)
+            feature = list(train_feature)
+            feature.extend(list(test_feature))
             data.append(feature)
 
         df_dict = {}
