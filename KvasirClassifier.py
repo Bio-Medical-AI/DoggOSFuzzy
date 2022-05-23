@@ -94,6 +94,8 @@ class KvasirExperiments:
                                                          masks[train_undersampled['Index'].values.astype('int32')]))
         test_text_feats = np.array(textural_features_mult_images(images[test_idxs],
                                                         masks[test_idxs]))
+        print(f'train_text_feats shape {train_text_feats.shape}')
+        print(f'test_text_feats shape {test_text_feats.shape}')
         #red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
         #rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
         #data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
@@ -101,15 +103,12 @@ class KvasirExperiments:
         for train_feature, test_feature in zip(train_text_feats, test_text_feats):
             feature = list(train_feature)
             feature.extend(list(test_feature))
+            print(f'feature concated shape {len(feature)}')
             data.append(feature)
 
         df_dict = {}
         label = list(train_undersampled['Decision'].values)
         label.extend(labels[test_idxs])
-        if pca_:
-            pca = PCA()
-            data = pca.fit_transform(data, label)
-            print(pca.explained_variance_ratio_)
 
         for i, features in enumerate(data):
             if standarize:
@@ -117,6 +116,14 @@ class KvasirExperiments:
                 print(features.shape)
                 features = scaler.fit_transform(features.reshape(-1, 1), label)
                 print(features.shape)
+            data[i] = features
+
+        if pca_:
+            pca = PCA()
+            data = pca.fit_transform(data, label)
+            print(pca.explained_variance_ratio_)
+
+        for i, features in enumerate(data):
             df_dict[f'F{i}'] = list(features)
 
         split = np.empty_like(data[0], dtype='object')
