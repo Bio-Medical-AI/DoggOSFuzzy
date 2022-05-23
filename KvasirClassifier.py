@@ -120,12 +120,15 @@ class KvasirExperiments:
             data[i] = list(features)
             print(len(data[i]))
 
+        data = np.array(data).T
+        print(data.shape)
+
         if pca_:
             pca = PCA()
             data = pca.fit_transform(data, label)
             print(pca.explained_variance_ratio_)
 
-        for i, features in enumerate(data):
+        for i, features in enumerate(data.T):
             df_dict[f'F{i}'] = list(features)
 
         split = np.empty_like(data[0], dtype='object')
