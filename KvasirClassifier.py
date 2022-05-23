@@ -131,7 +131,7 @@ class KvasirExperiments:
         for i, features in enumerate(data.T):
             df_dict[f'F{i}'] = list(features)
 
-        split = np.empty_like(data[0], dtype='object')
+        split = np.empty_like(data.T[0], dtype='object')
         split[:train_text_feats.shape[1]] = 'train'
         split[train_text_feats.shape[1]:] = 'test'
         df_dict['Split'] = split
