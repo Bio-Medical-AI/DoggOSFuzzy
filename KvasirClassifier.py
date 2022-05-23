@@ -113,9 +113,10 @@ class KvasirExperiments:
         for i, features in enumerate(data):
             if standarize:
                 scaler = StandardScaler()
+                features = np.array(features)
                 print(features.shape)
                 features = scaler.fit_transform(features.reshape(-1, 1), label)
-                print(features.shape)
+                print(f'After scaler {features.shape}')
             data[i] = features
 
         if pca_:
