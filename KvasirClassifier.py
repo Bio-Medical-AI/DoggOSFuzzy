@@ -120,7 +120,7 @@ class KvasirExperiments:
             data[i] = list(features)
             print(len(data[i]))
 
-        data = np.array(data).T
+        data = np.array(data).T[0]
         print(data.shape)
 
         if pca_:
