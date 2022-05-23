@@ -117,7 +117,8 @@ class KvasirExperiments:
                 print(features.shape)
                 features = scaler.fit_transform(features.reshape(-1, 1), label)
                 print(f'After scaler {features.shape}')
-            data[i] = features
+            data[i] = list(features)
+            print(len(data[i]))
 
         if pca_:
             pca = PCA()
