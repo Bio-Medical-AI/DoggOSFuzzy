@@ -232,11 +232,12 @@ class KvasirExperiments:
                                   ros=False,
                                   rus=False):
         train = self.train
+        print(train.values.shape)
         if ros:
             train = self.random_oversampling(train).astype('float')
         if rus:
             train = self.random_undersampling(train).astype('float')
-
+        print(train.values.shape)
         try:
             ts, rules, train_fitness = self.fit_fitness(train, classification)
         except ValueError:
