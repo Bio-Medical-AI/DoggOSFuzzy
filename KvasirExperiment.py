@@ -45,15 +45,18 @@ def main():
                 for n_mf in n_mfs:
                     print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
 
-                    cmaes = prepare_cmaes(n_params[sys.argv[1]])
+                    cmaes = prepare_cmaes(n_params['Kvasir'])
 
                     experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
                                                      fuzzy_set_type='it2')
 
-                    experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
-                                                                metaheuristic=cmaes,
-                                                                ros=True,
-                                                                n_folds=int(sys.argv[2]))
+                    # experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
+                    #                                             metaheuristic=cmaes,
+                    #                                             ros=True,
+                    #                                             n_folds=int(sys.argv[2]))
+                    experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
+                                                          metaheuristic=cmaes,
+                                                          ros=True)
 
 
 def threshold_classification(theta):
