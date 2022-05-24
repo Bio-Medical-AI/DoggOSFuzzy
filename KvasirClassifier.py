@@ -140,7 +140,7 @@ class KvasirExperiments:
         for vals in df_dict.values():
             print(len(vals))
         self.data = pd.DataFrame(df_dict)
-        self.train, self.test = self.data.loc[self.data['split'] == 'train'], self.data.loc[self.data['split'] == 'test']
+        self.train, self.test = self.data.loc[self.data['Split'] == 'train'], self.data.loc[self.data['Split'] == 'test']
         self.train = self.train.drop(['Split'], axis=1)
         self.test = self.test.drop(['Split'], axis=1)
         self.train_y = self.train['Decision']
