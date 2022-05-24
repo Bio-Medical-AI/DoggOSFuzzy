@@ -146,6 +146,15 @@ class KvasirExperiments:
         self.train_y = self.train['Decision']
         self.test_y = self.test['Decision']
 
+        self.train = self.train.drop(['Decision'], axis=1)
+        self.test = self.test.drop(['Decision'], axis=1)
+
+        self.decision_name = 'Decision'
+        self.n_classes = 2
+        self.features_names = df_dict.keys()[:-2]
+        for column in self.train.columns:
+            self.mid_evs.append(np.mean(self.train[column].values))
+
     def prepare_fuzzy_system(self,
                              fuzzy_domain=Domain(0, 1.001, 0.001),
                              mf_type='gaussian',
