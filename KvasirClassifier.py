@@ -151,7 +151,7 @@ class KvasirExperiments:
 
         self.decision_name = 'Decision'
         self.n_classes = 2
-        self.features_names = df_dict.keys()[:-2]
+        self.features_names = list(df_dict.keys())[:-2]
         for column in self.train.columns:
             self.mid_evs.append(np.mean(self.train[column].values))
 
