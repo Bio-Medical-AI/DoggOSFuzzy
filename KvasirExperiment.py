@@ -39,21 +39,21 @@ def main():
     experiments = KvasirExperiments(logger)
     experiments.load_data('labelled_images/', ['angiectasia', 'normal_clean_mucosa'], pca_=True, standarize=True)
 
-    # for ls in lower_scalings:
-    #     for mode in modes:
-    #         for adjustment in adjustments:
-    #             for n_mf in n_mfs:
-    #                 print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
-    #
-    #                 cmaes = prepare_cmaes(n_params[sys.argv[1]])
-    #
-    #                 experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
-    #                                                  fuzzy_set_type='it2')
-    #
-    #                 experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
-    #                                                             metaheuristic=cmaes,
-    #                                                             ros=True,
-    #                                                             n_folds=int(sys.argv[2]))
+    for ls in lower_scalings:
+        for mode in modes:
+            for adjustment in adjustments:
+                for n_mf in n_mfs:
+                    print(f'mode: {mode} adjustment: {adjustment} n_mfs {n_mf} lower_scaling {ls}')
+
+                    cmaes = prepare_cmaes(n_params[sys.argv[1]])
+
+                    experiments.prepare_fuzzy_system(n_mfs=n_mf, mode=mode, adjustment=adjustment, lower_scaling=ls,
+                                                     fuzzy_set_type='it2')
+
+                    experiments.select_optimal_parameters_kfold(threshold_classification(THRESHOLD),
+                                                                metaheuristic=cmaes,
+                                                                ros=True,
+                                                                n_folds=int(sys.argv[2]))
 
 
 def threshold_classification(theta):
