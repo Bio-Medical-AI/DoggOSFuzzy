@@ -146,9 +146,6 @@ class KvasirExperiments:
         self.train_y = self.train['Decision']
         self.test_y = self.test['Decision']
 
-        self.train = self.train.drop(['Decision'], axis=1)
-        self.test = self.test.drop(['Decision'], axis=1)
-
         self.decision_name = 'Decision'
         self.n_classes = 2
         self.feature_names = list(df_dict.keys())[:-2]
@@ -232,10 +229,13 @@ class KvasirExperiments:
     def select_optimal_parameters(self,
                                   classification,
                                   metaheuristic,
-                                  ros=False):
+                                  ros=False,
+                                  rus=False):
         train = self.train
         if ros:
             train = self.random_oversampling(train).astype('float')
+        if rus:
+            train = self.random_undersampling(train).astype('float')
 
         try:
             ts, rules, train_fitness = self.fit_fitness(train, classification)
