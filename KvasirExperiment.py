@@ -28,7 +28,7 @@ FUZZY_DEBUG = True
 PSO_DEBUG = True
 
 n_params = {
-    'Kvasir': 10
+    'Kvasir': 18
 }
 
 

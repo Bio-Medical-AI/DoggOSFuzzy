@@ -150,7 +150,7 @@ class KvasirExperiments:
         print(data.shape)
 
         if pca_:
-            pca = PCA(n_components=4)
+            pca = PCA(n_components=8)
             data = pca.fit_transform(data, label)
             print(pca.explained_variance_ratio_)
 
