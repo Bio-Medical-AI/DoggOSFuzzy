@@ -96,14 +96,40 @@ class KvasirExperiments:
                                                         masks[test_idxs]))
         print(f'train_text_feats shape {train_text_feats.shape}')
         print(f'test_text_feats shape {test_text_feats.shape}')
-        #red_feats = red_prop_features_mult_images(np.array(images), np.array(masks))
-        #rgb_hsv_feats = rgb_hsv_means_mult_images(np.array(images), np.array(masks))
-        #data = list(text_feats) + list(red_feats) + list(rgb_hsv_feats)
+        train_red_feats = []
+        train_rgb_hsv_feats = []
+        for image, mask in zip(images[train_undersampled['Index'].values.astype('int32')], masks[train_undersampled['Index'].values.astype('int32')]):
+            train_red_feats.append(red_prop_features(image, mask))
+            train_rgb_hsv_feats.append(rgb_hsv_means(image, mask))
+        train_red_feats = np.array(train_red_feats)
+        train_rgb_hsv_feats = np.array(train_rgb_hsv_feats)
+
+        test_red_feats = []
+        test_rgb_hsv_feats = []
+        for image, mask in zip(images[test_idxs],
+                               masks[test_idxs]):
+            test_red_feats.append(red_prop_features(image, mask))
+            test_rgb_hsv_feats.append(rgb_hsv_means(image, mask))
+        test_red_feats = np.array(test_red_feats)
+        test_rgb_hsv_feats = np.array(test_rgb_hsv_feats)
+
         data = []
         for train_feature, test_feature in zip(train_text_feats, test_text_feats):
             feature = list(train_feature)
             feature.extend(list(test_feature))
             print(f'feature concated shape {len(feature)}')
+            data.append(feature)
+
+        for train_red, test_red in zip(train_red_feats.T, test_red_feats.T):
+            feature = list(train_red)
+            feature.extend(list(test_red))
+            print(f'feature red concated shape {len(feature)}')
+            data.append(feature)
+
+        for train_rgb, test_rgb in zip(train_rgb_hsv_feats.T, test_rgb_hsv_feats.T):
+            feature = list(train_rgb)
+            feature.extend(list(test_rgb))
+            print(f'feature red concated shape {len(feature)}')
             data.append(feature)
 
         df_dict = {}
