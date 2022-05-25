@@ -129,7 +129,7 @@ class KvasirExperiments:
         for train_rgb, test_rgb in zip(train_rgb_hsv_feats.T, test_rgb_hsv_feats.T):
             feature = list(train_rgb)
             feature.extend(list(test_rgb))
-            print(f'feature red concated shape {len(feature)}')
+            print(f'feature rgb concated shape {len(feature)}')
             data.append(feature)
 
         df_dict = {}
