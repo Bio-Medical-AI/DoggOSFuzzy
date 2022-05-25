@@ -55,9 +55,7 @@ def main():
                     #                                             ros=True,
                     #                                             n_folds=int(sys.argv[2]))
                     experiments.select_optimal_parameters(threshold_classification(THRESHOLD),
-                                                          metaheuristic=cmaes,
-                                                          ros=False,
-                                                          rus=True)
+                                                          metaheuristic=cmaes)
 
 
 def threshold_classification(theta):
