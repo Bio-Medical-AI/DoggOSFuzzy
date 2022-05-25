@@ -37,7 +37,7 @@ def main():
     logger = Logger("kvasir_cmaes", 'kvasir')
 
     experiments = KvasirExperiments(logger)
-    experiments.load_data('labelled_images/', ['angiectasia', 'normal_clean_mucosa'], pca_=True, standarize=True)
+    experiments.load_data('labelled_images/', ['blood_fresh', 'normal_clean_mucosa'], pca_=True, standarize=True)
 
     for ls in lower_scalings:
         for mode in modes:
